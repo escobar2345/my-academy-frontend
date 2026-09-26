@@ -15,42 +15,65 @@
     />
 
     <!-- Mobile header -->
-    <header class="lg:hidden sticky top-0 z-40 flex items-center gap-3 px-4 py-3 border-b border-white/[0.06] bg-[#090e1a]/95 backdrop-blur-xl">
-      <button @click="mobileMenuOpen = true" class="w-10 h-10 rounded-xl border border-white/[0.06] bg-[#101a2e] grid place-items-center">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-          <path d="M3 12h18M3 6h18M3 18h18" />
-        </svg>
-      </button>
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-sm font-semibold">{{ brandInitial }}</div>
-        <span class="font-serif text-lg tracking-tight truncate max-w-[180px]">{{ brandFirst }}<i v-if="brandAccent" class="text-[#3ce6c3]">{{ brandAccent }}</i></span>
-      </div>
-      <div class="ml-auto flex items-center gap-2">
-        <div class="relative">
-          <button @click.stop="bellOpen = !bellOpen" class="w-10 h-10 rounded-xl border border-white/[0.06] bg-[#101a2e] grid place-items-center">
-            <BellIcon class="w-[18px] h-[18px] text-slate-400" />
-            <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 min-w-[17px] h-[17px] rounded-full bg-[#ff7a6b] text-white text-[10px] font-bold grid place-items-center px-1">{{ unreadCount }}</span>
-          </button>
-          <Transition name="pop">
-            <div v-if="bellOpen" class="absolute right-0 top-12 w-[300px] bg-[#101a2e] border border-white/[0.12] rounded-2xl shadow-2xl shadow-black/60 p-2 z-50">
-              <div v-for="(n, i) in notifications" :key="i" @click="readNotif(i)" class="flex gap-3 p-2.5 rounded-lg cursor-pointer hover:bg-[#3ce6c3]/5 transition">
-                <span :class="['w-2 h-2 rounded-full mt-2 shrink-0', n.read ? 'bg-slate-500' : 'bg-[#3ce6c3]']"></span>
-                <div class="min-w-0">
-                  <p class="text-[13px] font-semibold truncate">{{ n.text }}</p>
-                  <small class="text-slate-500 text-[11px]">{{ n.meta }}</small>
-                </div>
-              </div>
-            </div>
-          </Transition>
+    <header class="lg:hidden sticky top-0 z-40 border-b border-white/[0.06] bg-[#090e1a]/95 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
+      <div class="flex items-center gap-2.5 px-3 sm:px-4 py-2.5">
+        <button @click="mobileMenuOpen = true" aria-label="Open menu" class="w-11 h-11 shrink-0 rounded-xl border border-white/[0.06] bg-[#101a2e] grid place-items-center active:scale-95 transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M3 12h18M3 6h18M3 18h18" />
+          </svg>
+        </button>
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-sm font-semibold shrink-0">{{ brandInitial }}</div>
+          <span class="font-serif text-lg tracking-tight truncate">{{ brandFirst }}<i v-if="brandAccent" class="text-[#3ce6c3]">{{ brandAccent }}</i></span>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1d3a5f] to-[#122544] border border-white/[0.1] grid place-items-center font-serif text-[#3ce6c3] text-[13px]">{{ studentInitials }}</div>
+        <div class="ml-auto flex items-center gap-2 shrink-0">
+          <div class="font-mono text-[11px] text-[#3ce6c3] bg-[#3ce6c3]/8 border border-[#3ce6c3]/25 px-2 py-1.5 rounded-lg tracking-[0.1em] tabular-nums">{{ clockTime }}</div>
+          <button @click="mobileSearchOpen = !mobileSearchOpen" :aria-expanded="mobileSearchOpen ? 'true' : 'false'" aria-label="Search" class="w-11 h-11 rounded-xl border border-white/[0.06] bg-[#101a2e] grid place-items-center active:scale-95 transition">
+            <SearchIcon class="w-[18px] h-[18px] text-slate-400" />
+          </button>
+          <div class="relative">
+            <button @click.stop="bellOpen = !bellOpen" aria-label="Notifications" class="w-11 h-11 rounded-xl border border-white/[0.06] bg-[#101a2e] grid place-items-center active:scale-95 transition">
+              <BellIcon class="w-[18px] h-[18px] text-slate-400" />
+              <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 min-w-[17px] h-[17px] rounded-full bg-[#ff7a6b] text-white text-[10px] font-bold grid place-items-center px-1">{{ unreadCount }}</span>
+            </button>
+            <Transition name="pop">
+              <div v-if="bellOpen" class="fixed sm:absolute left-3 sm:left-auto right-3 sm:right-0 top-[calc(100%+10px)] w-auto sm:w-[300px] viewport-height-70 overflow-y-auto bg-[#101a2e] border border-white/[0.12] rounded-2xl shadow-2xl shadow-black/60 p-2 z-50">
+                <div v-for="(n, i) in notifications" :key="i" @click="readNotif(i)" class="flex gap-3 p-2.5 rounded-lg cursor-pointer hover:bg-[#3ce6c3]/5 active:bg-[#3ce6c3]/10 transition">
+                  <span :class="['w-2 h-2 rounded-full mt-2 shrink-0', n.read ? 'bg-slate-500' : 'bg-[#3ce6c3]']"></span>
+                  <div class="min-w-0">
+                    <p class="text-[13px] font-semibold truncate">{{ n.text }}</p>
+                    <small class="text-slate-500 text-[11px]">{{ n.meta }}</small>
+                  </div>
+                </div>
+                <p v-if="!notifications.length" class="text-[12px] text-slate-500 text-center py-4">No notifications yet</p>
+              </div>
+            </Transition>
+          </div>
+          <button @click="mobileMenuOpen = true" aria-label="Your profile" class="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1d3a5f] to-[#122544] border border-white/[0.1] grid place-items-center font-serif text-[#3ce6c3] text-[13px] active:scale-95 transition">{{ studentInitials }}</button>
+        </div>
       </div>
+      <!-- Mobile search: the desktop topbar search is hidden below lg, so without
+           this the portal has no search at all on a phone. -->
+      <Transition name="pop">
+        <div v-if="mobileSearchOpen" class="px-3 sm:px-4 pb-2.5">
+          <div class="flex items-center gap-2 bg-[#101a2e] border border-white/[0.06] rounded-xl px-3 py-2.5 focus-within:border-[#3ce6c3]/50 focus-within:ring-4 focus-within:ring-[#3ce6c3]/10 transition">
+            <SearchIcon class="w-4 h-4 text-slate-500 shrink-0" />
+            <input v-model="globalSearch" @keydown.enter="jumpToLibrary" type="search" enterkeyhint="search" placeholder="Search materials, classes…" class="bg-transparent border-none outline-none text-[13px] text-white w-full placeholder:text-slate-500" />
+            <button @click="globalSearch = ''; mobileSearchOpen = false" aria-label="Close search" class="text-slate-500 hover:text-white transition shrink-0">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+      </Transition>
     </header>
 
     <!-- Mobile menu overlay -->
     <Transition name="slide">
       <div v-if="mobileMenuOpen" class="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" @click="mobileMenuOpen = false">
-        <div class="w-[280px] h-full bg-gradient-to-b from-[#0d1424] to-[#080c16] border-r border-white/[0.06] p-5 overflow-y-auto" @click.stop>
+        <!-- dvh + safe-area insets: h-full ignored the collapsing URL bar on
+             mobile browsers, and the bottom Log out button sat under the iOS
+             home indicator. The drawer is its own scroll container. -->
+        <div class="w-[280px] max-w-[85vw] h-full max-h-[100dvh] bg-gradient-to-b from-[#0d1424] to-[#080c16] border-r border-white/[0.06] p-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-[calc(1.25rem+env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain" @click.stop>
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-lg font-semibold">{{ brandInitial }}</div>
@@ -102,7 +125,11 @@
     </Transition>
 
     <!-- Main grid -->
-    <div class="relative z-10 grid lg:grid-cols-[280px_1fr] max-w-[1580px] mx-auto min-h-screen">
+    <!-- min-h-0 (not min-h-screen): on phones the sticky header above is part of
+         the same document flow, so a min-h-screen grid would add a full extra
+         viewport of dead space under the last card. lg:min-h-screen restores the
+         fixed app-shell on desktop, where the sidebar is h-screen + sticky. -->
+    <div class="relative z-10 grid lg:grid-cols-[280px_1fr] max-w-[1580px] mx-auto min-h-0 lg:min-h-screen">
       <!-- ================= SIDEBAR (Desktop only) ================= -->
       <aside class="hidden lg:flex sticky top-0 h-screen flex-col gap-4 p-5 border-r border-white/[0.06] bg-gradient-to-b from-[#0d1424]/95 to-[#080c16]/85 backdrop-blur-xl overflow-hidden">
         <div class="flex items-center gap-3 px-1.5">
@@ -153,7 +180,13 @@
       </aside>
 
       <!-- ================= MAIN ================= -->
-      <main class="flex flex-col min-w-0 h-screen overflow-hidden">
+      <!-- Mobile: normal document flow, so the page scrolls with the browser
+           (correct on iOS/Android where the URL bar changes height mid-scroll).
+           Desktop: h-screen + a single inner scroller for the fixed app-shell.
+           The previous h-screen/overflow-hidden on both breakpoints put the
+           content in a 100vh box that ignored the sticky header above it,
+           clipping the last card and leaving a dead scroll zone. -->
+      <main class="flex flex-col min-w-0 min-h-0 lg:h-screen lg:overflow-hidden">
         <!-- Topbar (Desktop only) -->
         <header class="hidden lg:flex sticky top-0 z-30 items-center gap-4 px-7 py-3.5 border-b border-white/[0.06] bg-[#090e1a]/80 backdrop-blur-xl">
           <div class="text-[13px] text-slate-500 font-medium">
@@ -185,7 +218,10 @@
         </header>
 
         <!-- Content -->
-        <div class="p-4 lg:p-7 flex-1 min-w-0 overflow-y-auto h-full">
+        <!-- pb-28 on phones clears the fixed WhatsApp FAB + toast stack, which
+             would otherwise sit on top of the last card. lg:pb-7 restores the
+             tighter desktop gutter. -->
+        <div ref="contentPane" id="contentPane" class="p-4 lg:p-7 flex-1 min-w-0 pb-28 lg:pb-7 lg:overflow-y-auto lg:h-full">
           <!-- ========== DASHBOARD ========== -->
           <section v-show="currentView === 'dashboard'" class="space-y-4 lg:space-y-5">
             <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
@@ -740,7 +776,11 @@
                 <WhatsAppIcon class="w-4 h-4" /> Open in WhatsApp
               </button>
             </div>
-            <div class="grid lg:grid-cols-[280px_1fr] gap-4" style="height: calc(100vh - 180px); min-height: 480px;">
+            <!-- dvh, not vh: on mobile browsers the URL bar expands/collapses the
+                 visible viewport, so a 100vh box overflows the screen and the
+                 message list + composer get cut off. lg:min-h-0 lets the grid
+                 row be driven by the parent instead. -->
+            <div class="grid lg:grid-cols-[280px_1fr] gap-4 h-[calc(100dvh-200px)] min-h-[440px] lg:h-[calc(100dvh-190px)] lg:min-h-[480px]">
               <div class="hidden lg:flex flex-col gap-3.5 overflow-y-auto">
                 <div class="relative overflow-hidden bg-gradient-to-b from-[#101a2e] to-[#101a2e]/65 border border-white/[0.06] rounded-2xl p-5 hover:border-white/[0.12] transition">
                   <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#25d366] to-transparent" />
@@ -904,13 +944,14 @@
     </div>
 
     <!-- FAB (hidden on mobile chat view) -->
-    <button v-if="currentView !== 'chat'" @click="go('chat')" class="fixed right-4 lg:right-6 bottom-4 lg:bottom-6 z-50 w-[52px] h-[52px] lg:w-[58px] lg:h-[58px] rounded-2xl bg-gradient-to-br from-[#25d366] to-[#0f8c56] grid place-items-center shadow-xl shadow-[#25d366]/40 hover:-translate-y-1 hover:scale-105 transition-all fab-ping">
+    <button v-if="currentView !== 'chat'" @click="go('chat')" aria-label="Open cohort chat" class="fab-safe fixed right-4 lg:right-6 bottom-4 lg:bottom-6 z-50 w-[52px] h-[52px] lg:w-[58px] lg:h-[58px] rounded-2xl bg-gradient-to-br from-[#25d366] to-[#0f8c56] grid place-items-center shadow-xl shadow-[#25d366]/40 hover:-translate-y-1 hover:scale-105 transition-all fab-ping">
       <WhatsAppIcon class="w-6 h-6 lg:w-7 lg:h-7 fill-[#04140b]" />
       <span class="absolute -top-1 -right-1 min-w-[15px] h-[15px] lg:min-w-[17px] lg:h-[17px] rounded-full bg-[#ff7a6b] text-white text-[9px] lg:text-[10px] font-bold grid place-items-center px-1">5</span>
     </button>
 
-    <!-- Toasts -->
-    <div class="fixed left-4 lg:left-6 bottom-4 lg:bottom-6 z-[70] flex flex-col gap-2.5 max-w-[calc(100vw-2rem)]">
+    <!-- Toasts: on phones this is pushed ABOVE the fixed WhatsApp FAB and
+         capped at calc(100% - 5rem) so it cannot sit on top of it. -->
+    <div class="toast-safe fixed left-4 lg:left-6 bottom-4 lg:bottom-6 z-[70] flex flex-col gap-2.5 max-w-[calc(100vw-2rem)] lg:max-w-[380px]">
       <TransitionGroup name="toast">
         <div v-for="t in toasts" :key="t.id" :class="['flex items-center gap-2.5 bg-[#101a2e] border rounded-xl px-4 py-3 text-[12px] lg:text-[13px] font-medium shadow-2xl shadow-black/60 max-w-full', t.type === 'warn' ? 'border-l-[3px] border-l-[#ffb454] border-white/[0.12]' : 'border-l-[3px] border-l-[#3ce6c3] border-white/[0.12]']">
           <i :class="['w-2 h-2 rounded-full shrink-0', t.type === 'warn' ? 'bg-[#ffb454]' : 'bg-[#3ce6c3]']"></i>
@@ -922,7 +963,7 @@
     <!-- Reader Modal -->
     <Transition name="modal">
       <div v-if="readerModal" @click.self="readerModal = null" class="fixed inset-0 z-[80] grid place-items-center bg-black/75 backdrop-blur-md p-4">
-        <div class="w-full max-w-[680px] max-h-[88vh] overflow-auto bg-[#0b1120] border border-white/[0.12] rounded-2xl p-4 lg:p-6">
+        <div class="w-full max-w-[680px] max-h-[88dvh] overflow-auto bg-[#0b1120] border border-white/[0.12] rounded-2xl p-4 lg:p-6">
           <div class="flex justify-between items-start mb-4">
             <div class="min-w-0 pr-3"><span class="text-[10.5px] uppercase tracking-[0.24em] text-slate-500 font-semibold">{{ readerCourse ? 'AI Lesson · ' + readerCourse.level : 'PDF Reader' }}</span><h3 class="font-serif text-lg lg:text-xl tracking-tight mt-1 truncate">{{ readerModal.title }}</h3></div>
             <button @click="readerModal = null" class="w-[34px] h-[34px] rounded-lg border border-white/[0.06] grid place-items-center text-slate-400 hover:text-[#ff7a6b] hover:border-[#ff7a6b] transition shrink-0">✕</button>
@@ -1165,7 +1206,7 @@
     <Transition name="modal">
       <div v-if="pdfShield" class="fixed inset-0 z-[85] grid place-items-center bg-black/85 backdrop-blur-md p-3 lg:p-6 select-none"
            @contextmenu.prevent @copy.prevent @cut.prevent @dragstart.prevent>
-        <div class="w-full max-w-[920px] h-[88vh] bg-[#0b1120] border border-white/[0.12] rounded-2xl flex flex-col overflow-hidden">
+        <div class="w-full max-w-[920px] viewport-height-88 bg-[#0b1120] border border-white/[0.12] rounded-2xl flex flex-col overflow-hidden">
           <div class="flex justify-between items-center gap-3 px-4 py-3 border-b border-white/[0.08] shrink-0">
             <div class="min-w-0 flex items-center gap-2.5">
               <span class="shrink-0 inline-flex items-center gap-1.5 text-[9.5px] font-bold tracking-[0.16em] px-2 py-1 rounded bg-[#ff7a6b]/15 text-[#ff7a6b] border border-[#ff7a6b]/30"><LockIcon class="w-3 h-3" /> READ-ONLY</span>
@@ -1365,9 +1406,17 @@ const route = useRoute();
 const threeCanvas = ref(null);
 const progressBar = ref(null);
 const bellWrap = ref(null);
+// The scrollable content pane. go() resets scroll through this instead of
+// document.querySelector('.overflow-y-auto'), which used to match the mobile
+// drawer's own scroller and silently do nothing.
+const contentPane = ref(null);
 const threadRef = ref(null);
 
 const mobileMenuOpen = ref(false);
+// The mobile header search sheet. Declared here (rather than inline in the
+// template) so the toggle is a real reactive ref shared by the button, the
+// v-if and the clear/close button.
+const mobileSearchOpen = ref(false);
 const currentView = ref('dashboard');
 const clockTime = ref('--:--:--');
 const bellOpen = ref(false);
@@ -1826,8 +1875,10 @@ function go(p) {
   currentView.value = p;
   bellOpen.value = false;
   mobileMenuOpen.value = false;
-  const panel = document.querySelector('.overflow-y-auto');
-  if (panel) panel.scrollTop = 0;
+  // Desktop scrolls the inner pane; on mobile the document itself scrolls, so
+  // the pane is not a scroll container and only window.scrollTo applies.
+  if (contentPane.value) contentPane.value.scrollTop = 0;
+  if (window.scrollY > 0) window.scrollTo({ top: 0 });
   document.title = pageTitles[p] + ' · ' + brandName.value;
   flashProgress();
   if (p === 'dashboard') animateDial(1);
@@ -3621,6 +3672,68 @@ watch(() => route.query.view, (v, old) => {
 .toast-leave-active { transition: all 0.3s ease-in; }
 .toast-enter-from { opacity: 0; transform: translateX(-24px); }
 .toast-leave-to { opacity: 0; transform: translateX(-24px); }
+
+/* ==========================================================================
+   MOBILE / TOUCH HARDENING  (max-width: 1023px, i.e. below the lg breakpoint)
+   ========================================================================== */
+@media (max-width: 1023px) {
+  /* iOS Safari zooms the whole page when a focused input's computed
+     font-size is < 16px. text-[12px]/text-[13px] are used all over this
+     component for chips and inputs, so force 16px on real form controls
+     only -- that keeps the visual scale while stopping the zoom. */
+  input, select, textarea { font-size: 16px !important; }
+
+  /* Momentum scrolling for the horizontally scrollable weekly timetable
+     (min-w-[1050px] inside overflow-x-auto) and the drawer. */
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+  .overflow-x-auto > div { scroll-snap-align: start; }
+
+  /* Hide the scrollbar chrome but keep scrolling, so a swipeable strip
+     does not look like a broken/clipped layout. */
+  .overflow-x-auto::-webkit-scrollbar { height: 4px; }
+  .overflow-x-auto::-webkit-scrollbar-thumb { background: #243350; border-radius: 8px; }
+
+  /* Every scrollable region gets a visible, tappable scrollbar on
+     Windows/Chromium touch devices and momentum scroll on iOS. */
+  * { overscroll-behavior-y: contain; }
+
+  /* Tapping a control should not flash a blue iOS highlight or select
+     the label text. */
+  button, a, label, .cursor-pointer { -webkit-tap-highlight-color: transparent; }
+
+  /* The mobile header is sticky, so long pages need breathing room at the
+     bottom for the fixed WhatsApp FAB and the toast stack. */
+  #contentPane { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); }
+}
+
+/* Keep the fixed FAB / toast stack clear of the iOS home indicator, and
+   stack them so the toast never covers the FAB on a phone.
+
+   !important is deliberate and safe here: these rules live INSIDE a
+   max-width media query, so they can never leak onto desktop. They are
+   needed because `.fab-safe` / `.toast-safe` have the same specificity
+   (0,1,0) as Tailwind's own `bottom-4` utility - without !important the
+   winner would depend on which stylesheet Vite happens to emit last. */
+@media (max-width: 1023px) {
+  .fab-safe { bottom: calc(0.75rem + env(safe-area-inset-bottom)) !important; }
+  .toast-safe { bottom: calc(4.75rem + env(safe-area-inset-bottom)) !important; }
+  .toast-safe { max-width: calc(100vw - 2rem); }
+}
+
+/* --------------------------------------------------------------------------
+   Full-height overlays. dvh tracks the *visible* viewport, so on mobile
+   Safari/Chrome the collapsing URL bar no longer pushes the bottom of a
+   panel (the chat composer, the PDF reader) below the screen edge.
+   vh is kept first as the fallback for older iOS Safari.
+   -------------------------------------------------------------------------- */
+.viewport-height-88 { height: 88vh; height: 88dvh; }
+.viewport-height-70 { max-height: 70vh; max-height: 70dvh; }
+
+/* Very small phones (SE / older Androids): pull the base scale down a
+   touch so the 3-up stat cards and the sidebar drawer stop clipping. */
+@media (max-width: 380px) {
+  .font-serif { letter-spacing: -0.01em; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
