@@ -1309,7 +1309,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick, h } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import * as THREE from 'three';
 // Talks to backend/app/boi-rsu/api_server.py (port 5055), which wraps the AI
 // learning system and the boirsu student records. Every call in there resolves
@@ -1361,6 +1361,7 @@ const MaskIcon = mkIcon('M2 9c3-2 6-2 10-2s7 0 10 2c0 4-2 8-5 8-2 0-3-1.5-5-1.5S
 
 // ===================== STATE =====================
 const router = useRouter();
+const route = useRoute();
 const threeCanvas = ref(null);
 const progressBar = ref(null);
 const bellWrap = ref(null);
@@ -1549,7 +1550,13 @@ const preferences = reactive([
 const libTags = ['All', 'Notes', 'Slides', 'Past Papers', 'Manuals'];
 const replies = ['Noted — thank you.', 'Could you share the page number as well?', 'I will review it right after the lab.', 'Adding it to my notes now.', 'Has anyone else attempted question 4?', 'I will save it to the shared folder.'];
 
-const navItems = [
+// A computed (not a plain array) so the Assignments badge reflects rows that
+// arrive after mount: loadClassroomAssignments() resolves asynchronously, so as a
+// plain array the pill was evaluated once during setup and always rendered empty.
+// boi-school/roadmap.vue's sidebar uses the identical computed shape, so both
+// sidebars show the same count. The templates need no change — `v-for="item in
+// navItems"` unwraps a computed automatically.
+const navItems = computed(() => [
   { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
   { id: 'timetable', label: 'My Timetable', icon: CalendarIcon },
   { id: 'library', label: 'Library', icon: BookIcon },
@@ -1558,7 +1565,7 @@ const navItems = [
   { id: 'chat', label: 'Cohort Chat', icon: ChatIcon, pill: '24-B' },
   { id: 'assignments', label: 'Assignments', icon: FileIcon, pill: String(assignments.value.filter(a => a.status[0] === 'Pending').length || '') },
   { id: 'settings', label: 'Settings', icon: SettingsIcon }
-];
+]);
 
 const pageTitles = {
   dashboard: 'Dashboard', timetable: 'My Timetable', library: 'Library', roadmap: 'Roadmap',
@@ -1832,6 +1839,22 @@ function goRoadmap() {
   bellOpen.value = false;
   mobileMenuOpen.value = false;
   router.push('/roadmap')
+}
+
+/**
+ * Deep links: /dashboard?view=<id>. The roadmap sidebar hands off here (see
+ * dashboardTarget() in boi-school/roadmap.vue) so clicking "Library" while on
+ * /roadmap opens Library rather than the dashboard's default tab — that is what
+ * makes the two sidebars behave identically instead of only looking identical.
+ *
+ * Routed through go() on purpose: a query string must respect the same
+ * monthly-fees gate every nav click does, so it can never be used to bypass the
+ * paywall. Unknown ids and 'roadmap' (which is its own route) are ignored.
+ */
+function applyViewFromQuery() {
+  const v = String(route.query.view || '');
+  if (!v || !pageTitles[v] || v === 'roadmap') return;
+  go(v);
 }
 
 function flashProgress() {
@@ -3490,8 +3513,12 @@ onMounted(() => {
   initThree();
   animateDial(1);
   // Deliberately not awaited: the whole view is already rendered on demo data,
-  // and initBackend() swaps in real values as they arrive.
-  initBackend();
+  // and initBackend() swaps in real values as they arrive. The ?view= deep link
+  // is applied straight away from the registration snapshot, then re-applied
+  // once the server record lands, so a student whose fees were confirmed after
+  // their last registration still opens the tab they actually asked for.
+  applyViewFromQuery();
+  initBackend().then(applyViewFromQuery);
   // Live link with registration.vue: a new/updated registration (same tab via
   // the custom event, another tab via the storage event, or anything else via
   // the poll) re-hydrates this dashboard instantly — no reload needed.
@@ -3529,6 +3556,14 @@ watch(readerPage, () => {
   if (!readerCourse.value) return;
   resetSectionExtras();
   if (readerTab.value !== 'read') openTab(readerTab.value);
+});
+
+// Browser back/forward between /dashboard and /dashboard?view=library reuses
+// this same component instance, so the query has to be watched — reading it once
+// on mount would leave the second navigation showing the old tab.
+watch(() => route.query.view, (v, old) => {
+  if (v === old) return;
+  applyViewFromQuery();
 });
 </script>
 

@@ -1,47 +1,54 @@
 <template>
   <div class="learning-app">
     <div class="roadmap-shell">
+      <!-- Sidebar markup + classes are kept byte-identical to studentdashboard.vue's
+           desktop aside (same Tailwind strings, same SVG icons, same live identity)
+           so moving between /dashboard and /roadmap does not change the nav. -->
       <aside class="roadmap-shell__sidebar">
-        <div class="sidebar-brand">
-          <div class="brand-mark">{{ brandInitial }}</div>
+        <div class="flex items-center gap-3 px-1.5">
+          <div class="w-10 h-10 rounded-xl bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-lg font-semibold shadow-lg shadow-[#3ce6c3]/30">{{ brandInitial }}</div>
           <div>
-            <div class="brand-name">{{ brandFirst }}<span v-if="brandAccent">{{ brandAccent }}</span></div>
-            <div class="brand-subtitle">Student Portal</div>
+            <div class="font-serif text-xl tracking-tight truncate max-w-[200px]">{{ brandFirst }}<i v-if="brandAccent" class="text-[#3ce6c3]">{{ brandAccent }}</i></div>
+            <div class="text-[10px] uppercase tracking-[0.24em] text-slate-500 font-semibold">Student Portal</div>
           </div>
         </div>
 
-        <div class="sidebar-profile">
-          <div class="profile-avatar">AN</div>
-          <div>
-            <div class="profile-name">Ada Nwosu</div>
-            <div class="profile-meta">NU/CS/24/0157</div>
-            <span class="profile-badge">Cohort 24-B</span>
+        <div class="flex items-center gap-3 p-3 border border-white/[0.06] rounded-2xl bg-gradient-to-br from-[#3ce6c3]/5 to-transparent">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1d3a5f] to-[#122544] border border-white/[0.1] grid place-items-center font-mono text-sm text-[#3ce6c3] shrink-0">{{ studentInitials }}</div>
+          <div class="min-w-0">
+            <div class="font-semibold text-[14.5px] tracking-tight truncate">{{ studentNameLine }}</div>
+            <div class="text-[11px] font-mono tracking-wide text-slate-400 truncate">{{ studentIdLine }}</div>
+            <span class="inline-block mt-1 text-[9.5px] font-bold tracking-[0.14em] uppercase px-2 py-0.5 rounded-md bg-[#ffb454]/15 text-[#ffb454]">{{ studentCohort }}</span>
           </div>
         </div>
 
-        <div class="sidebar-label">Navigate</div>
+        <div class="px-2 text-[10px] uppercase tracking-[0.26em] text-slate-500 font-semibold mt-2">Navigate</div>
 
-        <nav class="sidebar-nav" aria-label="Student routes">
+        <nav class="flex flex-col gap-1 overflow-y-auto pr-1" aria-label="Student routes">
           <button
-            v-for="item in roadmapNavItems"
-            :key="item.route"
+            v-for="item in navItems"
+            :key="item.id"
             type="button"
-            class="sidebar-nav__button"
-            :class="{ 'is-active': item.route === currentSidebarRoute }"
-            @click="navigateFromRoadmap(item.route)"
+            @click="item.id === 'roadmap' ? goRoadmap() : go(item.id)"
+            :class="[
+              'flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-xl font-medium text-[13.5px] border transition-all duration-300',
+              currentView === item.id
+                ? 'text-[#05221b] bg-gradient-to-br from-[#3ce6c3] to-[#8ff2da] font-semibold shadow-lg shadow-[#3ce6c3]/30'
+                : 'text-slate-400 border-transparent hover:text-white hover:bg-[#3ce6c3]/5 hover:border-white/[0.06] hover:translate-x-1'
+            ]"
           >
-            <span class="sidebar-nav__icon">{{ item.icon }}</span>
+            <component :is="item.icon" class="w-[18px] h-[18px] shrink-0" />
             <span>{{ item.label }}</span>
-            <span v-if="item.pill" class="sidebar-nav__pill">{{ item.pill }}</span>
+            <span v-if="item.pill" :class="['ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full', currentView === item.id ? 'bg-black/20 text-[#05221b]' : 'bg-[#ff7a6b]/20 text-[#ff7a6b]']">{{ item.pill }}</span>
           </button>
         </nav>
 
-        <div class="sidebar-footer">
-          <button type="button" class="sidebar-action__primary" @click="navigateFromRoadmap('/dashboard')">
-            Cohort WhatsApp
+        <div class="mt-auto flex flex-col gap-2">
+          <button type="button" @click="go('chat')" class="flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-br from-[#25d366] to-[#128c5e] text-[#04140b] font-semibold text-[13.5px] shadow-lg shadow-[#25d366]/25 hover:-translate-y-0.5 hover:shadow-[#25d366]/40 transition-all duration-300">
+            <WhatsAppIcon class="w-[17px] h-[17px]" /> Cohort WhatsApp
           </button>
-          <button type="button" class="sidebar-action__secondary" @click="navigateFromRoadmap('/dashboard')">
-            Back to dashboard
+          <button type="button" @click="leaveRoadmap" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-500 text-[12.5px] font-medium hover:text-[#ff7a6b] hover:bg-[#ff7a6b]/5 transition">
+            <LogOutIcon class="w-4 h-4" /> Log out
           </button>
         </div>
       </aside>
@@ -237,7 +244,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, nextTick, computed, watch, h } from 'vue'
 import { useRouter } from 'vue-router'
 import * as api from './aiClient.js'
 
@@ -254,25 +261,147 @@ const brandFirst = brandSpace > 0 ? brandFull.slice(0, brandSpace) : brandFull;
 const brandAccent = brandSpace > 0 ? brandFull.slice(brandSpace + 1) : '';
 const brandInitial = (brandFull[0] || 'D').toUpperCase();
 
-const roadmapNavItems = [
-  { label: 'Dashboard', route: '/dashboard', icon: '◫', pill: '' },
-  { label: 'My Timetable', route: '/dashboard', icon: '◌', pill: '' },
-  { label: 'Library', route: '/dashboard', icon: '▣', pill: '' },
-  { label: 'Roadmap', route: '/roadmap', icon: '▤', pill: 'New' },
-  { label: 'Grades & CGPA', route: '/dashboard', icon: '◭', pill: '' },
-  { label: 'Cohort Chat', route: '/dashboard', icon: '◍', pill: '24-B' },
-  { label: 'Assignments', route: '/dashboard', icon: '▨', pill: '3' },
-  { label: 'Settings', route: '/dashboard', icon: '⚙', pill: '' }
-]
+/* ---------------- LIVE IDENTITY - same source as studentdashboard.vue --------
+ * The sidebar profile card used to be hardcoded ("Ada Nwosu", "NU/CS/24/0157",
+ * "Cohort 24-B", "AN") - a persona that never matched the signed-in student, so
+ * the card looked different depending on whether you were on /dashboard or
+ * /roadmap. These now read the same two sources the dashboard does:
+ *   1. the registration snapshot registration.vue wrote (boi_student_profile /
+ *      boi_student_id), applied synchronously so the card is correct on the
+ *      very first paint - no flash of the demo persona;
+ *   2. the live boirsu record (accessStudent), which overrides it once
+ *      fetchAccessStudent() resolves. That is the same server truth the payment
+ *      gate below already trusts.
+ * The demo strings survive only as a last-resort fallback when nobody has
+ * registered on this browser, exactly like the dashboard. */
+const studentId = ref(localStorage.getItem('boi_student_id') || '')
+const student = reactive({ fullname: '', name: '', cohort: '' })
 
-const currentSidebarRoute = computed(() => '/roadmap')
+function hydrateProfileSnapshot() {
+  let p = null
+  try { p = JSON.parse(localStorage.getItem('boi_student_profile') || 'null') } catch { p = null }
+  if (!p || typeof p !== 'object') return
+  const full = String(p.fullname || p.name || '').trim()
+  if (full) student.fullname = full
+  const nm = String(p.name || '').trim()
+  if (nm) student.name = nm
+  const cohort = String(p.cohort || '').trim()
+  if (cohort) student.cohort = cohort
+  const sid = String(p.student_id || '').trim()
+  if (sid) studentId.value = sid
+}
 
-function navigateFromRoadmap(route) {
-  if (route === '/roadmap') {
-    router.push('/roadmap')
-    return
+/** Merge the authoritative boirsu record over the snapshot. Fields the record
+ *  does not carry are left untouched, so a partial payload can never blank the
+ *  card out. */
+function applyStudent(s) {
+  if (!s) return
+  const full = String(s.fullname || s.name || '').trim()
+  if (full) student.fullname = full
+  const nm = String(s.name || '').trim()
+  if (nm) student.name = nm
+  const cohort = String(s.cohort || '').trim()
+  if (cohort) student.cohort = cohort
+  const sid = String(s.student_id || '').trim()
+  if (sid) studentId.value = sid
+}
+
+hydrateProfileSnapshot()
+
+const studentInitials = computed(() => {
+  const n = String(student.fullname || '').trim()
+  if (!n) return 'AN'
+  const parts = n.split(/\s+/).filter(Boolean)
+  const ini = ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase()
+  return ini || n.slice(0, 2).toUpperCase()
+})
+const studentNameLine = computed(() => String(student.fullname || '').trim() || 'Ada Nwosu')
+const studentIdLine = computed(() => String(studentId.value || '').trim() || 'NU/CS/24/0157')
+const studentCohort = computed(() => String(student.cohort || '').trim() || 'Cohort 24-B')
+
+
+/* ---------------- SIDEBAR — the SAME nav as studentdashboard.vue ----------------
+ * These used to be a text-glyph list whose every entry pushed '/dashboard', so the
+ * roadmap's nav looked (and behaved) nothing like the dashboard's. Both now share
+ * one source of truth: the same SVG icons, the same 8 items in the same order, the
+ * same pills, and the same real destinations (/dashboard?view=<id>, which
+ * studentdashboard.vue reads on mount) so the chosen page actually opens instead of
+ * always landing on the dashboard's default view. */
+const mkIcon = (path, filled = false) => ({
+  setup() {
+    const ds = typeof path === 'string' ? [path] : path
+    return () => h(
+      'svg',
+      { viewBox: '0 0 24 24', fill: filled ? 'currentColor' : 'none', stroke: filled ? 'none' : 'currentColor', 'stroke-width': '1.9', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' },
+      ds.map(d => h('path', { d }))
+    )
   }
-  router.push(route)
+})
+
+const DashboardIcon = mkIcon(['M3 10.5 12 3l9 7.5', 'M5 9.5V21h14V9.5', 'M9.5 21v-6h5v6'])
+const CalendarIcon = mkIcon(['M3 5h18v16H3z', 'M8 3v4', 'M16 3v4', 'M3 10h18'])
+const BookIcon = mkIcon(['M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2 2 2 0 0 0 2 2h13', 'M9 7h6'])
+const ChartIcon = mkIcon(['M4 20V10', 'M10 20V4', 'M16 20v-7', 'M21 20H3'])
+const ChatIcon = mkIcon('M21 12a8 8 0 0 1-8 8H4l2.4-3A8 8 0 1 1 21 12Z')
+const FileIcon = mkIcon(['M5 4h14v17H5z', 'M9 9h6', 'M9 13h6', 'M9 17h4'])
+const SettingsIcon = mkIcon(['M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z', 'M12 2v2', 'M12 20v2', 'M4.93 4.93l1.41 1.41', 'M17.66 17.66l1.41 1.41', 'M2 12h2', 'M20 12h2', 'M4.93 19.07l1.41-1.41', 'M17.66 6.34l1.41-1.41'])
+const WhatsAppIcon = mkIcon('M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z', true)
+const LogOutIcon = mkIcon(['M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4', 'M16 17l5-5-5-5', 'M21 12H9'])
+
+// Same 8 items, order, icons and pills as studentdashboard.vue's `navItems`,
+// except the Assignments badge: that one counts REAL rows from the backend
+// instead of the hardcoded '3' the sidebar used to show.
+const assignments = ref([])
+
+// Mirrors studentdashboard.vue's assignmentStatus() rule — anything not
+// submitted and not graded counts as pending, so both sidebars agree.
+function isPendingAssignment(a) {
+  const k = String(a?.status || 'Pending').toLowerCase()
+  return k !== 'submitted' && !k.startsWith('graded')
+}
+
+async function loadAssignmentsForNav() {
+  const course = accessStudent.value?.course_name || careerTitle.value || ''
+  const rows = await api.listClassroomAssignments(course)
+  if (rows) assignments.value = rows
+}
+
+// A computed (not a plain array) so the badge fills in when the rows arrive.
+// The template needs no change: `v-for="item in navItems"` auto-unwraps it.
+const navItems = computed(() => [
+  { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
+  { id: 'timetable', label: 'My Timetable', icon: CalendarIcon },
+  { id: 'library', label: 'Library', icon: BookIcon },
+  { id: 'roadmap', label: 'Roadmap', icon: BookIcon, pill: 'New' },
+  { id: 'grades', label: 'Grades & CGPA', icon: ChartIcon },
+  { id: 'chat', label: 'Cohort Chat', icon: ChatIcon, pill: '24-B' },
+  { id: 'assignments', label: 'Assignments', icon: FileIcon, pill: String(assignments.value.filter(isPendingAssignment).length || '') },
+  { id: 'settings', label: 'Settings', icon: SettingsIcon }
+])
+
+// The page id this route highlights. /roadmap IS the roadmap, so the active pill
+// is always 'roadmap' here — matching what the dashboard shows while you are on
+// /roadmap (its own nav marks Roadmap active before it pushes this route).
+const currentView = ref('roadmap')
+
+// Every entry hands off to the dashboard with the target view in the query, so
+// clicking "Library" opens Library rather than the dashboard's default tab.
+function dashboardTarget(id) {
+  return id === 'dashboard' ? '/dashboard' : '/dashboard?view=' + id
+}
+
+function go(id) {
+  router.push(dashboardTarget(id))
+}
+
+function goRoadmap() {
+  router.push('/roadmap')
+}
+
+function leaveRoadmap() {
+  localStorage.removeItem('boi_student_id')
+  localStorage.removeItem('boi_student_profile')
+  router.push('/login')
 }
 
 const careerPath = ref('frontend-developer')
@@ -312,6 +441,7 @@ async function fetchAccessStudent() {
 async function ensurePaidAccess() {
   const s = await fetchAccessStudent();
   accessStudent.value = s;
+  applyStudent(s);   // live boirsu record wins over the localStorage snapshot
   if (hasActiveAccess(s)) {
     paymentGate.open = false;
     paymentGate.error = '';
@@ -437,18 +567,25 @@ function startLiveSync() {
 }
 
 // ===== COURSE DATA =====
+// Offline fallback, used only when GET /api/roadmap fails. It mirrors the live
+// shape: `topics[0]` is Month 1 ("each roadmap topic is a month"), and the
+// server's own `month.short` labels are "Month 1" ... so `current` can be a
+// straight index into either list. The labels used to be
+// Orientation / Lesson 1 / Lesson 2 / Lesson 3 / Quiz / Project, which no longer
+// matched the live nodes ("Month 1" ... "Month 6") once the journey started at
+// index 0.
 const topics = [
-  { short: 'Orientation', title: 'Welcome & Orientation', blurb: 'Get set up and ready to learn.',
+  { short: 'Month 1', title: 'Month 1 – Web Foundations', blurb: 'Get set up and ready to learn.',
     tasks: ['Watch the welcome video', 'Read the course syllabus', 'Introduce yourself in the forum'] },
-  { short: 'Lesson 1', title: 'Lesson 1 – Foundations', blurb: 'Build your base knowledge.',
+  { short: 'Month 2', title: 'Month 2 – Core Skills', blurb: 'Build your base knowledge.',
     tasks: ['Read: Foundations guide', 'Watch: Key ideas explained', 'Activity: knowledge check'] },
-  { short: 'Lesson 2', title: 'Lesson 2 – Core Skills', blurb: 'Practise the core skills.',
+  { short: 'Month 3', title: 'Month 3 – Applying Knowledge', blurb: 'Practise the core skills.',
     tasks: ['Read: core skills walkthrough', 'Practice exercise set A', 'Practice exercise set B'] },
-  { short: 'Lesson 3', title: 'Lesson 3 – Applying Knowledge', blurb: 'Apply what you have learned.',
+  { short: 'Month 4', title: 'Month 4 – Building Projects', blurb: 'Apply what you have learned.',
     tasks: ['Case-study analysis', 'Submit reflection notes'] },
-  { short: 'Quiz', title: 'Assessment – Topic Quiz', blurb: 'Prove your understanding.',
+  { short: 'Month 5', title: 'Month 5 – Assessment', blurb: 'Prove your understanding.',
     tasks: ['Pass the 10-question quiz (≥ 70%)'] },
-  { short: 'Project', title: 'Final Project & Certificate', blurb: 'Finish strong and get certified.',
+  { short: 'Month 6', title: 'Month 6 – Final Project & Certificate', blurb: 'Finish strong and get certified.',
     tasks: ['Submit your final project', 'Peer-review two classmates', 'Download your certificate'] },
 ]
 
@@ -474,8 +611,12 @@ const taskOrbit = ref(null)
 const pathWrap = ref(null)
 
 // ===== STATE =====
-const current = ref(1)
-const furthest = ref(1)
+// `current` / `furthest` are INDEXES into `topics`, and topics[0] is Month 1
+// (each roadmap topic is a month). Both start at 0 so the roadmap opens on
+// Month 1 with the later months locked. They used to start at 1, which skipped
+// Month 1 completely and opened the journey on Month 2.
+const current = ref(0)
+const furthest = ref(0)
 const finished = ref(false)
 const animating = ref(false)
 const showCompletion = ref(false)
@@ -566,10 +707,12 @@ async function loadRoadmap(slug = 'frontend-developer') {
   }
   rebuildDoneState()
   if (topics.length) {
-    current.value = Math.min(Math.max(current.value, 1), topics.length - 1)
-    if (done.length && !done[0].some(Boolean)) {
-      done[0] = done[0].map((_, idx) => idx < 1)
-    }
+    // Clamp to a real index: 0 = Month 1 ... topics.length - 1 = last month.
+    current.value = Math.min(Math.max(current.value, 0), topics.length - 1)
+    // NOTE: the old code also force-ticked Month 1's first task right here
+    // (`done[0] = done[0].map((_, idx) => idx < 1)`). That existed only to fake
+    // a completed month behind the Month-2 start. Now that Month 1 IS the
+    // starting month it would over-report progress, so it has been removed.
   }
 }
 
@@ -1125,11 +1268,31 @@ function restart() {
 }
 
 // ===== LIFECYCLE =====
+// Keep the sidebar identity in step with registration.vue and the dashboard:
+// same tab (the custom "boi:profile-updated" event) and another tab ("storage").
+// Mirrors studentdashboard.vue's syncFromRegistration() so /dashboard and
+// /roadmap can never disagree about who is signed in, without a reload.
+let lastProfileFingerprint = null
+function syncProfileFromRegistration() {
+  const raw = localStorage.getItem('boi_student_profile') || ''
+  const sid = localStorage.getItem('boi_student_id') || ''
+  const fingerprint = sid + '|' + raw
+  if (fingerprint === lastProfileFingerprint) return
+  lastProfileFingerprint = fingerprint
+  hydrateProfileSnapshot()
+  if (sid) studentId.value = sid
+}
+
 onMounted(async () => {
+  syncProfileFromRegistration()
+  addEventListener('storage', syncProfileFromRegistration)
+  addEventListener('boi:profile-updated', syncProfileFromRegistration)
+
   if (!(await ensurePaidAccess())) return;
 
   await bootRoadmapData();
   loadDailyPlanForRoadmap();   // day-by-day lessons for the selected month
+  loadAssignmentsForNav();     // real pending count for the Assignments pill
   startLiveSync();
   document.addEventListener('visibilitychange', handleVisibility);
   window.addEventListener('resize', handleResize);
@@ -1139,6 +1302,8 @@ onUnmounted(() => {
   if (starfieldAnimationId) cancelAnimationFrame(starfieldAnimationId)
   if (orbitAnimationFrame) cancelAnimationFrame(orbitAnimationFrame)
   if (stopLive) stopLive()
+  removeEventListener('storage', syncProfileFromRegistration)
+  removeEventListener('boi:profile-updated', syncProfileFromRegistration)
   document.removeEventListener('visibilitychange', handleVisibility)
   window.removeEventListener('resize', handleResize)
 })
