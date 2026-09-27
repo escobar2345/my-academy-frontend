@@ -93,7 +93,7 @@
         <text x="31" y="54" text-anchor="middle" font-family="Fraunces,serif" font-weight="900" font-size="11" fill="#e8a524">BOI</text>
       </svg>
       <div class="min-w-0">
-        <h1 class="text-[20px] leading-none font-black" style="font-family:'Fraunces',serif;color:#14432e">Boi <i class="italic font-semibold text-[#cf3f2b]">Tech Academy</i></h1>
+        <h1 class="text-[20px] leading-none font-black" style="font-family:'Fraunces',serif;color:#14432e">LIP <i class="italic font-semibold text-[#cf3f2b]">Learning Intelligence Platform</i></h1>
         <p class="font-bold uppercase tracking-[.15em] text-[9px] mt-[2px] text-[#6d6f63]" style="font-family:'JetBrains Mono',monospace">Code · Build · Get Hired</p>
       </div>
       <span class="ml-auto bg-[#e8a524] text-[#0d3321] font-bold text-[9px] px-2 py-1 rounded-[4px] tracking-[.1em] -rotate-[1.5deg]" style="font-family:'JetBrains Mono',monospace">COHORT 12</span>
@@ -115,8 +115,8 @@
     <div class="relative z-[5] bg-[#0d3321] text-[#f3ecd6] overflow-hidden border-b-[3px] border-[#e8a524] hidden md:block">
       <div class="inline-flex whitespace-nowrap py-2 font-semibold text-[12px] uppercase tracking-[.08em]"
            style="font-family:'JetBrains Mono',monospace;animation:tick 40s linear infinite">
-        <span class="flex items-center gap-[22px] px-[22px]">Boi Tech Academy · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
-        <span class="flex items-center gap-[22px] px-[22px]">Boi Tech Academy · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
+        <span class="flex items-center gap-[22px] px-[22px]">LIP · Learning Intelligence Platform · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
+        <span class="flex items-center gap-[22px] px-[22px]">LIP · Learning Intelligence Platform · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
       </div>
     </div>
 
@@ -128,7 +128,7 @@
         <text x="31" y="54" text-anchor="middle" font-family="Fraunces,serif" font-weight="900" font-size="11" fill="#e8a524">BOI</text>
       </svg>
       <div>
-        <h1 class="text-[clamp(26px,3.4vw,38px)] leading-none font-black text-[#14432e]" style="font-family:'Fraunces',serif">Boi <i class="italic font-semibold text-[#cf3f2b]">Tech Academy</i></h1>
+        <h1 class="text-[clamp(26px,3.4vw,38px)] leading-none font-black text-[#14432e]" style="font-family:'Fraunces',serif">LIP <i class="italic font-semibold text-[#cf3f2b]">Learning Intelligence Platform</i></h1>
         <p class="font-semibold text-[11.5px] uppercase tracking-[.18em] text-[#6d6f63] mt-[6px]" style="font-family:'JetBrains Mono',monospace">Code · Build · Get Hired</p>
       </div>
       <div class="ml-auto text-right text-[13px] text-[#6d6f63] leading-[1.7]">
@@ -478,7 +478,7 @@
                 </div>
               </div>
               <div>
-                <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">What are you looking forward to from Boi Tech Academy? *</label>
+                <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">What are you looking forward to from LIP? *</label>
                 <textarea id="f-expect" v-model="form.expect" maxlength="600" placeholder="Tell us honestly — what do you want to walk away with? Skills, mentorship, a job, community, confidence…?" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c] resize-y" style="min-height:96px"></textarea>
                 <p class="text-[12.5px] text-[#6d6f63] mt-[6px]"><span class="text-[#14432e] font-bold">{{ form.expect.length }}</span>/600 characters</p>
               </div>
@@ -575,14 +575,14 @@
               <button type="button" class="w-full font-extrabold text-[15px] tracking-[.04em] bg-[#e8a524] text-[#0d3321] rounded-[11px] py-[17px] cursor-pointer shadow-[0_8px_18px_rgba(232,165,36,.4)] transition-all hover:brightness-[1.07] hover:-translate-y-[3px] flex items-center justify-center gap-[10px]"
                       :disabled="payLoading" @click="payWithCard">🔐 Pay {{ formatNaira(courseFee) }} securely with Paystack</button>
               <div v-if="payStatus.show" class="mt-3 font-bold text-[12.5px] px-[15px] py-[11px] rounded-[9px]" :class="payStatus.cls">{{ payStatus.msg }}</div>
-              <p class="text-[12.5px] text-[#6d6f63] mt-[10px]">Payments are processed by Paystack. Boi Tech Academy never sees your card details.</p>
+              <p class="text-[12.5px] text-[#6d6f63] mt-[10px]">Payments are processed by Paystack. LIP never sees your card details.</p>
             </div>
 
             <div v-if="payment.status !== 'paid' && form.paymethod === 'bank'" class="mt-4" style="animation:rise .4s both">
               <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-5">
                 <div class="flex justify-between gap-3 text-[14px] py-[6px] border-b border-dashed border-[#d9d1bc]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Bank name</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">Your Bank Name</b></div>
                 <div class="flex justify-between gap-3 text-[14px] py-[6px] border-b border-dashed border-[#d9d1bc]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Account number</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">0123 456 789</b></div>
-                <div class="flex justify-between gap-3 text-[14px] py-[6px] border-b border-dashed border-[#d9d1bc]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Account name</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">Boi Tech Academy</b></div>
+                <div class="flex justify-between gap-3 text-[14px] py-[6px] border-b border-dashed border-[#d9d1bc]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Account name</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">LIP</b></div>
                 <div class="flex justify-between gap-3 text-[14px] py-[6px]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Amount</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">{{ formatNaira(courseFee) }} exactly</b></div>
                 <p class="text-[10.5px] text-[#6d6f63] mt-2" style="font-family:'JetBrains Mono',monospace">// please use your full name as the transfer narration</p>
               </div>
@@ -594,7 +594,7 @@
 
             <label class="flex items-start gap-[11px] text-[14px] leading-[1.55] cursor-pointer mt-[18px] p-[14px] bg-[#faf7ea] rounded-[10px] md:p-0 md:bg-transparent">
               <input type="checkbox" v-model="form.declare" class="w-[19px] h-[19px] mt-[2px] cursor-pointer shrink-0" style="accent-color:#14432e">
-              <span>I confirm the information I've provided is accurate, and I understand the {{ formatNaira(courseFee) }} registration fee secures my place in Cohort 12 at <b>Boi Tech Academy</b>. <b style="color:#cf3f2b">*</b></span>
+              <span>I confirm the information I've provided is accurate, and I understand the {{ formatNaira(courseFee) }} registration fee secures my place in Cohort 12 at <b>LIP</b>. <b style="color:#cf3f2b">*</b></span>
             </label>
 
             <!-- AUTO-TRIGGER ACCOUNT MODAL: If payment confirmed, show account creation button -->
@@ -626,7 +626,7 @@
                style="font-family:'Fraunces',serif;animation:stampIn .55s cubic-bezier(.2,1.6,.4,1) both">REGISTERED&nbsp;✓</div>
           <h3 class="text-[30px] font-black text-[#14432e] mb-2" style="font-family:'Fraunces',serif">You're in the pipeline!</h3>
           <div class="text-[18px] font-bold tracking-[.06em] bg-[#fdf3d7] inline-block px-5 py-2 rounded-lg border-[1.5px] border-dashed border-[#e8a524] my-3" style="font-family:'JetBrains Mono',monospace">{{ refNum }}</div>
-          <p class="text-[14.5px] text-[#6d6f63] max-w-[540px] mx-auto mb-6 leading-[1.7]">Well done, <b class="text-[#1b211c]">{{ form.fullname }}</b>. {{ successMsg }} Your receipt and next steps are on the way to <b class="text-[#1b211c]">{{ form.email }}</b>. Welcome to Cohort 12 at Boi Tech Academy! 🎉</p>
+          <p class="text-[14.5px] text-[#6d6f63] max-w-[540px] mx-auto mb-6 leading-[1.7]">Well done, <b class="text-[#1b211c]">{{ form.fullname }}</b>. {{ successMsg }} Your receipt and next steps are on the way to <b class="text-[#1b211c]">{{ form.email }}</b>. Welcome to Cohort 12 at LIP! 🎉</p>
           <div class="flex gap-[14px] justify-center flex-wrap mb-8">
             <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-4 text-left w-[210px] transition-all hover:-translate-y-[5px] hover:shadow-[0_12px_22px_rgba(27,33,28,.1)]"><span class="text-[20px] font-black text-[#e8a524]" style="font-family:'Fraunces',serif">01</span><b class="block text-[13.5px] text-[#14432e] my-[6px]">Check your inbox</b><span class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Your receipt and applicant guide arrive by email within minutes.</span></div>
             <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-4 text-left w-[210px] transition-all hover:-translate-y-[5px] hover:shadow-[0_12px_22px_rgba(27,33,28,.1)]"><span class="text-[20px] font-black text-[#e8a524]" style="font-family:'Fraunces',serif">02</span><b class="block text-[13.5px] text-[#14432e] my-[6px]">Orientation day</b><span class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Saturday 19 Sept 2026 — meet your mentors and cohort mates.</span></div>
@@ -717,7 +717,7 @@
       ● progress saved <em class="text-[#e8a524] not-italic">{{ draftTime }}</em>
     </div>
 
-    <footer class="relative z-[2] text-center py-[26px] pb-[100px] md:pb-[26px] font-bold text-[11px] uppercase tracking-[.14em] text-[#a29d8a]" style="font-family:'JetBrains Mono',monospace">Boi Tech Academy · Learn · Build · Get Hired · © 2026 · boirsuhub@gmail.com</footer>
+    <footer class="relative z-[2] text-center py-[26px] pb-[100px] md:pb-[26px] font-bold text-[11px] uppercase tracking-[.14em] text-[#a29d8a]" style="font-family:'JetBrains Mono',monospace">LIP · Learning Intelligence Platform · Learn · Build · Get Hired · © 2026 · boirsuhub@gmail.com</footer>
   </div>
 </template>
 
@@ -1242,7 +1242,7 @@ function stepErrors(i) {
   }
   if (i === 2) {
     if (!form.course) errs.push({ id: 'f-course', msg: 'Course selection (tap a course card)' })
-    if (!form.expect.trim()) errs.push({ id: 'f-expect', msg: 'What are you looking forward to from Boi Tech Academy?' })
+    if (!form.expect.trim()) errs.push({ id: 'f-expect', msg: 'What are you looking forward to from LIP?' })
     // At least one day of the week must have a class time selected.
     if (!form.dailyTimes || typeof form.dailyTimes !== 'object' ||
         !WEEKDAYS.some(d => form.dailyTimes[d] && String(form.dailyTimes[d]).trim())) {

@@ -508,7 +508,7 @@
                   <span class="text-[10.5px] uppercase tracking-[0.24em] text-slate-500 font-semibold">Day by day · {{ dailyPlan ? (dailyPlan.month_title || 'this month') : 'this month' }}</span>
                   <h3 class="font-serif text-lg lg:text-xl tracking-tight mt-0.5">What you'll learn, <i class="text-[#3ce6c3]">class by class</i></h3>
                   <p v-if="dailyPlan && dailyPlan.days" class="text-[11.5px] text-slate-500 mt-1">
-                    <span :class="dailyPlan.source === 'ai' ? 'text-[#3ce6c3] font-semibold' : 'text-[#ffb454] font-semibold'">{{ dailyPlan.source === 'ai' ? '✨ Written by MiroFish AI' : 'Standard roadmap breakdown' }}</span>
+                    <span :class="dailyPlan.source === 'ai' ? 'text-[#3ce6c3] font-semibold' : 'text-[#ffb454] font-semibold'">{{ dailyPlan.source === 'ai' ? '✨ Written by LIP AI' : 'Standard roadmap breakdown' }}</span>
                     · {{ dailyPlan.days.length }} live classes this month
                     <span v-if="dailyPlan.track"> · {{ dailyPlan.track }}</span>
                   </p>
@@ -516,9 +516,9 @@
                 <div class="flex flex-col items-stretch sm:items-end gap-2 shrink-0">
                   <button v-if="!planJob" @click="generateDailyPlan()" :disabled="!backendOnline || !planAiAvailable"
                     class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-br from-[#3ce6c3] to-[#7ceecd] text-[#05231b] font-semibold text-[12px] shadow-lg shadow-[#3ce6c3]/25 hover:-translate-y-0.5 transition-all disabled:opacity-40 disabled:translate-y-0 disabled:shadow-none">
-                    ✨ {{ dailyPlan && dailyPlan.source === 'ai' ? 'Regenerate with AI' : 'Make it detailed with MiroFish AI' }}
+                    ✨ {{ dailyPlan && dailyPlan.source === 'ai' ? 'Regenerate with AI' : 'Make it detailed with LIP AI' }}
                   </button>
-                  <small v-if="backendOnline && !planAiAvailable && !planJob" class="text-[10px] text-slate-500 max-w-[280px] sm:text-right leading-snug">Set NVIDIA_API_KEY on the server and MiroFish AI will write each day's lesson details itself.</small>
+                  <small v-if="backendOnline && !planAiAvailable && !planJob" class="text-[10px] text-slate-500 max-w-[280px] sm:text-right leading-snug">Set NVIDIA_API_KEY on the server and LIP AI will write each day's lesson details itself.</small>
                   <div v-if="planJob" class="sm:text-right">
                     <span class="text-[11px] text-[#3ce6c3] font-semibold">{{ planJob.step }}…</span>
                     <div class="h-[5px] w-[190px] rounded-full bg-white/[0.06] overflow-hidden mt-1">
@@ -664,7 +664,7 @@
                 </div>
               </div>
             </div>
-            <p v-else class="text-slate-500 text-[13px] py-10 text-center leading-relaxed">No textbooks in your library yet. Your course textbook is written by <span class="text-slate-300">MiroFish AI</span> right after each class ends — please wait until after class. If your teacher uploads a PDF, it appears here instantly.</p>
+            <p v-else class="text-slate-500 text-[13px] py-10 text-center leading-relaxed">No textbooks in your library yet. Your course textbook is written by <span class="text-slate-300">LIP AI</span> right after each class ends — please wait until after class. If your teacher uploads a PDF, it appears here instantly.</p>
           </section>
 
           <!-- ========== CLASS TIMETABLE ========== -->
@@ -3149,7 +3149,7 @@ function syncScheduleFromTimetable() {
 }
 
 /* ---------------- AI daily lesson plan (the detailed timetable) ----------------
- * MiroFish AI expands the month's roadmap topics into one concrete lesson per
+ * LIP AI expands the month's roadmap topics into one concrete lesson per
  * class day: exact topic, teaching breakdown, deliverable and video search.
  * Cached server-side; regenerated on demand; arrives live over SSE. */
 const dailyPlan = ref(null);
@@ -3220,7 +3220,7 @@ function generateDailyPlan() {
       if (j.status === 'done') {
         stopPlanJob();
         await loadDailyPlan();
-        toast('✨ MiroFish AI rebuilt your day-by-day lesson plan.');
+        toast('✨ LIP AI rebuilt your day-by-day lesson plan.');
       } else if (j.status === 'error') {
         stopPlanJob();
         toast('AI planner failed: ' + (j.error || 'unknown error'), 'warn');
@@ -3448,7 +3448,7 @@ function onServerEvent(name, data) {
     syncScheduleFromTimetable();   // the week grid re-syncs live — no reload
     toast('🗓️ Your teacher published the class timetable — check the Timetable page.');
   } else if (name === 'daily_plan_updated') {
-    // MiroFish AI finished writing the day-by-day lessons (or an admin did)
+    // LIP AI finished writing the day-by-day lessons (or an admin did)
     if (!data.career_path || data.career_path === student.career_path) {
       loadDailyPlan();
       toast('✨ Your day-by-day lesson plan was updated — see My Timetable.');

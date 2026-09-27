@@ -124,7 +124,7 @@ export async function getTopicVideos(topic, level = 'beginner', limit = 3) {
 /* ---------------- AI daily lesson plan (detailed timetable & roadmap) ----------------
  * Day-by-day lessons for one course month: exact topic per class day, what gets
  * taught, the hands-on deliverable and the YouTube search for the lesson video.
- * `source` is "ai" when MiroFish AI wrote it, "standard" for the roadmap split.
+ * `source` is "ai" when LIP AI wrote it, "standard" for the roadmap split.
  *
  * `time`         — legacy single daily hour (every day at that time).
  * `dailyTimes`   — per-day dict, e.g. {"Monday":"18:00","Tuesday":"14:00",
@@ -639,7 +639,7 @@ export async function listClassroomAssignments(course) {
   return failed(r) ? null : (r.assignments || []);
 }
 
-/** Teacher launches the quiz they set (their own questions, or a MiroFish AI
+/** Teacher launches the quiz they set (their own questions, or a LIP AI
  *  draft they reviewed). The full question set is broadcast on the
  *  classroom_quiz SSE event so every student opens the same quiz at once. */
 export async function publishClassroomQuiz({ course, pid, title, questions }) {
@@ -650,7 +650,7 @@ export async function publishClassroomQuiz({ course, pid, title, questions }) {
   return failed(r) ? null : r;
 }
 
-/** Teacher tool: MiroFish AI drafts an assignment (title + instructions)
+/** Teacher tool: LIP AI drafts an assignment (title + instructions)
  *  from a topic. The teacher edits the draft before sending it. */
 export async function generateAssignmentDraft({ topic } = {}) {
   const r = await call('/api/ai/classroom/assignment', {
@@ -661,7 +661,7 @@ export async function generateAssignmentDraft({ topic } = {}) {
   return { title: r.title || '', instructions: r.instructions || '' };
 }
 
-/** Teacher tool: MiroFish AI drafts a weekly class timetable with the same
+/** Teacher tool: LIP AI drafts a weekly class timetable with the same
  *  engine that builds student schedules (ai_learning_system_v4). The teacher
  *  reviews the {day,time,subject} rows, then publishes. */
 export async function generateTimetableDraft({ course, track, durationMonths, classMinutes, startDate } = {}) {

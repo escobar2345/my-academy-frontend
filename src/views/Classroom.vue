@@ -386,7 +386,7 @@
   <!-- ===== TEACHER LESSON SETUP POPUP (Go Live / AI Video) =====
        Shown automatically when a teacher enters /classroom/teacher.
        - "Go Live"    : starts camera + mic -> live teacher meeting.
-       - "AI Video"   : teacher pastes a YouTube URL, or (empty) MiroFish
+       - "AI Video"   : teacher pastes a YouTube URL, or (empty) LIP AI
                         auto-picks a lesson for the course topic. -->
   <div v-if="teacherSetupOpen && isTeacher" class="ts-scrim" @click.self="closeTeacherSetup">
     <div class="ts-card">
@@ -416,7 +416,7 @@
           <span class="ts-opt-icon">📺</span>
           <span class="ts-opt-txt">
             <b>AI Video Lesson</b>
-            <small>Paste a YouTube URL everyone learns along with. Leave it empty and MiroFish auto-picks a lesson for the course topic.</small>
+            <small>Paste a YouTube URL everyone learns along with. Leave it empty and LIP AI auto-picks a lesson for the course topic.</small>
           </span>
           <span class="ts-arrow">↓</span>
         </button>
@@ -425,7 +425,7 @@
       <div v-if="teacherSetup.selected === 'video'" class="ts-video-form">
         <label class="ts-label">YouTube video URL</label>
         <input v-model="teacherSetup.videoUrl"
-               placeholder="https://www.youtube.com/watch?v=…  (leave empty for MiroFish auto)"
+               placeholder="https://www.youtube.com/watch?v=…  (leave empty for LIP AI auto)"
                @keyup.enter="startVideoLesson" />
         <div class="ts-actions">
           <button class="ts-btn ghost" @click="teacherSetup.videoUrl = ''">Clear</button>
@@ -470,7 +470,7 @@
       <div v-if="teacherTool === 'textbook'" class="tt-panel">
         <div class="tt-seg">
           <button class="tt-seg-btn" :class="{ on: teacherTb.mode === 'pdf' }" @click="teacherTb.mode = 'pdf'">📄 Upload PDF</button>
-          <button class="tt-seg-btn" :class="{ on: teacherTb.mode === 'ai' }" @click="teacherTb.mode = 'ai'">🤖 MiroFish AI</button>
+          <button class="tt-seg-btn" :class="{ on: teacherTb.mode === 'ai' }" @click="teacherTb.mode = 'ai'">🤖 LIP AI</button>
         </div>
 
         <template v-if="teacherTb.mode === 'pdf'">
@@ -496,13 +496,13 @@
 
         <template v-else>
           <div class="tt-ai">
-            <p><b>MiroFish AI writes a full textbook</b> for your class — chapters and lessons built from your topic, delivered straight to every student's Library when it's done.</p>
+            <p><b>LIP AI writes a full textbook</b> for your class — chapters and lessons built from your topic, delivered straight to every student's Library when it's done.</p>
             <label class="tt-label">Topic <b class="req">*</b></label>
             <input class="tt-input" v-model="teacherTb.aiTopic" placeholder="e.g. Introduction to Algebra — basics and first steps" @keyup.enter="teacherGenerateTextbookAI" />
             <div class="tt-actions">
               <button class="ts-btn ghost" @click="resetTeacherTool">Clear</button>
               <button class="ts-btn ai" :disabled="teacherTb.aiBusy || !teacherTb.aiTopic.trim()" @click="teacherGenerateTextbookAI">
-                {{ teacherTb.aiBusy ? '🤖 Writing…' : '✨ Generate textbook with MiroFish AI' }}
+                {{ teacherTb.aiBusy ? '🤖 Writing…' : '✨ Generate textbook with LIP AI' }}
               </button>
             </div>
             <p v-if="teacherTb.msg" class="tt-msg" :class="{ ok: teacherTb.ok }">{{ teacherTb.msg }}</p>
@@ -514,10 +514,10 @@
       <!-- Quiz tab -->
       <div v-else-if="teacherTool === 'quiz'" class="tt-panel">
         <!-- FIRST: the teacher sets every question by hand -->
-        <!-- SECOND: MiroFish AI drafts the questions for review -->
+        <!-- SECOND: LIP AI drafts the questions for review -->
         <div class="tt-seg">
           <button class="tt-seg-btn" :class="{ on: teacherQuiz.mode === 'manual' }" @click="teacherQuiz.mode = 'manual'">✍️ Set my own questions</button>
-          <button class="tt-seg-btn" :class="{ on: teacherQuiz.mode === 'ai' }" @click="teacherQuiz.mode = 'ai'">🤖 MiroFish AI</button>
+          <button class="tt-seg-btn" :class="{ on: teacherQuiz.mode === 'ai' }" @click="teacherQuiz.mode = 'ai'">🤖 LIP AI</button>
         </div>
 
         <template v-if="teacherQuiz.mode === 'manual'">
@@ -540,7 +540,7 @@
 
         <template v-else>
           <div class="tt-ai">
-            <p><b>MiroFish AI drafts the questions</b> from a topic — you review them below (remove any you dislike), then launch.</p>
+            <p><b>LIP AI drafts the questions</b> from a topic — you review them below (remove any you dislike), then launch.</p>
             <label class="tt-label">Topic <b class="req">*</b></label>
             <input class="tt-input" v-model="teacherQuiz.aiTopic" placeholder="e.g. Photosynthesis — light and dark reactions" @keyup.enter="teacherGenerateQuizAI" />
             <label class="tt-label">How many questions?</label>
@@ -551,7 +551,7 @@
               <option :value="12">12 questions</option>
             </select>
             <button class="ts-btn ai tt-ai-btn" :disabled="teacherQuiz.aiBusy || !teacherQuiz.aiTopic.trim()" @click="teacherGenerateQuizAI">
-              {{ teacherQuiz.aiBusy ? '🤖 Writing your questions…' : '✨ Draft with MiroFish AI' }}
+              {{ teacherQuiz.aiBusy ? '🤖 Writing your questions…' : '✨ Draft with LIP AI' }}
             </button>
             <p v-if="teacherQuiz.aiMsg" class="tt-msg" :class="{ ok: teacherQuiz.aiOk }">{{ teacherQuiz.aiMsg }}</p>
           </div>
@@ -595,9 +595,9 @@
           </button>
         </div>
         <p v-if="teacherAsg.msg" class="tt-msg" :class="{ ok: teacherAsg.ok }">{{ teacherAsg.msg }}</p>
-        <!-- SECOND option: MiroFish AI drafts the assignment, teacher edits and sends -->
+        <!-- SECOND option: LIP AI drafts the assignment, teacher edits and sends -->
         <div class="tt-ai">
-          <p><b>Need help writing it?</b> MiroFish AI drafts the title and instructions from a topic — you edit the draft above, then send.</p>
+          <p><b>Need help writing it?</b> LIP AI drafts the title and instructions from a topic — you edit the draft above, then send.</p>
           <div class="tt-ai-row">
             <input class="tt-input" v-model="teacherAsg.aiTopic" placeholder="e.g. The water cycle — homework for the week" @keyup.enter="teacherDraftAssignmentAI" />
             <button class="ts-btn ai" :disabled="teacherAsg.aiBusy || !teacherAsg.aiTopic.trim()" @click="teacherDraftAssignmentAI">
@@ -612,10 +612,10 @@
       <!-- Timetable tab -->
       <div v-else-if="teacherTool === 'timetable'" class="tt-panel">
         <!-- FIRST: the teacher builds the weekly schedule by hand -->
-        <!-- SECOND: MiroFish AI drafts it (ai_learning_system_v4 engine) -->
+        <!-- SECOND: LIP AI drafts it (ai_learning_system_v4 engine) -->
         <div class="tt-seg">
           <button class="tt-seg-btn" :class="{ on: teacherTt.mode === 'manual' }" @click="teacherTt.mode = 'manual'">✍️ Build it myself</button>
-          <button class="tt-seg-btn" :class="{ on: teacherTt.mode === 'ai' }" @click="teacherTt.mode = 'ai'">🤖 MiroFish AI</button>
+          <button class="tt-seg-btn" :class="{ on: teacherTt.mode === 'ai' }" @click="teacherTt.mode = 'ai'">🤖 LIP AI</button>
         </div>
 
         <template v-if="teacherTt.mode === 'manual'">
@@ -627,7 +627,7 @@
 
         <template v-else>
           <div class="tt-ai">
-            <p><b>MiroFish AI drafts the weekly schedule</b> with the same engine that builds student timetables — track-aware class days and times. Review the rows below, edit anything, then publish.</p>
+            <p><b>LIP AI drafts the weekly schedule</b> with the same engine that builds student timetables — track-aware class days and times. Review the rows below, edit anything, then publish.</p>
             <div class="tt-row2">
               <div>
                 <label class="tt-label">Track</label>
@@ -660,7 +660,7 @@
               </div>
             </div>
             <button class="ts-btn ai tt-ai-btn" :disabled="teacherTt.aiBusy" @click="teacherDraftTimetableAI">
-              {{ teacherTt.aiBusy ? '🤖 Building your timetable…' : '✨ Draft with MiroFish AI' }}
+              {{ teacherTt.aiBusy ? '🤖 Building your timetable…' : '✨ Draft with LIP AI' }}
             </button>
             <p v-if="teacherTt.aiMsg" class="tt-msg" :class="{ ok: teacherTt.aiOk }">{{ teacherTt.aiMsg }}</p>
           </div>
@@ -1914,7 +1914,7 @@ function openTeacherSetup() {
 }
 
 /* ---------- teacher tools: upload PDF textbook / set quiz / give assignment ----------
-   Every tool has a manual option FIRST and a MiroFish AI assist SECOND. */
+   Every tool has a manual option FIRST and a LIP AI assist SECOND. */
 const toolsOpen = ref(false)        // dedicated Teacher Tools popup
 const teacherTool = ref('textbook') // active tab: 'textbook' | 'quiz' | 'assignment'
 const pdfInputRef = ref(null)
@@ -1922,7 +1922,7 @@ const teacherPdf = reactive({ title: '', file: null, fileName: '', fileSize: 0, 
 const teacherTb = reactive({ mode: 'pdf', aiTopic: '', aiBusy: false, msg: '', ok: false })
 const teacherQuiz = reactive({
   title: '', busy: false, msg: '', ok: false,
-  mode: 'manual',          // 'manual' first (teacher sets questions) | 'ai' second (MiroFish drafts)
+  mode: 'manual',          // 'manual' first (teacher sets questions) | 'ai' second (LIP drafts)
   questions: [],           // the set being built — manual adds and AI drafts land here
   draft: { q: '', options: ['', '', '', ''], answer: 0, why: '' },
   aiTopic: '', aiCount: 10, aiBusy: false, aiMsg: '', aiOk: false
@@ -1931,7 +1931,7 @@ const teacherAsg = reactive({
   title: '', instructions: '', due: '', busy: false, msg: '', ok: false,
   aiTopic: '', aiBusy: false, aiMsg: '', aiOk: false
 })
-/* Weekly class timetable — manual rows first, MiroFish AI draft second */
+/* Weekly class timetable — manual rows first, LIP AI draft second */
 const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const teacherTt = reactive({
   mode: 'manual', title: '', sessions: [],
@@ -2039,12 +2039,12 @@ function addQuizDraftQuestion() {
   buzz(8)
 }
 
-/* --- quiz builder — SECOND option: MiroFish AI drafts, the teacher reviews --- */
+/* --- quiz builder — SECOND option: LIP AI drafts, the teacher reviews --- */
 async function teacherGenerateQuizAI() {
   const topic = teacherQuiz.aiTopic.trim()
   if (!topic || teacherQuiz.aiBusy) return
   teacherQuiz.aiBusy = true
-  teacherQuiz.aiMsg = '🤖 MiroFish AI is writing your questions…'
+  teacherQuiz.aiMsg = '🤖 LIP AI is writing your questions…'
   teacherQuiz.aiOk = false
   const res = await generateLessonQuiz({ topic, count: teacherQuiz.aiCount })
   teacherQuiz.aiBusy = false
@@ -2055,7 +2055,7 @@ async function teacherGenerateQuizAI() {
     teacherQuiz.aiOk = true
     buzz(20)
   } else {
-    teacherQuiz.aiMsg = 'MiroFish AI could not write questions right now — check the backend is running on :5055.'
+    teacherQuiz.aiMsg = 'LIP AI could not write questions right now — check the backend is running on :5055.'
     teacherQuiz.aiOk = false
   }
 }
@@ -2106,7 +2106,7 @@ async function teacherSetQuiz() {
   }
 }
 
-/* --- textbook — SECOND option: MiroFish AI writes the book for the Library --- */
+/* --- textbook — SECOND option: LIP AI writes the book for the Library --- */
 let tbJobPoll = null
 function clearTbJobPoll() { if (tbJobPoll) { clearInterval(tbJobPoll); tbJobPoll = null } }
 
@@ -2114,7 +2114,7 @@ async function teacherGenerateTextbookAI() {
   const topic = teacherTb.aiTopic.trim()
   if (!topic || teacherTb.aiBusy) return
   teacherTb.aiBusy = true
-  teacherTb.msg = '🤖 MiroFish AI is writing the textbook… this can take a few minutes.'
+  teacherTb.msg = '🤖 LIP AI is writing the textbook… this can take a few minutes.'
   teacherTb.ok = false
   const res = await generateClassTextbook({ course: roomCourse.value, topic })
   if (!res || !res.jobId) {
@@ -2173,7 +2173,7 @@ async function teacherGiveAssignment() {
   }
 }
 
-/* --- assignment — SECOND option: MiroFish AI fills the form, teacher sends --- */
+/* --- assignment — SECOND option: LIP AI fills the form, teacher sends --- */
 async function teacherDraftAssignmentAI() {
   const topic = teacherAsg.aiTopic.trim()
   if (!topic || teacherAsg.aiBusy) return
@@ -2189,7 +2189,7 @@ async function teacherDraftAssignmentAI() {
     teacherAsg.aiOk = true
     buzz(20)
   } else {
-    teacherAsg.aiMsg = 'MiroFish AI could not draft it right now — check the backend on :5055.'
+    teacherAsg.aiMsg = 'LIP AI could not draft it right now — check the backend on :5055.'
     teacherAsg.aiOk = false
   }
 }
@@ -2203,11 +2203,11 @@ function addTimetableRow(day = 'Monday', time = '18:00', subject = '') {
 const validTimetableRows = computed(() =>
   teacherTt.sessions.some(s => s.day && s.time && s.subject.trim()))
 
-/* --- timetable — SECOND option: MiroFish AI drafts, the teacher reviews --- */
+/* --- timetable — SECOND option: LIP AI drafts, the teacher reviews --- */
 async function teacherDraftTimetableAI() {
   if (teacherTt.aiBusy) return
   teacherTt.aiBusy = true
-  teacherTt.aiMsg = '🤖 MiroFish AI is building your timetable…'
+  teacherTt.aiMsg = '🤖 LIP AI is building your timetable…'
   teacherTt.aiOk = false
   const res = await generateTimetableDraft({
     course: roomCourse.value, track: teacherTt.track,
@@ -2224,7 +2224,7 @@ async function teacherDraftTimetableAI() {
     teacherTt.aiOk = true
     buzz(20)
   } else {
-    teacherTt.aiMsg = 'MiroFish AI could not build a timetable right now — check the backend on :5055.'
+    teacherTt.aiMsg = 'LIP AI could not build a timetable right now — check the backend on :5055.'
     teacherTt.aiOk = false
   }
 }
@@ -2304,7 +2304,7 @@ function startVideoLesson() {
     }
     currentView.value = 'teacher'
   } else {
-    // No usable URL -> automated mode from MiroFish for the class topic.
+    // No usable URL -> automated mode from LIP for the class topic.
     if (url) videoError.value = 'That YouTube link didn\'t include a valid ID — loading the automated lesson instead.'
     loadLessonVideos()
   }
@@ -2745,7 +2745,7 @@ onUnmounted(() => {
   .tt-seg-btn{padding:10px 8px;border:none;border-radius:9px;background:transparent;color:var(--muted);font-weight:800;font-size:12.5px;cursor:pointer;transition:.15s}
   .tt-seg-btn:hover{color:var(--text)}
   .tt-seg-btn.on{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(124,108,249,.35)}
-  /* MiroFish AI assist blocks */
+  /* LIP AI assist blocks */
   .tt-ai{display:grid;gap:10px;padding:14px;border:1px solid rgba(124,108,249,.4);border-radius:14px;background:linear-gradient(160deg,rgba(124,108,249,.14),rgba(124,108,249,.05))}
   .tt-ai p{margin:0;font-size:12.5px;line-height:1.55;color:#e6e2ff}
   .tt-ai-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}

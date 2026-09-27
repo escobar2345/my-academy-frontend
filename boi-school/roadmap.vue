@@ -303,16 +303,16 @@
                       </li>
                     </ol>
                     <p class="dp-source" :class="dailyPlanSource === 'ai' ? 'is-ai' : ''">
-                      {{ dailyPlanSource === 'ai' ? '✨ Written by MiroFish AI' : 'Standard roadmap breakdown' }}
+                      {{ dailyPlanSource === 'ai' ? '✨ Written by LIP AI' : 'Standard roadmap breakdown' }}
                     </p>
                     <button v-if="dailyPlanAiReady" class="plan-ai-btn" :disabled="dailyPlanBusy" @click="generateDailyPlanForRoadmap">
-                      {{ dailyPlanBusy ? dailyPlanStep + '…' : (dailyPlanSource === 'ai' ? '✨ Regenerate with AI' : '✨ Make every day detailed with MiroFish AI') }}
+                      {{ dailyPlanBusy ? dailyPlanStep + '…' : (dailyPlanSource === 'ai' ? '✨ Regenerate with AI' : '✨ Make every day detailed with LIP AI') }}
                     </button>
                   </template>
                   <template v-else>
                     <p class="sidebar-blurb">No daily plan stored for this month yet.</p>
                     <button class="plan-ai-btn" :disabled="dailyPlanBusy || !dailyPlanAiReady" @click="generateDailyPlanForRoadmap">
-                      {{ dailyPlanBusy ? dailyPlanStep + '…' : '✨ Generate with MiroFish AI' }}
+                      {{ dailyPlanBusy ? dailyPlanStep + '…' : '✨ Generate with LIP AI' }}
                     </button>
                     <p v-if="!dailyPlanAiReady" class="dp-note">Set NVIDIA_API_KEY on the server to let the AI write each day's lesson.</p>
                   </template>
@@ -915,7 +915,7 @@ async function loadRoadmap(slug = 'frontend-developer') {
 /* ---------------- day-by-day class plan (AI daily-plan engine) ----------------
  * Each roadmap topic is a month; the daily plan says exactly what happens in
  * every class meeting of the selected month — topic, breakdown, deliverable
- * and the YouTube search for its lesson video. MiroFish AI can rewrite it. */
+ * and the YouTube search for its lesson video. LIP AI can rewrite it. */
 const dailyPlan = ref(null)
 const dailyPlanLoading = ref(false)
 const dailyPlanAiReady = ref(false)
