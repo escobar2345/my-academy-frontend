@@ -348,13 +348,13 @@ const SettingsIcon = mkIcon(['M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z', 'M12 2v2', 'M
 const WhatsAppIcon = mkIcon('M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z', true)
 const LogOutIcon = mkIcon(['M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4', 'M16 17l5-5-5-5', 'M21 12H9'])
 
-// Same 8 items, order, icons and pills as studentdashboard.vue's `navItems`,
-// except the Assignments badge: that one counts REAL rows from the backend
-// instead of the hardcoded '3' the sidebar used to show.
+// The same 8 items, order, icons and pills as studentdashboard.vue's
+// `navItems`. Both sidebars count REAL pending rows from the backend, so the
+// two render identically; keep them in step when either one changes.
 const assignments = ref([])
 
 // Mirrors studentdashboard.vue's assignmentStatus() rule — anything not
-// submitted and not graded counts as pending, so both sidebars agree.
+// submitted and not graded counts as pending, so both badges agree.
 function isPendingAssignment(a) {
   const k = String(a?.status || 'Pending').toLowerCase()
   return k !== 'submitted' && !k.startsWith('graded')

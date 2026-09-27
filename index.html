@@ -10,9 +10,13 @@
     <meta name="description" content="MiroFish - 社交媒体舆论模拟系统" />
     <title>MiroFish - 预测万物</title>
     <!-- Paystack inline checkout library — provides window.PaystackPop, used by the
-         registration, dashboard, roadmap and classroom payment flows. Loaded once
-         here so every route has it available. -->
-    <script src="https://js.paystack.co/v1/inline.js"></script>
+         registration, dashboard, roadmap and classroom payment flows.
+         `defer` matters: without it this is a parser-blocking script, so if
+         js.paystack.co is slow or unreachable the whole page stays blank (no
+         #app, no DOMContentLoaded). Deferred classic scripts still run before
+         the `type="module"` bundle below, so PaystackPop is ready by the time
+         any component mounts. -->
+    <script defer src="https://js.paystack.co/v1/inline.js"></script>
   </head>
   <body>
     <div id="app"></div>
