@@ -774,7 +774,7 @@
               <div>
                 <span class="text-[10.5px] uppercase tracking-[0.24em] text-slate-500 font-semibold">WhatsApp Cohort Group</span>
                 <h1 class="font-serif text-[clamp(24px,5vw,40px)] tracking-tight mt-1">Cohort <i class="text-[#3ce6c3]">24-B</i> Chat</h1>
-                <p class="text-slate-400 text-[13.5px] mt-1.5 leading-relaxed max-w-xl hidden sm:block">Enable anonymous mode to contribute without revealing your name.</p>
+                <p class="text-slate-400 text-[13.5px] mt-1.5 leading-relaxed max-w-xl hidden sm:block">The real conversation for your registered course — every message reaches your classmates and your teacher, live.</p>
               </div>
               <button @click="toast('Opening group in WhatsApp… (demo)', 'warn')" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-[#25d366] to-[#128c5e] text-[#04140b] font-semibold text-[13px] shadow-lg shadow-[#25d366]/25 hover:-translate-y-0.5 transition-all">
                 <WhatsAppIcon class="w-4 h-4" /> Open in WhatsApp
@@ -790,25 +790,18 @@
                   <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#25d366] to-transparent" />
                   <div class="flex gap-3 items-center mb-3">
                     <div class="w-[42px] h-[42px] rounded-xl bg-[#25d366]/15 grid place-items-center"><GroupIcon class="w-5 h-5 text-[#25d366]" /></div>
-                    <div><b class="font-semibold text-[14px]">Cohort 24-B</b><div class="text-[11px] text-slate-400">Web Development Track · 24 members</div></div>
+                    <div><b class="font-semibold text-[14px]">{{ chatTitle }}</b><div class="text-[11px] text-slate-400">{{ chatRoomLabel }} · {{ chatRoster.length }} online now</div></div>
                   </div>
-                  <div v-for="m in members" :key="m[1]" class="flex gap-2.5 items-center py-2">
+                  <div v-for="(m, i) in chatMemberRows" :key="i" class="flex gap-2.5 items-center py-2">
                     <div class="w-8 h-8 rounded-lg grid place-items-center text-[11px] font-bold text-[#08131f] shrink-0" :style="{ background: m[2] }">{{ m[0] }}</div>
                     <div><div class="text-[13px] font-semibold">{{ m[1] }}</div><div class="text-[10.5px] text-slate-500">{{ m[3] }}</div></div>
                   </div>
-                  <div class="text-[11px] text-slate-500 pt-1.5">and 19 more members</div>
+                  <div v-if="!chatMemberRows.length" class="text-[11px] text-slate-500 pt-1.5">Nobody else is in the room right now.</div>
                 </div>
-                <div class="bg-[#7db1ff]/5 border border-dashed border-[#7db1ff]/40 rounded-2xl p-5">
-                  <h4 class="text-[13px] font-bold flex gap-2 items-center"><MaskIcon class="w-4 h-4 fill-[#7db1ff]" /> Anonymous mode</h4>
-                  <p class="text-[11.5px] text-slate-400 mt-1.5 leading-relaxed">When enabled, your messages appear as "Anonymous".</p>
-                  <div class="flex justify-between items-center mt-2.5">
-                    <span class="text-[12px] font-bold">Post anonymously</span>
-                    <label class="relative inline-block w-[42px] h-[23px] shrink-0">
-                      <input v-model="anonMode" type="checkbox" class="opacity-0 w-0 h-0 peer" />
-                      <span class="absolute inset-0 bg-[#22304d] rounded-full cursor-pointer transition peer-checked:bg-[#7db1ff]"></span>
-                      <span class="absolute left-[3px] top-[3px] w-[17px] h-[17px] bg-slate-400 rounded-full transition peer-checked:translate-x-[19px] peer-checked:bg-[#06121f]"></span>
-                    </label>
-                  </div>
+                <div class="bg-[#25d366]/5 border border-dashed border-[#25d366]/40 rounded-2xl p-5">
+                  <h4 class="text-[13px] font-bold flex gap-2 items-center"><WhatsAppIcon class="w-4 h-4 fill-[#25d366]" /> Live cohort chat</h4>
+                  <p class="text-[11.5px] text-slate-400 mt-1.5 leading-relaxed">A real room on the school server, shared with everyone taking your course. What you send here appears for them straight away.</p>
+                  <div class="text-[11.5px] mt-2.5 font-semibold" :class="chatLive ? 'text-[#25d366]' : 'text-[#ffb454]'">{{ chatStatusLine }}</div>
                 </div>
               </div>
 
@@ -816,37 +809,30 @@
                 <div class="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06] bg-[#25d366]/5">
                   <div class="w-[38px] h-[38px] rounded-xl bg-[#25d366]/15 grid place-items-center"><ChatIcon class="w-[18px] h-[18px] text-[#25d366]" /></div>
                   <div class="min-w-0 flex-1">
-                    <div class="font-bold text-[13px] lg:text-[14.5px] truncate">Cohort 24-B · General</div>
-                    <div class="text-[10px] lg:text-[11px] text-[#25d366] font-semibold tracking-[0.04em]">Group · Anonymous permitted</div>
+                    <div class="font-bold text-[13px] lg:text-[14.5px] truncate">{{ chatTitle }} · {{ chatRoomLabel }}</div>
+                    <div class="text-[10px] lg:text-[11px] font-semibold tracking-[0.04em]" :class="chatLive ? 'text-[#25d366]' : 'text-[#ffb454]'">{{ chatStatusLine }}</div>
                   </div>
-                  <div class="flex items-center gap-1.5 text-[10px] lg:text-[11.5px] text-slate-400 shrink-0"><i class="w-2 h-2 rounded-full bg-[#25d366] inline-block animate-pulse"></i> 18</div>
+                  <div class="flex items-center gap-1.5 text-[10px] lg:text-[11.5px] text-slate-400 shrink-0"><i class="w-2 h-2 rounded-full inline-block" :class="chatLive ? 'bg-[#25d366] animate-pulse' : 'bg-slate-500'"></i> {{ chatRoster.length }}</div>
                 </div>
                 <div ref="threadRef" class="flex-1 overflow-y-auto p-3 lg:p-5 flex flex-col gap-3 bg-[radial-gradient(rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:22px_22px]">
-                  <div v-for="(m, i) in messages" :key="i" :class="['flex gap-2 max-w-[85%] lg:max-w-[76%]', m.me ? 'self-end flex-row-reverse' : '', m.anon ? 'anon-msg' : '']">
-                    <div class="w-7 h-7 lg:w-8 lg:h-8 rounded-lg grid place-items-center text-[10px] lg:text-[11px] font-bold text-[#08131f] shrink-0" :style="{ background: m.anon ? 'linear-gradient(135deg,#7db1ff,#4d7fd6)' : m.color }">
-                      <template v-if="m.anon">🎭</template>
-                      <template v-else>{{ initials(m.who) }}</template>
-                    </div>
-                    <div :class="['border rounded-2xl px-3 py-2', m.me ? 'bg-[#0f3d2c] border-[#25d366]/30 !rounded-br-sm' : m.anon ? 'bg-[#17233c] border-dashed border-[#7db1ff]/45 !rounded-tl-sm' : 'bg-[#17233c] border-white/[0.06] !rounded-tl-sm']">
-                      <div class="text-[10px] lg:text-[11.5px] font-bold mb-0.5" :style="{ color: m.anon ? '#7db1ff' : m.color }">{{ m.anon ? '🎭 Anonymous' : m.who }}</div>
-                      <p class="text-[12.5px] lg:text-[13.5px] leading-relaxed">{{ m.text }}</p>
-                      <span class="block text-right text-[9px] lg:text-[10px] text-slate-500 mt-1 font-mono">{{ m.time }}{{ m.me ? ' ✓✓' : '' }}</span>
-                    </div>
+                  <div v-for="(m, i) in messages" :key="m.sid || m.tkey || i" :class="['flex gap-2 max-w-[85%] lg:max-w-[76%]', m.me ? 'self-end flex-row-reverse' : '']">
+                    <div v-if="m.sys" class="self-center text-[10.5px] lg:text-[11px] text-slate-500 italic px-2 py-0.5">{{ m.text }} · {{ m.time }}</div>
+                    <template v-else>
+                      <div class="w-7 h-7 lg:w-8 lg:h-8 rounded-lg grid place-items-center text-[10px] lg:text-[11px] font-bold text-[#08131f] shrink-0" :style="{ background: m.color }">{{ initials(m.who) }}</div>
+                      <div :class="['border rounded-2xl px-3 py-2', m.me ? 'bg-[#0f3d2c] border-[#25d366]/30 !rounded-br-sm' : 'bg-[#17233c] border-white/[0.06] !rounded-tl-sm']">
+                        <div class="text-[10px] lg:text-[11.5px] font-bold mb-0.5" :style="{ color: m.color }">{{ m.who }}</div>
+                        <p class="text-[12.5px] lg:text-[13.5px] leading-relaxed">{{ m.text }}</p>
+                        <span class="block text-right text-[9px] lg:text-[10px] text-slate-500 mt-1 font-mono">{{ m.time }}<template v-if="m.me">{{ m.pending ? ' ···' : ' ✓✓' }}</template></span>
+                      </div>
+                    </template>
                   </div>
-                  <div v-if="typing" class="flex gap-2">
-                    <div class="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-[#7db1ff] grid place-items-center text-[10px] lg:text-[11px] font-bold text-[#08131f] shrink-0">TA</div>
-                    <div class="bg-[#17233c] border border-white/[0.06] rounded-tl-sm rounded-tr-2xl rounded-br-2xl rounded-bl-2xl px-4 py-3 flex gap-1">
-                      <i v-for="n in 3" :key="n" class="w-1.5 h-1.5 rounded-full bg-slate-400 typing-dot" :style="{ animationDelay: (n-1) * 0.18 + 's' }"></i>
-                    </div>
-                  </div>
+                  <div v-if="!messages.length" class="m-auto text-center text-slate-500 text-[12.5px] px-6 py-10 leading-relaxed">{{ chatLive ? 'No messages in this room yet — say hello to your cohort.' : chatStatusLine + '.' }}</div>
                 </div>
                 <div class="flex gap-2 items-center p-3 border-t border-white/[0.06] bg-[#080d18]/60">
-                  <button @click="anonMode = !anonMode" :class="['inline-flex items-center gap-1.5 px-2.5 lg:px-3 py-2 rounded-full border text-[10px] lg:text-[11.5px] font-bold transition shrink-0', anonMode ? 'border-[#7db1ff] text-[#7db1ff] bg-[#7db1ff]/10' : 'border-white/[0.06] text-slate-500']">
-                    <MaskIcon class="w-3 h-3 lg:w-3.5 lg:h-3.5 fill-current" />
-                    <span class="hidden sm:inline">{{ anonMode ? 'Anonymous' : 'Named' }}</span>
-                  </button>
-                  <input v-model="chatInput" @keydown.enter="sendMsg" :placeholder="anonMode ? 'Message anonymously…' : 'Message Cohort 24-B…'" class="flex-1 bg-[#152238] border border-white/[0.06] rounded-xl px-3 lg:px-4 py-2.5 text-[13px] lg:text-[13.5px] text-white outline-none placeholder:text-slate-500 focus:border-[#25d366]/50 focus:ring-4 focus:ring-[#25d366]/10 transition" />
-                  <button @click="sendMsg" class="w-10 h-10 lg:w-11 lg:h-11 rounded-xl bg-gradient-to-br from-[#25d366] to-[#128c5e] grid place-items-center shadow-lg shadow-[#25d366]/30 hover:-translate-y-0.5 hover:scale-105 transition">
+                  <span v-if="!chatLive" class="shrink-0 text-[10px] lg:text-[11px] font-bold text-[#ffb454] px-2.5 py-2 rounded-full border border-[#ffb454]/40 bg-[#ffb454]/10">{{ chatBusy ? 'Connecting…' : 'Offline' }}</span>
+                  <span v-else-if="!chatOpen" class="shrink-0 text-[10px] lg:text-[11px] font-bold text-slate-500 px-2.5 py-2 rounded-full border border-white/[0.06]">Chat closed</span>
+                  <input v-model="chatInput" @keydown.enter="sendMsg" :disabled="!chatLive || !chatOpen" :placeholder="chatLive ? ('Message ' + chatTitle + '…') : 'Connecting to the cohort chat…'" class="flex-1 bg-[#152238] border border-white/[0.06] rounded-xl px-3 lg:px-4 py-2.5 text-[13px] lg:text-[13.5px] text-white outline-none placeholder:text-slate-500 focus:border-[#25d366]/50 focus:ring-4 focus:ring-[#25d366]/10 transition disabled:opacity-50" />
+                  <button @click="sendMsg" :disabled="!chatLive || !chatOpen" class="w-10 h-10 lg:w-11 lg:h-11 rounded-xl bg-gradient-to-br from-[#25d366] to-[#128c5e] grid place-items-center shadow-lg shadow-[#25d366]/30 hover:-translate-y-0.5 hover:scale-105 transition disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:scale-100">
                     <SendIcon class="w-[16px] h-[16px] lg:w-[18px] lg:h-[18px] fill-[#04140b]" />
                   </button>
                 </div>
@@ -1402,7 +1388,6 @@ const EyeIcon = mkIcon(['M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z', 'M12
 const StarIcon = mkIcon('M12 2l3 7 7 .6-5.3 4.7L18 22l-6-4-6 4 1.3-7.7L2 9.6 9 9Z', true);
 const SendIcon = mkIcon('M2.5 12 21 3l-4 18-6.5-7L2.5 12Zm8 1 8.5-8', true);
 const GroupIcon = mkIcon(['M9 11a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z', 'M3 20c.5-3.4 3-5 6-5s5.5 1.6 6 5', 'M17 9.4a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8Z', 'M16.5 15.2c2.4.4 4 1.9 4.4 4.3']);
-const MaskIcon = mkIcon('M2 9c3-2 6-2 10-2s7 0 10 2c0 4-2 8-5 8-2 0-3-1.5-5-1.5S9 17 7 17c-3 0-5-4-5-8Z', true);
 
 // ===================== STATE =====================
 const router = useRouter();
@@ -1427,9 +1412,7 @@ const bellOpen = ref(false);
 const searchQuery = ref('');
 const globalSearch = ref('');
 const activeTag = ref('All');
-const anonMode = ref(false);
 const chatInput = ref('');
-const typing = ref(false);
 const toasts = reactive([]);
 const saved = reactive(new Set());
 // Priced-library commerce: ids of PDF textbooks this student has PAID for
@@ -1574,14 +1557,6 @@ async function loadClassroomAssignments() {
   });
 }
 
-const members = [
-  ['TA', 'Tobi Adeleke', '#7db1ff', 'Class representative'],
-  ['AM', 'Amara Obi', '#3ce6c3', 'Study group lead'],
-  ['MD', 'Mr. Adeyemi', '#ffb454', 'Course instructor'],
-  ['FK', 'Fatima Khan', '#ff7a6b', 'Member'],
-  ['CN', 'Chen Lu', '#b7a6ff', 'Member']
-];
-
 const announcements = [
   { text: 'Your weekly classes follow your registered course roadmap, month by month — see My Timetable.', meta: 'Today · Academic Office', color: 'coral' },
   { text: 'Every class pairs with its YouTube lesson; the AI textbook lands in your Library after class.', meta: 'This week · Learning System', color: 'teal' },
@@ -1601,7 +1576,6 @@ const preferences = reactive([
 ]);
 
 const libTags = ['All', 'Notes', 'Slides', 'Past Papers', 'Manuals'];
-const replies = ['Noted — thank you.', 'Could you share the page number as well?', 'I will review it right after the lab.', 'Adding it to my notes now.', 'Has anyone else attempted question 4?', 'I will save it to the shared folder.'];
 
 // A computed (not a plain array) so the Assignments badge reflects rows that
 // arrive after mount: loadClassroomAssignments() resolves asynchronously, so as a
@@ -2243,42 +2217,210 @@ function readNotif(i) {
   toast('Marked as read.');
 }
 
-// ===================== CHAT =====================
-function seedChat() {
-  [
-    { who: 'Mr. Adeyemi', color: '#ffb454', text: 'Reminder: this week\'s live class follows the timetable on your dashboard — check the Timetable page for the exact day and time.' },
-    { who: 'Tobi Adeleke', color: '#7db1ff', text: 'Just finished this week\'s lesson video — the AI textbook for it is already in the Library.' },
-    { who: 'Amara Obi', color: '#3ce6c3', text: 'Same here. Search the Library for the topic title and it opens right in the app.' },
-    { who: 'Anon', color: '', anon: true, text: 'Could we schedule an extra review session before this month\'s project milestone?' },
-    { who: 'Fatima Khan', color: '#ff7a6b', text: 'Adding my voice to that. Mr. Adeyemi, would Saturday afternoon work for you?' }
-  ].forEach(addMsg);
+// ===================== LIVE COHORT CHAT =====================
+// This view used to be a scripted demo: seedChat() invented five messages on
+// mount and sendMsg() only appended locally, then answered with the AI tutor
+// or a random canned reply. Nothing was ever shared and nothing ever arrived on
+// its own, so students saw a fake conversation instead of their cohort's.
+//
+// api_server.py already implements the real thing -- POST /api/classroom/join,
+// /say, /ping, /leave plus an SSE fan-out on classroom_chat -- so this now
+// joins the SAME room the classroom page uses for this student (the room key is
+// the normalized career_path) and renders the server's own history. Verified in
+// production: state/join/say answer 200 through the Vercel rewrite and
+// classroom_chat events do reach an EventSource.
+const chatCourse = ref('');        // room = this student's career_path
+const chatRoom = ref('');          // server-normalized room key
+const chatPid = ref('');           // our seat id; /say 404s without it
+const chatLive = ref(false);       // joined the room
+const chatBusy = ref(false);       // a join is in flight
+const chatOpen = ref(true);        // a teacher can close the room
+const chatRoster = ref([]);        // live participants
+const chatProblem = ref('');       // why the room is unavailable, if it is
+let chatPingTimer = null;
+const chatSeen = new Set();        // server message ids already rendered
+let chatPending = 0;
+
+const chatTitle = computed(() => String(student.cohort || '').trim() || 'Cohort 24-B');
+const chatRoomLabel = computed(() => prettifyPath(chatCourse.value) || 'Cohort room');
+
+/** The server sends a 0-359 hue per participant; render it as a solid tint. */
+function hueColor(h) {
+  return 'hsl(' + (Number(h) || 210) + ' 62% 62%)';
 }
 
+/** Server timestamps are ISO seconds; keep the HH:MM the demo bubbles used. */
+function chatTime(ts) {
+  const d = ts ? new Date(ts) : null;
+  return d && !isNaN(d.getTime())
+    ? d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    : nowTime();
+}
+
+/** The room key must match the classroom page, which resolves it this way. */
+function chatCourseKey() {
+  return String(student.career_path || localStorage.getItem('boi_career_path') || '').trim();
+}
+
+const chatMemberRows = computed(() => chatRoster.value.map(p => [
+  initials(p.name || '?'),
+  p.name || 'Cohort member',
+  hueColor(p.hue),
+  p.role === 'teacher' ? 'Course instructor' : 'In the chat'
+]));
+
+const chatStatusLine = computed(() => {
+  if (chatBusy.value) return 'Connecting to the cohort chat…';
+  if (chatLive.value && !chatOpen.value) return 'Your teacher has closed the class chat';
+  if (chatLive.value) return 'Live — messages appear the moment they are sent';
+  return chatProblem.value || 'Not connected to the cohort chat';
+});
+
 function addMsg(m) {
-  messages.push({ ...m, time: nowTime() });
+  messages.push({ ...m, time: m.time || nowTime() });
   nextTick(() => {
     if (threadRef.value) threadRef.value.scrollTop = threadRef.value.scrollHeight;
   });
 }
 
+function scrollThread() {
+  nextTick(() => {
+    if (threadRef.value) threadRef.value.scrollTop = threadRef.value.scrollHeight;
+  });
+}
+
+/** One server message -> one bubble. Shared by the join snapshot and by SSE. */
+function ingestChatMessage(m) {
+  if (!m) return;
+  const id = String(m.id || '');
+  if (id && chatSeen.has(id)) return;          // /say fans out to the sender too
+  if (id) chatSeen.add(id);
+  if (m.kind === 'system') {
+    addMsg({ sys: true, text: m.text || '', time: chatTime(m.ts) });
+    return;
+  }
+  const mine = !!chatPid.value && m.pid === chatPid.value;
+  if (mine) {
+    // Our own message came back over SSE before the POST resolved: drop the
+    // optimistic bubble so the same text is never shown twice.
+    const i = messages.findIndex(x => x.pending && x.text === (m.text || ''));
+    if (i >= 0) messages.splice(i, 1);
+  }
+  addMsg({
+    who: mine ? 'You' : (m.name || 'Cohort member'),
+    color: hueColor(m.hue),
+    text: m.text || '',
+    me: mine,
+    sid: id,
+    time: chatTime(m.ts)
+  });
+}
+
+/** The join snapshot is the room's real history — it replaces what is shown. */
+function renderChatHistory(rows) {
+  messages.length = 0;
+  chatSeen.clear();
+  rows.forEach(ingestChatMessage);
+  scrollThread();
+}
+
+/** Seats are swept after 45s of silence, so hold ours with a 15s heartbeat. */
+function startChatHeartbeat() {
+  stopChatHeartbeat();
+  chatPingTimer = setInterval(async () => {
+    if (!chatPid.value) return;
+    const res = await api.pingClassroom(chatCourse.value, chatPid.value);
+    if (res && res.error && res.status === 404) joinCohortChat();   // seat expired
+  }, 15000);
+}
+
+function stopChatHeartbeat() {
+  if (chatPingTimer) { clearInterval(chatPingTimer); chatPingTimer = null; }
+}
+
+async function joinCohortChat() {
+  if (chatBusy.value) return;
+  const course = chatCourseKey();
+  if (!course) {
+    chatProblem.value = 'Your course is not on your record yet, so there is no cohort room to join yet.';
+    return;
+  }
+  // Already in this room: just keep the heartbeat alive. Without this guard the
+  // mount-time join and the post-init join would take two seats in the roster.
+  if (chatLive.value && chatCourse.value === course) { startChatHeartbeat(); return; }
+  chatBusy.value = true;
+  chatProblem.value = '';
+  const nm = String(student.fullname || '').trim() || 'Student';
+  const res = await api.joinClassroom({
+    course,
+    name: nm,
+    studentId: currentStudentId(),
+    hue: [...nm].reduce((a, c) => a + c.charCodeAt(0), 0) % 360
+  });
+  chatBusy.value = false;
+  if (!res || !res.you) {
+    chatLive.value = false;
+    chatProblem.value = 'Could not reach the school server to open the cohort chat.';
+    return;
+  }
+  chatCourse.value = res.course || course;
+  chatRoom.value = res.room || course;
+  chatPid.value = res.you.id;
+  chatOpen.value = res.chat_open !== false;
+  chatRoster.value = Array.isArray(res.participants) ? res.participants : [];
+  renderChatHistory(Array.isArray(res.messages) ? res.messages : []);
+  chatLive.value = true;
+  startChatHeartbeat();
+}
+
+/** Hand the seat back so the roster does not show a ghost for 45s. */
+function leaveCohortChat() {
+  stopChatHeartbeat();
+  if (chatPid.value) api.leaveClassroom(chatCourse.value, chatPid.value);
+  chatPid.value = '';
+  chatLive.value = false;
+}
+
 async function sendMsg() {
   const v = chatInput.value.trim();
   if (!v) return;
-  addMsg({ who: 'You', color: '#3ce6c3', text: v, me: true, anon: anonMode.value });
-  chatInput.value = '';
-  typing.value = true;
-
-  // Grounded in whatever section the reader has open, when one is.
-  const c = readerCourse.value;
-  const answer = await api.ask(v, c ? c.id : null, c ? readerPage.value : null);
-  typing.value = false;
-  if (answer) {
-    addMsg({ who: 'AI Tutor', color: '#3ce6c3', text: answer });
+  if (!chatLive.value) {
+    toast(chatProblem.value || 'The cohort chat is not connected yet.', 'warn');
     return;
   }
-  // Backend down or no NVIDIA key — fall back to the canned cohort replies so
-  // the thread never dead-ends on a spinner.
-  addMsg({ who: 'Tobi Adeleke', color: '#7db1ff', text: replies[Math.floor(Math.random() * replies.length)] });
+  if (!chatOpen.value) {
+    toast('Your teacher has closed the class chat for now.', 'warn');
+    return;
+  }
+  chatInput.value = '';
+
+  // Optimistic bubble, so the composer feels instant. The server fans our own
+  // message back to us too, so the id returned by /say is registered as seen:
+  // whichever of the two arrives first wins and the text is never duplicated.
+  const key = 'pending-' + (++chatPending);
+  addMsg({ who: 'You', color: hueColor(210), text: v, me: true, pending: true, tkey: key });
+
+  let res = await api.sayToClassroom(chatCourse.value, chatPid.value, v);
+  if (res && res.error && res.status === 404) {
+    // Our seat expired server-side (restart, or 45s without a ping): rejoin and retry once.
+    chatPid.value = '';
+    await joinCohortChat();
+    res = chatLive.value ? await api.sayToClassroom(chatCourse.value, chatPid.value, v) : null;
+  }
+  if (!res || res.error) {
+    const i = messages.findIndex(m => m.tkey === key);
+    if (i >= 0) messages.splice(i, 1);
+    if (res && res.status === 403) {
+      chatOpen.value = false;
+      toast('Your teacher has closed the class chat for now.', 'warn');
+    } else {
+      toast('Message not sent — check your connection and try again.', 'warn');
+    }
+    return;
+  }
+  if (res.id) chatSeen.add(String(res.id));
+  const sent = messages.find(m => m.tkey === key);
+  if (sent) { sent.pending = false; sent.sid = res.id || ''; }
 }
 
 // ===================== BACKEND (boi-rsu) =====================
@@ -3266,6 +3408,14 @@ function onServerEvent(name, data) {
       loadDailyPlan();
       toast('✨ Your day-by-day lesson plan was updated — see My Timetable.');
     }
+  } else if (name === 'classroom_chat') {
+    // A real cohort message. Other courses broadcast on the same hub, so only
+    // our own room is rendered; ingestChatMessage drops ids we already have.
+    if (data.room === chatRoom.value) ingestChatMessage(data);
+  } else if (name === 'classroom_roster') {
+    if (data.room === chatRoom.value) {
+      chatRoster.value = Array.isArray(data.participants) ? data.participants : [];
+    }
   }
 }
 
@@ -3578,7 +3728,6 @@ onMounted(() => {
   clockInt = setInterval(tickClock, 1000);
   tickCountdown();
   countdownInt = setInterval(tickCountdown, 1000);
-  seedChat();
   initThree();
   animateDial(1);
   // Deliberately not awaited: the whole view is already rendered on demo data,
@@ -3587,7 +3736,13 @@ onMounted(() => {
   // once the server record lands, so a student whose fees were confirmed after
   // their last registration still opens the tab they actually asked for.
   applyViewFromQuery();
-  initBackend().then(applyViewFromQuery);
+  // The deep link can land straight on the chat, and the room key IS the
+  // student's career_path, which only arrives with the server record — so the
+  // first join waits for initBackend() instead of racing an empty identity.
+  initBackend().then(() => {
+    applyViewFromQuery();
+    if (currentView.value === 'chat') joinCohortChat();
+  });
   // Live link with registration.vue: a new/updated registration (same tab via
   // the custom event, another tab via the storage event, or anything else via
   // the poll) re-hydrates this dashboard instantly — no reload needed.
@@ -3604,11 +3759,16 @@ onUnmounted(() => {
   removeEventListener('storage', syncFromRegistration);
   removeEventListener('boi:profile-updated', syncFromRegistration);
   stopPlanJob();
+  leaveCohortChat();   // hand the room seat back instead of lingering as a ghost
   if (stopStream) stopStream();
 });
 
-watch(anonMode, (v) => {
-  if (v) toast('Anonymous mode enabled — your name is hidden.');
+// Joining is driven by the view, not by mount: a seat that is never pinged is
+// swept server-side after 45s, and a student who never opens the chat should
+// not hold a seat in the cohort's roster.
+watch(currentView, (v) => {
+  if (v === 'chat') joinCohortChat();
+  else leaveCohortChat();
 });
 
 watch(readerModal, (v) => {
