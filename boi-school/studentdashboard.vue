@@ -151,7 +151,11 @@
 
         <div class="px-2 text-[10px] uppercase tracking-[0.26em] text-slate-500 font-semibold mt-2">Navigate</div>
 
-        <nav class="flex flex-col gap-1 overflow-y-auto pr-1">
+        <!-- aria-label keeps this desktop nav byte-identical in intent to the one
+             in roadmap.vue (which reuses this exact markup), so the two pages
+             expose the same labelled navigation and tests/a11y tools can find it
+             the same way. -->
+        <nav class="flex flex-col gap-1 overflow-y-auto pr-1" aria-label="Student routes">
           <button
             v-for="item in navItems"
             :key="item.id"
@@ -3121,8 +3125,19 @@ function applyStudent(s) {
   }
 
   const taken = Number(s.quizzes_taken) || 0;
+  // cgpa is deliberately null until the first quiz is graded (see line ~3113
+  // and the 'N/A' placeholder above), so it must not be formatted blindly -
+  // null.toFixed(2) threw a TypeError and blanked every stat card for a brand
+  // new student. 'N/A' / 'No grade data yet' is what this file already shows
+  // before the API answers, and what PartnerPage.vue uses for a null CGPA.
   stats.splice(0, stats.length,
-    { label: 'CGPA', value: student.cgpa.toFixed(2), sub: ' /4.00', desc: 'Grade ' + (s.overall_grade || 'N/A'), color: 'teal' },
+    {
+      label: 'CGPA',
+      value: student.cgpa == null ? 'N/A' : student.cgpa.toFixed(2),
+      sub: student.cgpa == null ? '' : ' /4.00',
+      desc: student.cgpa == null ? 'No grade data yet' : 'Grade ' + (s.overall_grade || 'N/A'),
+      color: 'teal'
+    },
     { label: 'Quiz average', value: Math.round(s.avg_quiz_score || 0) + '%', sub: '', desc: taken + (taken === 1 ? ' quiz' : ' quizzes') + ' taken', color: 'sky' },
     { label: 'Assignments', value: String(s.assignments_submitted || 0), sub: '', desc: 'Submitted', color: 'amber' },
     { label: 'Attendance', value: Math.round(s.attendance_rate || 0) + '%', sub: '', desc: (s.classes_attended || 0) + '/' + (s.total_classes || 0) + ' classes', color: 'coral' }
@@ -3384,16 +3399,19 @@ function animateDial(which) {
   const C = which === 1 ? 339.3 : 477.5;
   const offRef = which === 1 ? dial1Offset : dial2Offset;
   const numRef = which === 1 ? dial1Num : dial2Num;
+  // null cgpa (no quiz graded yet) would otherwise sweep the ring with NaN
+  // maths; 0 shows an empty ring next to the 'N/A' stat card.
+  const cgpa = Number(student.cgpa) || 0;
   offRef.value = C;
   setTimeout(() => {
-    offRef.value = C * (1 - student.cgpa / 4);
+    offRef.value = C * (1 - cgpa / 4);
   }, 100);
   const t0 = performance.now();
   const dur = 1500;
   function step(t) {
     const p = Math.min(1, (t - t0) / dur);
     const e = 1 - Math.pow(1 - p, 3);
-    numRef.value = (student.cgpa * e).toFixed(2);
+    numRef.value = (cgpa * e).toFixed(2);
     if (p < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
