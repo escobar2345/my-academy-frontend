@@ -9,7 +9,7 @@
       :to="isTour ? undefined : TOUR_URL"
       class="nav-mark"
     >
-      <span class="dot"></span>DEVSPHERE
+      <span class="dot"></span>LIP
     </component>
 
     <!-- Same NAV_ITEMS list drives this row and the mobile bar below, so the
