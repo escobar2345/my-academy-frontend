@@ -69,7 +69,7 @@
             <span class="pulse-dot"></span>
             Next Cohort: March 2025
           </div>
-          <div class="hero-eyebrow">LIP · Learning Intelligence Platform</div>
+          <div class="hero-eyebrow">LIP Academy</div>
           <h3 class="hero-title reveal-mask">The Future Isn't Coming.<br>We're Training <em class="shine">For It.</em></h3>
           <p class="hero-sub">An AI-first tech academy built to put Nigerian youth on the same table as Silicon Valley, London, and Singapore — not behind them, beside them.</p>
 
@@ -275,7 +275,7 @@
           <router-link :to="LOGIN_URL" class="btn btn-ghost">Login to Dashboard</router-link>
         </div>
         
-        <div class="foot-line">LIP — Learning Intelligence Platform · BOI RSU Innovation Hub · Supporting African Entrepreneurship</div>
+        <div class="foot-line">LIP Academy · BOI RSU Innovation Hub · Supporting African Entrepreneurship</div>
       </section>
 
     </main>

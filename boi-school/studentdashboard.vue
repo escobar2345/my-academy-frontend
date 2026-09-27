@@ -925,7 +925,7 @@
 
         <!-- Footer -->
         <footer class="p-4 px-4 lg:px-7 border-t border-white/[0.06] text-slate-500 text-[10px] lg:text-[11.5px] flex flex-wrap gap-2 lg:gap-3.5">
-          <span><b class="text-slate-400">LIP</b> · Learning Intelligence Platform · v2.6</span>
+          <span><b class="text-slate-400">LIP Academy</b> · v2.6</span>
           <span class="hidden sm:inline">Semester: 2026/27 Harmattan</span>
           <span>Need help? <a href="#" @click.prevent="go('chat')" class="text-[#3ce6c3] font-bold no-underline">Ask the cohort →</a></span>
           <span class="ml-auto hidden sm:inline">© 2026 {{ brandName }}</span>
@@ -2643,18 +2643,20 @@ function disarmShield() {
 
 // ---- Partner-aware branding ----------------------------------------------
 // ---- Partner-aware branding ----------------------------------------------
-// The brand is "LIP" (Learning Intelligence Platform) by default. When a student
-// registered with a partner's sponsor ID, the backend resolves that partner's
-// org_name (the name the admin entered when registering the partner on the
-// admin dashboard) and this portal shows it instead — sponsored students wear
-// their sponsor's brand; everyone else sees the default.
+// The brand is "LIP Academy" by default. When a student registered with a
+// partner's sponsor ID, the backend resolves that partner's org_name (the name
+// the admin entered when registering the partner on the admin dashboard) and
+// this portal shows it instead — sponsored students wear their sponsor's
+// brand; everyone else sees the default.
 //
-// "LIP" is deliberately ONE word: the logo splits the name on the last space
-// (brandFirst in white + brandAccent in teal), so the old two-word
-// "devsphere academy" rendered as "devsphere" + "academy". "LIP" renders as
-// the mark on its own and brandInitial becomes "L". The expansion is spelled
-// out in the page footer, the document title and index.html's meta description.
-const DEFAULT_BRAND = 'LIP';
+// LIP stands for "Learning Intelligence Platform". That expansion is a
+// definition, NOT part of the brand: never render "LIP Learning Intelligence
+// Platform" anywhere. The brand is LIP Academy, or the expansion on its own.
+//
+// The logo splits the name on the last space (brandFirst in white + brandAccent
+// in teal), so "LIP Academy" renders as "LIP" + teal "Academy" and
+// brandInitial is "L".
+const DEFAULT_BRAND = 'LIP Academy';
 const brandName = ref(DEFAULT_BRAND);
 const brandInitial = computed(() => (brandName.value.trim()[0] || 'D').toUpperCase());
 const brandSplit = computed(() => {

@@ -93,7 +93,7 @@
         <text x="31" y="54" text-anchor="middle" font-family="Fraunces,serif" font-weight="900" font-size="11" fill="#e8a524">BOI</text>
       </svg>
       <div class="min-w-0">
-        <h1 class="text-[20px] leading-none font-black" style="font-family:'Fraunces',serif;color:#14432e">LIP <i class="italic font-semibold text-[#cf3f2b]">Learning Intelligence Platform</i></h1>
+        <h1 class="text-[20px] leading-none font-black" style="font-family:'Fraunces',serif;color:#14432e">LIP <i class="italic font-semibold text-[#cf3f2b]">Academy</i></h1>
         <p class="font-bold uppercase tracking-[.15em] text-[9px] mt-[2px] text-[#6d6f63]" style="font-family:'JetBrains Mono',monospace">Code · Build · Get Hired</p>
       </div>
       <span class="ml-auto bg-[#e8a524] text-[#0d3321] font-bold text-[9px] px-2 py-1 rounded-[4px] tracking-[.1em] -rotate-[1.5deg]" style="font-family:'JetBrains Mono',monospace">COHORT 12</span>
@@ -115,8 +115,8 @@
     <div class="relative z-[5] bg-[#0d3321] text-[#f3ecd6] overflow-hidden border-b-[3px] border-[#e8a524] hidden md:block">
       <div class="inline-flex whitespace-nowrap py-2 font-semibold text-[12px] uppercase tracking-[.08em]"
            style="font-family:'JetBrains Mono',monospace;animation:tick 40s linear infinite">
-        <span class="flex items-center gap-[22px] px-[22px]">LIP · Learning Intelligence Platform · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
-        <span class="flex items-center gap-[22px] px-[22px]">LIP · Learning Intelligence Platform · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
+        <span class="flex items-center gap-[22px] px-[22px]">LIP Academy · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
+        <span class="flex items-center gap-[22px] px-[22px]">LIP Academy · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
       </div>
     </div>
 
@@ -128,7 +128,7 @@
         <text x="31" y="54" text-anchor="middle" font-family="Fraunces,serif" font-weight="900" font-size="11" fill="#e8a524">BOI</text>
       </svg>
       <div>
-        <h1 class="text-[clamp(26px,3.4vw,38px)] leading-none font-black text-[#14432e]" style="font-family:'Fraunces',serif">LIP <i class="italic font-semibold text-[#cf3f2b]">Learning Intelligence Platform</i></h1>
+        <h1 class="text-[clamp(26px,3.4vw,38px)] leading-none font-black text-[#14432e]" style="font-family:'Fraunces',serif">LIP <i class="italic font-semibold text-[#cf3f2b]">Academy</i></h1>
         <p class="font-semibold text-[11.5px] uppercase tracking-[.18em] text-[#6d6f63] mt-[6px]" style="font-family:'JetBrains Mono',monospace">Code · Build · Get Hired</p>
       </div>
       <div class="ml-auto text-right text-[13px] text-[#6d6f63] leading-[1.7]">
@@ -717,7 +717,7 @@
       ● progress saved <em class="text-[#e8a524] not-italic">{{ draftTime }}</em>
     </div>
 
-    <footer class="relative z-[2] text-center py-[26px] pb-[100px] md:pb-[26px] font-bold text-[11px] uppercase tracking-[.14em] text-[#a29d8a]" style="font-family:'JetBrains Mono',monospace">LIP · Learning Intelligence Platform · Learn · Build · Get Hired · © 2026 · boirsuhub@gmail.com</footer>
+    <footer class="relative z-[2] text-center py-[26px] pb-[100px] md:pb-[26px] font-bold text-[11px] uppercase tracking-[.14em] text-[#a29d8a]" style="font-family:'JetBrains Mono',monospace">LIP Academy · Learn · Build · Get Hired · © 2026 · boirsuhub@gmail.com</footer>
   </div>
 </template>
 

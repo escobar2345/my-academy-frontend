@@ -355,10 +355,12 @@ const router = useRouter()
 // Partner-aware branding — mirrors studentdashboard.vue: a student who
 // registered with a partner's sponsor ID sees that partner's org name (stored
 // by registration.vue / studentdashboard.vue at handoff); everyone else sees
-// the default "LIP" (Learning Intelligence Platform). One word, so the logo
-// mark is the mark itself and the initial is "L".
+// the default "LIP Academy". LIP = "Learning Intelligence Platform", but that
+// expansion is a definition and never part of the brand, so it is not
+// concatenated after the name. Two words, so the logo shows "LIP" + teal
+// "Academy" and the initial is "L".
 const storedOrg = String(localStorage.getItem('boi_sponsor_org') || '').trim();
-const brandFull = storedOrg || 'LIP';
+const brandFull = storedOrg || 'LIP Academy';
 const brandSpace = brandFull.lastIndexOf(' ');
 const brandFirst = brandSpace > 0 ? brandFull.slice(0, brandSpace) : brandFull;
 const brandAccent = brandSpace > 0 ? brandFull.slice(brandSpace + 1) : '';
