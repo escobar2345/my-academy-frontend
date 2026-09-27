@@ -773,7 +773,7 @@
             <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
               <div>
                 <span class="text-[10.5px] uppercase tracking-[0.24em] text-slate-500 font-semibold">WhatsApp Cohort Group</span>
-                <h1 class="font-serif text-[clamp(24px,5vw,40px)] tracking-tight mt-1">Cohort <i class="text-[#3ce6c3]">24-B</i> Chat</h1>
+                <h1 class="font-serif text-[clamp(24px,5vw,40px)] tracking-tight mt-1">{{ chatTitle }} <i class="text-[#3ce6c3]">Chat</i></h1>
                 <p class="text-slate-400 text-[13.5px] mt-1.5 leading-relaxed max-w-xl hidden sm:block">The real conversation for your registered course — every message reaches your classmates and your teacher, live.</p>
               </div>
               <button @click="toast('Opening group in WhatsApp… (demo)', 'warn')" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-[#25d366] to-[#128c5e] text-[#04140b] font-semibold text-[13px] shadow-lg shadow-[#25d366]/25 hover:-translate-y-0.5 transition-all">
@@ -790,7 +790,7 @@
                   <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#25d366] to-transparent" />
                   <div class="flex gap-3 items-center mb-3">
                     <div class="w-[42px] h-[42px] rounded-xl bg-[#25d366]/15 grid place-items-center"><GroupIcon class="w-5 h-5 text-[#25d366]" /></div>
-                    <div><b class="font-semibold text-[14px]">{{ chatTitle }}</b><div class="text-[11px] text-slate-400">{{ chatRoomLabel }} · {{ chatRoster.length }} online now</div></div>
+                    <div><b class="font-semibold text-[14px]">{{ chatTitle }}</b><div class="text-[11px] text-slate-400">{{ chatSubtitle }}</div></div>
                   </div>
                   <div v-for="(m, i) in chatMemberRows" :key="i" class="flex gap-2.5 items-center py-2">
                     <div class="w-8 h-8 rounded-lg grid place-items-center text-[11px] font-bold text-[#08131f] shrink-0" :style="{ background: m[2] }">{{ m[0] }}</div>
@@ -809,7 +809,7 @@
                 <div class="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06] bg-[#25d366]/5">
                   <div class="w-[38px] h-[38px] rounded-xl bg-[#25d366]/15 grid place-items-center"><ChatIcon class="w-[18px] h-[18px] text-[#25d366]" /></div>
                   <div class="min-w-0 flex-1">
-                    <div class="font-bold text-[13px] lg:text-[14.5px] truncate">{{ chatTitle }} · {{ chatRoomLabel }}</div>
+                    <div class="font-bold text-[13px] lg:text-[14.5px] truncate">{{ chatHeading }}</div>
                     <div class="text-[10px] lg:text-[11px] font-semibold tracking-[0.04em]" :class="chatLive ? 'text-[#25d366]' : 'text-[#ffb454]'">{{ chatStatusLine }}</div>
                   </div>
                   <div class="flex items-center gap-1.5 text-[10px] lg:text-[11.5px] text-slate-400 shrink-0"><i class="w-2 h-2 rounded-full inline-block" :class="chatLive ? 'bg-[#25d366] animate-pulse' : 'bg-slate-500'"></i> {{ chatRoster.length }}</div>
@@ -891,7 +891,7 @@
                   <div>
                     <label class="block text-[10.5px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-1.5">Cohort</label>
                     <select class="w-full bg-[#152238] border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-[13.5px] text-white outline-none focus:border-[#3ce6c3]/50 transition">
-                      <option>Cohort 24-B (current)</option>
+                      <option>{{ studentCohort }} (current)</option>
                       <option>Cohort 25-A</option>
                     </select>
                   </div>
@@ -1589,7 +1589,7 @@ const navItems = computed(() => [
   { id: 'library', label: 'Library', icon: BookIcon },
   { id: 'roadmap', label: 'Roadmap', icon: BookIcon, pill: 'New' },
   { id: 'grades', label: 'Grades & CGPA', icon: ChartIcon },
-  { id: 'chat', label: 'Cohort Chat', icon: ChatIcon, pill: '24-B' },
+  { id: 'chat', label: 'Cohort Chat', icon: ChatIcon, pill: studentCohortPill.value },
   { id: 'assignments', label: 'Assignments', icon: FileIcon, pill: String(assignments.value.filter(a => a.status[0] === 'Pending').length || '') },
   { id: 'settings', label: 'Settings', icon: SettingsIcon }
 ]);
@@ -2241,8 +2241,15 @@ let chatPingTimer = null;
 const chatSeen = new Set();        // server message ids already rendered
 let chatPending = 0;
 
-const chatTitle = computed(() => String(student.cohort || '').trim() || 'Cohort 24-B');
-const chatRoomLabel = computed(() => prettifyPath(chatCourse.value) || 'Cohort room');
+// The student payload carries no cohort field, so the old 'Cohort 24-B' fallback
+// mislabelled every student on every course (a Backend & APIs student saw
+// "Cohort 24-B"). Show the real course, and only show the course label twice
+// when the two labels genuinely differ.
+const chatCourseLabel = computed(() => prettifyPath(chatCourse.value) || 'Cohort room');
+const chatTitle = computed(() => String(student.cohort || '').trim() || chatCourseLabel.value);
+const chatRoomLabel = computed(() => chatCourseLabel.value === chatTitle.value ? '' : chatCourseLabel.value);
+const chatHeading = computed(() => chatTitle.value + (chatRoomLabel.value ? ' · ' + chatRoomLabel.value : ''));
+const chatSubtitle = computed(() => (chatRoomLabel.value ? chatRoomLabel.value + ' · ' : '') + chatRoster.value.length + ' online now');
 
 /** The server sends a 0-359 hue per participant; render it as a solid tint. */
 function hueColor(h) {
@@ -2260,6 +2267,20 @@ function chatTime(ts) {
 /** The room key must match the classroom page, which resolves it this way. */
 function chatCourseKey() {
   return String(student.career_path || localStorage.getItem('boi_career_path') || '').trim();
+}
+
+/**
+ * Canonical room key -- MUST mirror _classroom_room_key() in the backend and
+ * normRoom() in Classroom.vue. The cohort store spells the same course both
+ * 'frontend-developer' and 'frontend_developer', so the room filter folds
+ * separators; without that, those students would be in one room server-side while
+ * their own SSE filter compared against the raw string and dropped every incoming
+ * message. One room per course: a Frontend Web Development student never shares
+ * a room with a Backend & APIs student.
+ */
+function normRoom(c) {
+  return String(c || '').trim().toLowerCase()
+    .replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '') || 'general';
 }
 
 const chatMemberRows = computed(() => chatRoster.value.map(p => [
@@ -2451,7 +2472,24 @@ const studentInitials = computed(() => {
 });
 const studentNameLine = computed(() => String(student.fullname || '').trim() || 'Ada Nwosu');
 const studentIdLine = computed(() => String(studentId.value || '').trim() || 'NU/CS/24/0157');
-const studentCohort = computed(() => String(student.cohort || '').trim() || 'Cohort 24-B');
+// Every label that used to say "Cohort 24-B" for everybody: the student record
+// carries no cohort field, so a Backend & APIs student was told they sat in a
+// frontend cohort. Fall back to the registered COURSE (the same room everyone
+// actually shares) instead of a fabricated cohort.
+const courseDisplayLabel = computed(() => prettifyPath(chatCourse.value) || 'Cohort');
+const studentCohort = computed(() => String(student.cohort || '').trim() || courseDisplayLabel.value);
+// Short form for the nav pill: "Frontend Web Development" -> "24-B"-style
+// shorthand would be a lie, so use an initial-caps abbreviation of the course.
+const studentCohortPill = computed(() => {
+  const c = String(student.cohort || '').trim();
+  if (c) return c.replace(/^cohort\s*/i, '').trim() || c;
+  return courseDisplayLabel.value
+    .split(/\s+/)
+    .map(w => w[0])
+    .join('')
+    .slice(0, 4)
+    .toUpperCase() || 'COH';
+});
 
 // ---- Library commerce: priced PDF textbooks (admin/partner pricing) -------
 // Buy button on a priced library card opens the SAME Paystack inline popup
@@ -3411,9 +3449,9 @@ function onServerEvent(name, data) {
   } else if (name === 'classroom_chat') {
     // A real cohort message. Other courses broadcast on the same hub, so only
     // our own room is rendered; ingestChatMessage drops ids we already have.
-    if (data.room === chatRoom.value) ingestChatMessage(data);
+    if (normRoom(data.room) === normRoom(chatRoom.value)) ingestChatMessage(data);
   } else if (name === 'classroom_roster') {
-    if (data.room === chatRoom.value) {
+    if (normRoom(data.room) === normRoom(chatRoom.value)) {
       chatRoster.value = Array.isArray(data.participants) ? data.participants : [];
     }
   }

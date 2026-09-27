@@ -1071,7 +1071,16 @@ watch(voiceApproved, approved => {
   if (approved && !isTeacher.value && !microphoneStream.value) startMicrophone().catch(error => { videoError.value = error.message })
   if (!approved && microphoneStream.value) stopMicrophone()
 })
+/**
+ * Canonical room key -- MUST mirror _classroom_room_key() in the backend
+ * (api_server.py). The cohort store spells the same course both
+ * 'frontend-developer' and 'frontend_developer', so the room filter below folds
+ * separators too; without this the SSE event room never equals our own course and
+ * every incoming message is dropped. One room per course, shared by all of that
+ * course's cohorts and by the live classroom.
+ */
 const normRoom = (c) => String(c || '').trim().toLowerCase()
+  .replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '') || 'general'
 
 function initialsOf(name) {
   return String(name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
