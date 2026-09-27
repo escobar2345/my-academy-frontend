@@ -54,6 +54,94 @@
       </aside>
 
       <div class="content-wrapper">
+        <!-- ===== MOBILE NAV =====
+             The desktop sidebar is `display: none` below 860px, which used to
+             leave a phone with no navigation at all. This bar + drawer restore
+             the same eight destinations, drawn from the SAME `navItems` source
+             as the desktop sidebar, so the two can never drift apart. -->
+        <div class="mobile-bar">
+          <button
+            type="button"
+            class="mobile-bar__btn"
+            aria-label="Open menu"
+            aria-controls="roadmap-drawer"
+            :aria-expanded="mobileMenuOpen ? 'true' : 'false'"
+            @click="mobileMenuOpen = true"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          </button>
+          <div class="mobile-bar__brand">
+            <span class="mobile-bar__mark">{{ brandInitial }}</span>
+            <span class="mobile-bar__name">{{ brandFirst }}<i v-if="brandAccent">{{ brandAccent }}</i></span>
+          </div>
+          <span class="mobile-bar__avatar">{{ studentInitials }}</span>
+        </div>
+
+        <Transition name="drawer">
+          <div
+            v-if="mobileMenuOpen"
+            class="drawer-backdrop"
+            @click.self="mobileMenuOpen = false"
+          >
+            <div
+              id="roadmap-drawer"
+              class="drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Student routes"
+            >
+              <div class="drawer__head">
+                <div class="mobile-bar__brand">
+                  <span class="mobile-bar__mark">{{ brandInitial }}</span>
+                  <span class="mobile-bar__name">{{ brandFirst }}<i v-if="brandAccent">{{ brandAccent }}</i></span>
+                </div>
+                <button type="button" class="drawer__close" aria-label="Close menu" @click="mobileMenuOpen = false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="drawer__profile">
+                <span class="drawer__avatar">{{ studentInitials }}</span>
+                <span class="drawer__meta">
+                  <b>{{ studentNameLine }}</b>
+                  <small>{{ studentIdLine }}</small>
+                </span>
+                <span class="drawer__cohort">{{ studentCohort }}</span>
+              </div>
+
+              <div class="drawer__label">Navigate</div>
+
+              <nav class="drawer__nav" aria-label="Student routes">
+                <button
+                  v-for="item in navItems"
+                  :key="item.id"
+                  type="button"
+                  class="drawer__item"
+                  :class="{ 'is-active': currentView === item.id }"
+                  @click="navigateFromMenu(item.id)"
+                >
+                  <component :is="item.icon" class="drawer__icon" />
+                  <span>{{ item.label }}</span>
+                  <span v-if="item.pill" class="drawer__pill">{{ item.pill }}</span>
+                </button>
+              </nav>
+
+              <div class="drawer__foot">
+                <button type="button" class="drawer__whatsapp" @click="navigateFromMenu('chat')">
+                  <WhatsAppIcon class="drawer__icon" /> Cohort WhatsApp
+                </button>
+                <button type="button" class="drawer__logout" @click="leaveFromMenu">
+                  <LogOutIcon class="drawer__icon" /> Log out
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
+
         <Transition name="modal">
           <div v-if="paymentGate.open" class="payment-gate">
             <div class="payment-card">
@@ -125,7 +213,21 @@
 
           <aside class="details-sidebar" v-if="topics[current]">
             <Transition name="sidebar-fade" mode="out-in">
-              <div class="sidebar-content" :key="current">
+              <div class="sidebar-content" :class="{ 'is-collapsed': detailsCollapsed }" :key="current">
+                <!-- Mobile only: the topic panel now sits above a very long
+                     trail, so it can be folded to a one-line summary. Hidden on
+                     desktop, where the panel is a permanent side column. -->
+                <button
+                  type="button"
+                  class="details-toggle"
+                  :aria-expanded="detailsCollapsed ? 'false' : 'true'"
+                  @click="detailsCollapsed = !detailsCollapsed"
+                >
+                  <span>Topic details</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
                 <div class="sidebar-header">
                   <div class="sidebar-badge">
                     <span class="badge-icon" :class="topicStateClass">●</span>
@@ -404,6 +506,41 @@ function leaveRoadmap() {
   router.push('/login')
 }
 
+/* ---------------- MOBILE NAV (bar + slide-in drawer) ----------------
+ * Below 860px the desktop sidebar is hidden, so this drawer is the only way to
+ * leave the page. It deliberately reuses the sidebar's `navItems` / go() /
+ * leaveRoadmap() instead of duplicating them, so phone and desktop always open
+ * the same destination, and it closes itself first so the target page never
+ * opens behind a still-open overlay. */
+const mobileMenuOpen = ref(false)
+const detailsCollapsed = ref(false)
+
+function closeMobileMenu() {
+  mobileMenuOpen.value = false
+}
+
+function navigateFromMenu(id) {
+  closeMobileMenu()
+  if (id === 'roadmap') return goRoadmap()
+  go(id)
+}
+
+function leaveFromMenu() {
+  closeMobileMenu()
+  leaveRoadmap()
+}
+
+// The drawer is a full-height overlay: freeze the page behind it so the long
+// trail cannot scroll away underneath, and put the scrollbar's own padding
+// back on close. Vue only runs the watch on a real change, so closing is safe.
+watch(mobileMenuOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+
+function onGlobalKeydown(e) {
+  if (e.key === 'Escape' && mobileMenuOpen.value) closeMobileMenu()
+}
+
 const careerPath = ref('frontend-developer')
 const careerTitle = ref('Frontend Developer')
 const progressMap = reactive({})
@@ -525,7 +662,15 @@ async function bootRoadmapData() {
     renderStates();
     animatePath(0, current.value / (topics.length - 1), 1400, () => {
       showTasks();
-      setTimeout(() => scrollToNodeSmooth(current.value, 800), 200);
+      // The topic panel sits ABOVE the trail on a phone, so jumping straight
+      // to the node on load would scroll past the topic the student just
+      // opened. Start them at the top there; "View on Path" (or a node tap)
+      // does the jumping. Desktop keeps the old auto-scroll.
+      if (window.innerWidth <= 860) {
+        window.scrollTo(0, 0);
+      } else {
+        setTimeout(() => scrollToNodeSmooth(current.value, 800), 200);
+      }
     });
   });
 }
@@ -624,6 +769,9 @@ const showCompletion = ref(false)
 let orbitAngle = 0
 let orbitAnimationFrame = null
 let starfieldAnimationId = null
+// Bottom edge of the phone grid laid out by layoutCompactGrid(); 0 on desktop,
+// where the cards orbit instead and the Continue button uses the ring radius.
+let orbitBottomY = 0
 let pathLength = 0
 let nodeElements = []
 let stars = []
@@ -676,9 +824,56 @@ function getScrollOffset() {
 
 function getOrbitRadius() {
   const width = window.innerWidth
-  if (width <= 480) return 95
+  // A phone's trail column is ~355px wide, so the ring has to shrink with it:
+  // at the old phone radius (95) six ~120px cards were squeezed into 600px of
+  // circumference and piled up on top of each other.
+  if (width <= 400) return 84
+  if (width <= 480) return 96
   if (width <= 860) return 110
   return 150
+}
+
+/* Keep an orbit card (or the Continue button) fully inside the trail column.
+ * The cards are placed at `node ± radius` with no horizontal bound, so on a
+ * phone - where the column is ~340px wide but the orbit is 190px across - the
+ * cards at the left/right edges of the trail hung off-screen. `.learning-app`
+ * clips horizontal overflow, so those cards were not just ugly, they were
+ * invisible and untappable. `el` is measured after it has been laid out, so
+ * callers must append it to the DOM first. */
+function clampOrbitX(x, el) {
+  const wrapWidth = pathWrap.value ? pathWrap.value.getBoundingClientRect().width : 0
+  const half = (el && el.offsetWidth ? el.offsetWidth : 96) / 2
+  const max = wrapWidth - half
+  if (max <= 0) return x
+  return Math.min(Math.max(x, half), max)
+}
+
+/* Phone layout for the task cards: a 2-column grid parked under the node
+ * instead of the orbiting ring. On a ~350px column the ring is 190px across,
+ * so the cards either side of the node get clamped onto the same x and cover
+ * each other. Returns the grid's bottom edge in .path-wrap coordinates so the
+ * Continue button can be parked under it. The cards must already be in the
+ * DOM - their measured width drives the column width. */
+function layoutCompactGrid(cards, centerX, centerY) {
+  const gap = 10
+  const top = centerY + 74                       // clear of the node itself
+  const cw = Math.max(...cards.map(c => c.offsetWidth), 90)
+  const ch = Math.max(...cards.map(c => c.offsetHeight), 80)
+  const cols = cards.length > 4 ? 2 : 1
+  const gridW = cols * cw + (cols - 1) * gap
+  const wrapWidth = pathWrap.value ? pathWrap.value.getBoundingClientRect().width : gridW
+  // Keep the whole grid inside the column: the node can sit near either edge.
+  const left = Math.max(0, Math.min(centerX - gridW / 2, wrapWidth - gridW))
+
+  cards.forEach((card, idx) => {
+    const col = idx % cols
+    const row = Math.floor(idx / cols)
+    card.style.left = `${left + col * (cw + gap) + cw / 2}px`
+    card.style.top = `${top + row * (ch + gap) + ch / 2}px`
+    card.style.transform = 'translate(-50%, -50%)'
+  })
+
+  return top + Math.ceil(cards.length / cols) * (ch + gap)
 }
 
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
@@ -1025,19 +1220,24 @@ function showTasks() {
   const centerY = screenPt.y - pathWrapRect.top
   
   const radius = getOrbitRadius()
-  const ringSize = radius * 2 + 40
-  
-  // Orbit ring
-  const ring = document.createElement('div')
-  ring.className = 'orbit-ring'
-  ring.style.left = `${centerX}px`
-  ring.style.top = `${centerY}px`
-  ring.style.width = `${ringSize}px`
-  ring.style.height = `${ringSize}px`
-  ring.style.transform = `translate(-50%, -50%)`
-  container.appendChild(ring)
-  setTimeout(() => ring.classList.add('show'), 100)
-  
+  // Below 480px the ring is wider than a phone can show without stacking three
+  // cards on the same column, so phones get a tidy grid under the node instead
+  // and the orbit animation is skipped. Desktop keeps the ring untouched.
+  const compact = window.innerWidth <= 480
+
+  if (!compact) {
+    // Orbit ring
+    const ring = document.createElement('div')
+    ring.className = 'orbit-ring'
+    ring.style.left = `${centerX}px`
+    ring.style.top = `${centerY}px`
+    ring.style.width = `${radius * 2 + 40}px`
+    ring.style.height = `${radius * 2 + 40}px`
+    ring.style.transform = `translate(-50%, -50%)`
+    container.appendChild(ring)
+    setTimeout(() => ring.classList.add('show'), 100)
+  }
+
   // Task cards
   const taskCards = []
   tasks.forEach((task, idx) => {
@@ -1069,24 +1269,28 @@ function showTasks() {
   // Animate orbit
   const angleStep = (Math.PI * 2) / tasks.length
   const speed = 0.0004
-  
+
   function animateOrbit() {
     orbitAngle += speed
-    
+
     taskCards.forEach((card, idx) => {
       const angle = orbitAngle + (idx * angleStep)
       const x = centerX + Math.cos(angle) * radius
       const y = centerY + Math.sin(angle) * radius
-      
-      card.style.left = `${x}px`
+
+      card.style.left = `${clampOrbitX(x, card)}px`
       card.style.top = `${y}px`
       card.style.transform = 'translate(-50%, -50%)'
     })
-    
+
     orbitAnimationFrame = requestAnimationFrame(animateOrbit)
   }
-  
-  orbitAnimationFrame = requestAnimationFrame(animateOrbit)
+
+  if (compact) {
+    orbitBottomY = layoutCompactGrid(taskCards, centerX, centerY)
+  } else {
+    orbitAnimationFrame = requestAnimationFrame(animateOrbit)
+  }
   checkCompletion()
 }
 
@@ -1095,6 +1299,7 @@ function hideTasks() {
     cancelAnimationFrame(orbitAnimationFrame)
     orbitAnimationFrame = null
   }
+  orbitBottomY = 0
   
   const container = taskOrbit.value
   if (!container) return
@@ -1123,12 +1328,15 @@ function checkCompletion() {
     
     const radius = getOrbitRadius()
     const isMobile = window.innerWidth <= 860
-    const continueY = centerY + radius + (isMobile ? 70 : 90)
+    // Below 480px the cards are a grid, not a ring, so the button goes under
+    // the grid's last row rather than under an orbit that no longer exists.
+    const continueY = (window.innerWidth <= 480 && orbitBottomY)
+      ? orbitBottomY + 34
+      : centerY + radius + (isMobile ? 70 : 90)
     
     continueBtn = document.createElement('button')
     continueBtn.className = 'continue-btn'
     continueBtn.textContent = current.value === topics.length - 1 ? 'Finish Course 🎉' : 'Continue Journey →'
-    continueBtn.style.left = `${centerX}px`
     continueBtn.style.top = `${continueY}px`
     continueBtn.style.transform = 'translate(-50%, -50%)'
     
@@ -1167,6 +1375,11 @@ function checkCompletion() {
     })
     
     container.appendChild(continueBtn)
+    // Only measurable once it is in the DOM: clampOrbitX() reads offsetWidth,
+    // which is 0 on a detached element and would fall back to a card-sized
+    // half-width, leaving this wide button hanging off a narrow screen.
+    continueBtn.style.left = `${clampOrbitX(centerX, continueBtn)}px`
+
     setTimeout(() => continueBtn.classList.add('show'), 200)
   } else if (!allDone && continueBtn) {
     continueBtn.classList.remove('show')
@@ -1287,6 +1500,10 @@ onMounted(async () => {
   syncProfileFromRegistration()
   addEventListener('storage', syncProfileFromRegistration)
   addEventListener('boi:profile-updated', syncProfileFromRegistration)
+  // Escape closes the mobile drawer. Registered before the paywall check below
+  // so a locked-out visitor cannot be trapped in the drawer by the early
+  // `return`.
+  addEventListener('keydown', onGlobalKeydown)
 
   if (!(await ensurePaidAccess())) return;
 
@@ -1304,6 +1521,11 @@ onUnmounted(() => {
   if (stopLive) stopLive()
   removeEventListener('storage', syncProfileFromRegistration)
   removeEventListener('boi:profile-updated', syncProfileFromRegistration)
+  removeEventListener('keydown', onGlobalKeydown)
+  // Navigating from the drawer unmounts this component while it is still open,
+  // so the watch above never runs its "unfreeze" branch. Without this the next
+  // page would inherit `overflow: hidden` and refuse to scroll.
+  document.body.style.overflow = ''
   document.removeEventListener('visibilitychange', handleVisibility)
   window.removeEventListener('resize', handleResize)
 })
@@ -2302,7 +2524,22 @@ function handleResize() {
   margin: 0;
 }
 
-/* ========== HIDE SIDEBAR ON MOBILE ========== */
+/* ========== MOBILE: SIDEBAR BECOMES A DRAWER ========== */
+/* The bar, the drawer scrim and the fold toggle are display:none by default
+   and only turned on by the media queries below, so a wide window can never
+   render a second, duplicate nav. This default block must stay ABOVE those
+   media queries: at equal specificity the later rule wins, so a `display:none`
+   written after them would silence the mobile layout entirely. */
+.mobile-bar,
+.drawer-backdrop,
+.details-toggle {
+  display: none;
+}
+
+/* The sidebar is hidden below 860px (it is a 280px column of a 2-column grid),
+   so the nav is served by .mobile-bar + the slide-in drawer instead, and the
+   topic panel - which used to be `display: none` here, taking the task list,
+   the day-by-day plan and "View on Path" with it - stacks above the trail. */
 @media (max-width: 860px) {
   .roadmap-shell {
     grid-template-columns: 1fr;
@@ -2312,9 +2549,346 @@ function handleResize() {
     display: none;
   }
 
+  /* The trail is a tall meandering column; on a phone it is far shorter than
+     the topic panel, so the panel goes first (order: -1) and the trail reads
+     as the continuation. The internal scroll box from desktop is released -
+     a nested scroll area on a phone hides half of itself behind the bar. */
   .details-sidebar {
-    display: none !important;
+    display: block;
+    order: -1;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
+    overflow: visible;
+    padding: 18px 16px 20px;
+    border-radius: 20px;
+    animation: none;
   }
+
+  /* A full-width card is a tall block of text; folding it keeps the trail in
+     reach. Only the header survives, so title and badge stay as context. */
+  .details-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .details-toggle svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    transition: transform 0.25s ease;
+  }
+  .sidebar-content.is-collapsed .details-toggle { margin-bottom: 0; }
+  .sidebar-content.is-collapsed .details-toggle svg { transform: rotate(-90deg); }
+  .sidebar-content.is-collapsed .sidebar-header { margin-bottom: 0; }
+  .sidebar-content.is-collapsed > *:not(.details-toggle):not(.sidebar-header) {
+    display: none;
+  }
+}
+
+/* ========== MOBILE BAR + DRAWER (revealed at 860px, see the default block above) ========== */
+@media (max-width: 860px) {
+  .mobile-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
+    background: rgba(9, 14, 26, 0.92);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .mobile-bar__btn,
+  .drawer__close {
+    width: 40px;
+    height: 40px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: #101a2e;
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .mobile-bar__btn:active,
+  .drawer__close:active {
+    transform: scale(0.94);
+    background: #16233c;
+  }
+  .mobile-bar__btn svg,
+  .drawer__close svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mobile-bar__brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+  }
+  .mobile-bar__mark {
+    width: 32px;
+    height: 32px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #07131f;
+    background: linear-gradient(135deg, #3ce6c3, #7db1ff, #ffb454);
+  }
+  .mobile-bar__name {
+    min-width: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 17px;
+    letter-spacing: -0.02em;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mobile-bar__name i {
+    color: #3ce6c3;
+    font-style: italic;
+  }
+  .mobile-bar__avatar {
+    margin-left: auto;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 11px;
+    background: linear-gradient(135deg, #1d3a5f, #122544);
+    color: #3ce6c3;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(2, 6, 23, 0.68);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(300px, 84vw);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, #0d1424 0%, #080c16 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 24px 0 60px rgba(0, 0, 0, 0.6);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .drawer__profile {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(60, 230, 195, 0.08), transparent);
+  }
+  .drawer__avatar {
+    width: 38px;
+    height: 38px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1d3a5f, #122544);
+    color: #3ce6c3;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .drawer__meta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .drawer__meta b {
+    font-size: 14px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .drawer__meta small {
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .drawer__cohort {
+    margin-left: auto;
+    flex: none;
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: rgba(255, 180, 84, 0.15);
+    color: #ffb454;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .drawer__label {
+    padding: 0 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .drawer__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .drawer__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .drawer__item:active {
+    transform: scale(0.98);
+  }
+  .drawer__item.is-active {
+    color: #05221b;
+    background: linear-gradient(135deg, #3ce6c3, #8ff2da);
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(60, 230, 195, 0.25);
+  }
+  .drawer__icon {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+  .drawer__pill {
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255, 122, 107, 0.18);
+    color: #ff7a6b;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .drawer__item.is-active .drawer__pill {
+    background: rgba(0, 0, 0, 0.2);
+    color: #05221b;
+  }
+
+  .drawer__foot {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .drawer__whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #25d366, #128c5e);
+    color: #04140b;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .drawer__logout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: transparent;
+    color: #64748b;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .drawer__logout:active {
+    color: #ff7a6b;
+  }
+}
+
+/* Slide the drawer in from the left while the scrim fades behind it. */
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: opacity 0.26s ease;
+}
+.drawer-enter-active .drawer,
+.drawer-leave-active .drawer {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.drawer-enter-from,
+.drawer-leave-to {
+  opacity: 0;
+}
+.drawer-enter-from .drawer,
+.drawer-leave-to .drawer {
+  transform: translateX(-100%);
 }
 
 /* ===== COMPLETION OVERLAY ===== */
@@ -2364,12 +2938,14 @@ function handleResize() {
    orbit cards — tuned to feel native on a phone. */
 @media (max-width: 860px) {
   /* Sticky frosted header so the title/progress stays in view while the
-     long trail scrolls underneath it. */
+     long trail scrolls underneath it. It must clear the sticky mobile bar
+     above it (40px button + 8px padding above/below + border), otherwise the
+     two overlap as soon as the page scrolls. */
   .app-header {
     position: sticky;
-    top: 0;
+    top: 57px;
     z-index: 5;
-    padding: calc(16px + env(safe-area-inset-top)) 16px 12px;
+    padding: 12px 16px 12px;
     background: linear-gradient(180deg, rgba(6,9,19,0.92) 0%, rgba(6,9,19,0.75) 65%, transparent 100%);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2435,21 +3011,21 @@ function handleResize() {
   .app-header h1 { font-size: clamp(22px, 6.5vw, 28px); }
 
   :deep(.task-card) {
-    width: clamp(96px, 32vw, 122px);
-    min-height: 82px;
-    padding: 12px 9px;
-    gap: 7px;
-    border-radius: 16px;
+    width: clamp(84px, 26vw, 104px);
+    min-height: 74px;
+    padding: 10px 8px;
+    gap: 6px;
+    border-radius: 15px;
   }
-  :deep(.task-card-icon) { width: 38px; height: 38px; font-size: 18px; border-radius: 11px; }
-  :deep(.task-text) { font-size: 11px; line-height: 1.35; }
-  :deep(.task-checkbox) { width: 20px; height: 20px; font-size: 12px; top: 7px; right: 7px; }
+  :deep(.task-card-icon) { width: 34px; height: 34px; font-size: 17px; border-radius: 10px; }
+  :deep(.task-text) { font-size: 10.5px; line-height: 1.3; }
+  :deep(.task-checkbox) { width: 18px; height: 18px; font-size: 11px; top: 6px; right: 6px; }
 }
 
 /* Extra-small phones: keep cards from crowding the orbit. */
 @media (max-width: 360px) {
-  :deep(.task-card) { width: clamp(88px, 30vw, 104px); min-height: 76px; padding: 10px 7px; }
-  :deep(.task-text) { font-size: 10px; }
+  :deep(.task-card) { width: clamp(74px, 25vw, 90px); min-height: 68px; padding: 9px 6px; }
+  :deep(.task-text) { font-size: 9.5px; }
 }
 
 /* Reduce motion for accessibility */
