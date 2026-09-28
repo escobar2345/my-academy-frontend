@@ -2,7 +2,7 @@
   <div class="home-container">
     <!-- 顶部导航栏 -->
     <nav class="navbar">
-      <div class="nav-brand">LIP</div>
+      <div class="nav-brand"><img src="/lip-logo.png" alt="LIP Academy" class="brand__logo" />LIP Academy</div>
       <div class="nav-links">
         <a href="https://github.com/666ghj/MiroFish" target="_blank" class="github-link">
           访问我们的Github主页 <span class="arrow">↗</span>
@@ -39,7 +39,7 @@
         <div class="hero-right">
           <!-- Logo 区域 -->
           <div class="logo-container">
-            <img src="../assets/logo/MiroFish_logo_left.jpeg" alt="LIP Logo" class="hero-logo" />
+            <img src="/lip-logo.png" alt="LIP Logo" class="hero-logo"/>
           </div>
           
           <button class="scroll-down-btn" @click="scrollToBottom">
@@ -886,5 +886,15 @@ const startSimulation = () => {
     max-width: 200px;
     margin-bottom: 20px;
   }
+}
+
+/* LIP Academy logo to the left of the wordmark. */
+.brand__logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 8px;
+  flex: none;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="process-page">
     <!-- 顶部导航栏 -->
     <nav class="navbar">
-      <div class="nav-brand" @click="goHome">MIROFISH</div>
+      <div class="nav-brand" @click="goHome"><img src="/lip-logo.png" alt="LIP Academy" class="brand__logo" />LIP Academy</div>
       
       <!-- 中间步骤指示器 -->
       <div class="nav-center">
@@ -2064,5 +2064,15 @@ onUnmounted(() => {
   .right-panel.hidden {
       display: none;
   }
+}
+
+/* LIP Academy logo to the left of the wordmark. */
+.brand__logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 8px;
+  flex: none;
 }
 </style>

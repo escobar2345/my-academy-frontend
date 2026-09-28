@@ -23,7 +23,7 @@
           </svg>
         </button>
         <div class="flex items-center gap-2 min-w-0">
-          <div class="w-8 h-8 rounded-lg bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-sm font-semibold shrink-0">{{ brandInitial }}</div>
+          <img v-if="isDefaultBrand" src="/lip-logo.png" alt="LIP Academy" class="w-7 h-7 object-contain shrink-0" /><div v-else class="w-8 h-8 rounded-lg bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-sm font-semibold shrink-0">{{ brandInitial }}</div>
           <span class="font-serif text-lg tracking-tight truncate">{{ brandFirst }}<i v-if="brandAccent" class="text-[#3ce6c3]">{{ brandAccent }}</i></span>
         </div>
         <div class="ml-auto flex items-center gap-2 shrink-0">
@@ -76,7 +76,7 @@
         <div class="w-[280px] max-w-[85vw] h-full max-h-[100dvh] bg-gradient-to-b from-[#0d1424] to-[#080c16] border-r border-white/[0.06] p-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-[calc(1.25rem+env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain" @click.stop>
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-lg font-semibold">{{ brandInitial }}</div>
+              <img v-if="isDefaultBrand" src="/lip-logo.png" alt="LIP Academy" class="w-9 h-9 object-contain shrink-0" /><div v-else class="w-10 h-10 rounded-xl bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-lg font-semibold">{{ brandInitial }}</div>
               <div>
                 <div class="font-serif text-xl tracking-tight truncate max-w-[200px]">{{ brandFirst }}<i v-if="brandAccent" class="text-[#3ce6c3]">{{ brandAccent }}</i></div>
                 <div class="text-[10px] uppercase tracking-[0.24em] text-slate-500 font-semibold">Student Portal</div>
@@ -133,7 +133,7 @@
       <!-- ================= SIDEBAR (Desktop only) ================= -->
       <aside class="hidden lg:flex sticky top-0 h-screen flex-col gap-4 p-5 border-r border-white/[0.06] bg-gradient-to-b from-[#0d1424]/95 to-[#080c16]/85 backdrop-blur-xl overflow-hidden">
         <div class="flex items-center gap-3 px-1.5">
-          <div class="w-10 h-10 rounded-xl bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-lg font-semibold shadow-lg shadow-[#3ce6c3]/30">{{ brandInitial }}</div>
+          <img v-if="isDefaultBrand" src="/lip-logo.png" alt="LIP Academy" class="w-9 h-9 object-contain shrink-0" /><div v-else class="w-10 h-10 rounded-xl bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-lg font-semibold shadow-lg shadow-[#3ce6c3]/30">{{ brandInitial }}</div>
           <div>
             <div class="font-serif text-xl tracking-tight truncate max-w-[200px]">{{ brandFirst }}<i v-if="brandAccent" class="text-[#3ce6c3]">{{ brandAccent }}</i></div>
             <div class="text-[10px] uppercase tracking-[0.24em] text-slate-500 font-semibold">Student Portal</div>
@@ -2658,7 +2658,12 @@ function disarmShield() {
 // brandInitial is "L".
 const DEFAULT_BRAND = 'LIP Academy';
 const brandName = ref(DEFAULT_BRAND);
-const brandInitial = computed(() => (brandName.value.trim()[0] || 'D').toUpperCase());
+// The logo image is only shown for the default LIP Academy brand. A student who
+// registered through a partner sponsor still sees that partner's own name, so we
+// fall back to the letter mark (their initial) rather than stamping the LIP logo
+// onto someone else's brand.
+const isDefaultBrand = computed(() => brandName.value === DEFAULT_BRAND);
+const brandInitial = computed(() => (brandName.value.trim()[0] || 'L').toUpperCase());
 const brandSplit = computed(() => {
   const n = brandName.value.trim() || DEFAULT_BRAND;
   const sp = n.lastIndexOf(' ');

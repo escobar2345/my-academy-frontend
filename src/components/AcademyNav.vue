@@ -9,7 +9,7 @@
       :to="isTour ? undefined : TOUR_URL"
       class="nav-mark"
     >
-      <span class="dot"></span>LIP
+      <img src="/lip-logo.png" alt="LIP Academy" class="nav-mark__logo" /><span class="dot"></span>LIP Academy
     </component>
 
     <!-- Same NAV_ITEMS list drives this row and the mobile bar below, so the
@@ -178,11 +178,21 @@ onBeforeUnmount(() => {
   text-decoration: none;
   color: inherit;
 }
+/* The LIP Academy logo mark. The art is 208x196 (very close to square), so a
+   square box with object-fit: contain is correct and needs no letterboxing
+   tricks. `flex: none` stops the flex parent (.nav-mark) from squashing it. */
+.nav-mark__logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex: none;
+}
 .nav-mark .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--gold);
+  flex: none;
 }
 .nav-links {
   display: flex;

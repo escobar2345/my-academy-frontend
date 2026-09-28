@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="app-header">
       <div class="header-left">
-        <div class="brand" @click="router.push('/')">MIROFISH</div>
+        <div class="brand" @click="router.push('/')"><img src="/lip-logo.png" alt="LIP Academy" class="brand__logo" />LIP Academy</div>
       </div>
       
       <div class="header-center">
@@ -429,6 +429,16 @@ onMounted(async () => {
 
 .panel-wrapper.left {
   border-right: 1px solid #EAEAEA;
+}
+
+/* LIP Academy logo to the left of the wordmark. */
+.brand__logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 8px;
+  flex: none;
 }
 </style>
 

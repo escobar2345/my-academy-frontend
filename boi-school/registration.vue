@@ -87,11 +87,7 @@
 
     <!-- mobile header -->
     <header class="sticky top-[56px] z-40 flex items-center gap-[10px] px-4 py-3 border-b border-[#d9d1bc] bg-[rgba(245,241,230,.96)] backdrop-blur-[16px] shadow-[0_2px_12px_rgba(0,0,0,.04)] md:hidden">
-<svg width="36" height="42" viewBox="0 0 62 70" aria-hidden="true" class="shrink-0">
-        <path d="M31 2 58 10v26c0 16-12 26-27 32C16 62 4 52 4 36V10L31 2z" fill="#14432e" stroke="#e8a524" stroke-width="2.5"/>
-        <text x="31" y="36" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="19" fill="#f5f1e6">{{ '</>' }}</text>
-        <text x="31" y="54" text-anchor="middle" font-family="Fraunces,serif" font-weight="900" font-size="11" fill="#e8a524">BOI</text>
-      </svg>
+<img src="/lip-logo.png" alt="LIP Academy" class="h-[38px] w-auto shrink-0" />
       <div class="min-w-0">
         <h1 class="text-[20px] leading-none font-black" style="font-family:'Fraunces',serif;color:#14432e">LIP <i class="italic font-semibold text-[#cf3f2b]">Academy</i></h1>
         <p class="font-bold uppercase tracking-[.15em] text-[9px] mt-[2px] text-[#6d6f63]" style="font-family:'JetBrains Mono',monospace">Code · Build · Get Hired</p>
@@ -122,11 +118,7 @@
 
     <!-- desktop header -->
     <header class="relative z-[4] hidden md:flex items-center gap-[18px] flex-wrap max-w-[1200px] mx-auto px-[22px] pt-[26px] pb-2">
-<svg width="58" height="66" viewBox="0 0 62 70" aria-hidden="true">
-        <path d="M31 2 58 10v26c0 16-12 26-27 32C16 62 4 52 4 36V10L31 2z" fill="#14432e" stroke="#e8a524" stroke-width="2.5"/>
-        <text x="31" y="36" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="19" fill="#f5f1e6">{{ '</>' }}</text>
-        <text x="31" y="54" text-anchor="middle" font-family="Fraunces,serif" font-weight="900" font-size="11" fill="#e8a524">BOI</text>
-      </svg>
+<img src="/lip-logo.png" alt="LIP Academy" class="h-[58px] w-auto" />
       <div>
         <h1 class="text-[clamp(26px,3.4vw,38px)] leading-none font-black text-[#14432e]" style="font-family:'Fraunces',serif">LIP <i class="italic font-semibold text-[#cf3f2b]">Academy</i></h1>
         <p class="font-semibold text-[11.5px] uppercase tracking-[.18em] text-[#6d6f63] mt-[6px]" style="font-family:'JetBrains Mono',monospace">Code · Build · Get Hired</p>
@@ -187,7 +179,7 @@
           <div class="mt-[14px] text-[12.5px] leading-[1.7]">
             Questions? Reach the admissions desk:<br>
             ✉ <a href="mailto:boirsuhub@gmail.com" class="text-[#e8a524] font-bold no-underline">boirsuhub@gmail.com</a><br>
-            WhatsApp: <a href="tel:+2348000000000" class="text-[#e8a524] font-bold no-underline">0800 BOI TECH</a>
+            WhatsApp: <a href="tel:+2348000000000" class="text-[#e8a524] font-bold no-underline">0800 LIP ACAD</a>
           </div>
         </div>
       </aside>

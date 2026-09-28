@@ -6,7 +6,7 @@
            so moving between /dashboard and /roadmap does not change the nav. -->
       <aside class="roadmap-shell__sidebar">
         <div class="flex items-center gap-3 px-1.5">
-          <div class="w-10 h-10 rounded-xl bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-lg font-semibold shadow-lg shadow-[#3ce6c3]/30">{{ brandInitial }}</div>
+          <img v-if="isDefaultBrand" src="/lip-logo.png" alt="LIP Academy" class="w-9 h-9 object-contain shrink-0" /><div v-else class="w-10 h-10 rounded-xl bg-[conic-gradient(from_210deg,#3ce6c3,#7db1ff,#ffb454,#3ce6c3)] grid place-items-center font-serif text-[#08131f] text-lg font-semibold shadow-lg shadow-[#3ce6c3]/30">{{ brandInitial }}</div>
           <div>
             <div class="font-serif text-xl tracking-tight truncate max-w-[200px]">{{ brandFirst }}<i v-if="brandAccent" class="text-[#3ce6c3]">{{ brandAccent }}</i></div>
             <div class="text-[10px] uppercase tracking-[0.24em] text-slate-500 font-semibold">Student Portal</div>
@@ -73,7 +73,7 @@
             </svg>
           </button>
           <div class="mobile-bar__brand">
-            <span class="mobile-bar__mark">{{ brandInitial }}</span>
+            <img v-if="isDefaultBrand" class="mobile-bar__logo" src="/lip-logo.png" alt="LIP Academy" /><span v-else class="mobile-bar__mark">{{ brandInitial }}</span>
             <span class="mobile-bar__name">{{ brandFirst }}<i v-if="brandAccent">{{ brandAccent }}</i></span>
           </div>
           <span class="mobile-bar__avatar">{{ studentInitials }}</span>
@@ -94,7 +94,7 @@
             >
               <div class="drawer__head">
                 <div class="mobile-bar__brand">
-                  <span class="mobile-bar__mark">{{ brandInitial }}</span>
+                  <img v-if="isDefaultBrand" class="mobile-bar__logo" src="/lip-logo.png" alt="LIP Academy" /><span v-else class="mobile-bar__mark">{{ brandInitial }}</span>
                   <span class="mobile-bar__name">{{ brandFirst }}<i v-if="brandAccent">{{ brandAccent }}</i></span>
                 </div>
                 <button type="button" class="drawer__close" aria-label="Close menu" @click="mobileMenuOpen = false">
@@ -365,6 +365,10 @@ const brandSpace = brandFull.lastIndexOf(' ');
 const brandFirst = brandSpace > 0 ? brandFull.slice(0, brandSpace) : brandFull;
 const brandAccent = brandSpace > 0 ? brandFull.slice(brandSpace + 1) : '';
 const brandInitial = (brandFull[0] || 'L').toUpperCase();
+// The LIP Academy logo image is only used for the default brand. A student who
+// registered through a partner sponsor keeps that partner's own name, so the
+// letter mark (their initial) is shown instead of the LIP logo.
+const isDefaultBrand = !storedOrg;
 
 /* ---------------- LIVE IDENTITY - same source as studentdashboard.vue --------
  * The sidebar profile card used to be hardcoded ("Ada Nwosu", "NU/CS/24/0157",
@@ -2662,6 +2666,14 @@ function handleResize() {
     font-size: 15px;
     color: #07131f;
     background: linear-gradient(135deg, #3ce6c3, #7db1ff, #ffb454);
+  }
+  /* The LIP Academy logo mark. The art is 208x196 (near square), so a square
+     box with object-fit: contain renders it at full size. */
+  .mobile-bar__logo {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    object-fit: contain;
   }
   .mobile-bar__name {
     min-width: 0;
