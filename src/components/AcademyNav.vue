@@ -2,33 +2,40 @@
   <!-- Desktop / top bar. Fixed, so it overlays the page rather than taking
        layout space — pages that need clearance add their own top padding. -->
   <nav class="nav" :class="{ 'nav--scrolled': scrolled }">
-    <!-- On the tour this is plain text: a link back to the page you are already
-         on is a dead link. Everywhere else it is the way home. -->
-    <component
-      :is="isTour ? 'div' : 'router-link'"
-      :to="isTour ? undefined : TOUR_URL"
-      class="nav-mark"
-    >
-      <img src="/lip-logo.png" alt="LIP Academy" class="nav-mark__logo" /><span class="dot"></span>LIP Academy
-    </component>
+    <!-- The bar itself stays full-bleed so its scrolled background spans the
+         window, but the row of items inside it is width-capped and centred
+         (see .nav-inner). Without that cap `space-between` on a 1920px screen
+         pushes the logo, the links and the CTA out to the three edges of the
+         viewport and opens ~500px voids beside the links. -->
+    <div class="nav-inner">
+      <!-- On the tour this is plain text: a link back to the page you are already
+           on is a dead link. Everywhere else it is the way home. -->
+      <component
+        :is="isTour ? 'div' : 'router-link'"
+        :to="isTour ? undefined : TOUR_URL"
+        class="nav-mark"
+      >
+        <img src="/lip-logo.png" alt="LIP Academy" class="nav-mark__logo" /><span class="dot"></span>LIP Academy
+      </component>
 
-    <!-- Same NAV_ITEMS list drives this row and the mobile bar below, so the
-         two can never show different things again. -->
-    <div class="nav-links">
-      <template v-for="item in NAV_ITEMS" :key="item.label">
-        <a
-          v-if="item.programs"
-          :href="programsHref"
-          @click.prevent="goToPrograms"
-          >{{ item.label }}</a
-        >
-        <router-link v-else :to="item.to">{{ item.label }}</router-link>
-      </template>
-    </div>
+      <!-- Same NAV_ITEMS list drives this row and the mobile bar below, so the
+           two can never show different things again. -->
+      <div class="nav-links">
+        <template v-for="item in NAV_ITEMS" :key="item.label">
+          <a
+            v-if="item.programs"
+            :href="programsHref"
+            @click.prevent="goToPrograms"
+            >{{ item.label }}</a
+          >
+          <router-link v-else :to="item.to">{{ item.label }}</router-link>
+        </template>
+      </div>
 
-    <div class="nav-actions">
-      <router-link :to="LOGIN_URL" class="nav-login">Login</router-link>
-      <router-link :to="APPLY_URL" class="nav-cta">Apply now</router-link>
+      <div class="nav-actions">
+        <router-link :to="LOGIN_URL" class="nav-login">Login</router-link>
+        <router-link :to="APPLY_URL" class="nav-cta">Apply now</router-link>
+      </div>
     </div>
   </nav>
 
@@ -151,14 +158,26 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px clamp(20px, 4vw, 56px);
+  /* Vertical padding only — the horizontal inset lives on .nav-inner so it
+     stays tied to the capped content width instead of the viewport edge. */
+  padding: 24px 0;
   transition:
     background 0.3s ease,
     backdrop-filter 0.3s ease,
     padding 0.3s ease;
+}
+/* The row of items. Capped to the same 1200px the page content uses, so on a
+   wide monitor the logo, links and CTA stay grouped instead of being flung to
+   the three edges of the screen by `space-between`. */
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 22px;
 }
 .nav.nav--scrolled {
   background: rgba(7, 20, 13, 0.55);
