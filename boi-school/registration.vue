@@ -2,11 +2,14 @@
   <div class="reg-page relative min-h-screen overflow-x-hidden bg-[#f5f1e6] text-[#1b211c]"
        style="font-family:'Karla',sans-serif;background-image:radial-gradient(rgba(20,67,46,.07) 1px,transparent 1px);background-size:26px 26px">
 
-    <!-- ===== Site navigation (AcademyNav) — desktop bar + clearance ===== -->
+    <!-- ===== Site navigation (AcademyNav). The fixed bar overlays the page, so
+         .reg-page's own padding-top (style block) provides the clearance — this
+         is deliberately the ONE clearance. An earlier `height:86px` spacer here
+         was redundant (padding 72px + spacer 86px = 158px for a ~67px bar) and
+         opened that big empty band between the nav and the ticker. ===== -->
     <div class="hidden md:block">
       <AcademyNav />
     </div>
-    <div class="hidden md:block" style="height:86px"></div>
 
     <!-- ===== Pre-registration gate: Google signup or returning login ===== -->
     <Transition name="modal-fade">
