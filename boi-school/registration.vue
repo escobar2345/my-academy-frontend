@@ -11,67 +11,39 @@
       <AcademyNav />
     </div>
 
-    <!-- ===== Pre-registration gate: Google signup or returning login ===== -->
+    <!-- ===== Pre-registration gate: returning login, or straight to the form ===== -->
     <Transition name="modal-fade">
       <div v-if="regGate" class="fixed inset-0 z-[95] flex items-center justify-center bg-[#0d3321]/85 backdrop-blur-[3px] px-4">
         <div class="w-full max-w-[430px] rounded-[18px] border border-[#d9d1bc] bg-[#fffdf6] p-6 shadow-[0_24px_60px_rgba(0,0,0,.35)]" style="animation:rise .45s cubic-bezier(.22,.9,.3,1) both">
           <span class="font-bold text-[10px] uppercase tracking-[.2em] text-[#cf3f2b]" style="font-family:'JetBrains Mono',monospace">Cohort 12 · Admission</span>
           <h3 class="mt-2 text-[26px] font-black text-[#14432e]" style="font-family:'Fraunces',serif">Before you start…</h3>
 
-          <!-- Choose: Google / Login -->
+          <!-- Choose: go straight to the form, or log in as a returning student.
+               Google sign-up was retired along with Supabase Auth — the form
+               collects email + password itself, so there is no separate sign-up
+               button to offer here, only the two paths that actually work. -->
           <template v-if="gateMode === 'choose' || gateMode === 'login'">
-            <p class="text-[13.5px] text-[#6d6f63] leading-[1.65] mt-2">Sign up with Google in one click, or log in if you've already registered.</p>
-
-            <button type="button" :disabled="gateBusy" @click="startGoogleSignup"
-                    class="mt-5 w-full flex items-center justify-center gap-3 rounded-[11px] bg-white border-[1.8px] border-[#d9d1bc] py-[14px] font-bold text-[14.5px] text-[#1b211c] transition-all hover:border-[#14432e] hover:-translate-y-[2px] disabled:opacity-50 disabled:hover:translate-y-0">
-              <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 40.4 44 35 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
-              {{ gateBusy ? 'Checking…' : 'Continue with Google' }}
-            </button>
-
-            <div class="flex items-center gap-3 my-4">
-              <span class="flex-1 border-t border-dashed border-[#d9d1bc]"></span>
-              <span class="text-[10.5px] font-bold uppercase tracking-[.14em] text-[#a49f8c]" style="font-family:'JetBrains Mono',monospace">or</span>
-              <span class="flex-1 border-t border-dashed border-[#d9d1bc]"></span>
-            </div>
+            <p v-if="gateMode === 'login'" class="text-[13.5px] text-[#6d6f63] leading-[1.65] mt-2">Log in with the email and password you registered with.</p>
+            <p v-else class="text-[13.5px] text-[#6d6f63] leading-[1.65] mt-2">Registration takes about two minutes, and your account is created as part of it — email and password, no sign-up step first.</p>
 
             <template v-if="gateMode === 'login'">
               <input v-model="gateEmail" type="email" placeholder="you@example.com"
-                     class="w-full text-[15px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none focus:border-[#1d5a3f] mb-2">
+                     class="w-full text-[15px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none focus:border-[#1d5a3f] mt-5 mb-2">
               <input v-model="gatePw" type="password" placeholder="Your password" @keyup.enter="doGateLogin"
                      class="w-full text-[15px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none focus:border-[#1d5a3f] mb-3">
               <button type="button" :disabled="gateBusy" @click="doGateLogin"
                       class="w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all disabled:opacity-50">{{ gateBusy ? 'Signing in…' : 'Log in → Dashboard' }}</button>
               <button type="button" @click="gateMode = 'choose'" class="mt-2 w-full text-[12px] font-bold text-[#6d6f63] underline">Back</button>
             </template>
-            <button v-else type="button" @click="gateMode = 'login'"
-                    class="w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all">I already registered — Log in</button>
+            <template v-else>
+              <button type="button" @click="closeGate(false)"
+                      class="mt-5 w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all">Continue to the registration form →</button>
+              <button type="button" @click="gateMode = 'login'"
+                      class="mt-2 w-full rounded-[11px] bg-white border-[1.8px] border-[#d9d1bc] py-[13px] font-bold text-[13.5px] text-[#1b211c] hover:border-[#14432e] transition-all">I already registered — Log in</button>
+            </template>
 
             <p v-if="gateMsg" class="mt-3 text-[12px] font-bold leading-relaxed" :class="gateOk ? 'text-[#0d7a45]' : 'text-[#cf3f2b]'">{{ gateMsg }}</p>
           </template>
-
-          <!-- Verified via Google: route by account existence -->
-          <template v-else>
-            <div class="rounded-[12px] border border-[#17b565]/40 bg-[#e7f7ee] p-4 flex items-start gap-3">
-              <span class="text-[20px] leading-none mt-0.5">✓</span>
-              <div class="min-w-0">
-                <b class="block text-[14.5px] text-[#0d7a45]">Google account verified</b>
-                <span class="text-[12.5px] text-[#1b211c] break-all">{{ gateEmail }}</span>
-              </div>
-            </div>
-
-            <template v-if="gateAccountFound">
-              <p class="text-[13px] text-[#6d6f63] mt-3 leading-relaxed">Welcome back! This Gmail is already registered with us.</p>
-              <button type="button" @click="goDashboard()"
-                      class="mt-4 w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all">Go to my student dashboard →</button>
-            </template>
-            <template v-else>
-              <p class="text-[13px] text-[#6d6f63] mt-3 leading-relaxed">No existing account for this email yet — your verified email has been dropped into the form below. Pick your course, pay the fee, then create your password.</p>
-              <button type="button" @click="closeGate(true)"
-                      class="mt-4 w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all">Continue to the registration form ✓</button>
-            </template>
-          </template>
-
-          <button type="button" @click="closeGate(false)" class="mt-4 w-full text-center text-[12px] font-bold text-[#6d6f63] underline hover:text-[#14432e] transition-colors">Skip for now — just fill the form</button>
         </div>
       </div>
     </Transition>
@@ -774,15 +746,14 @@ const accountPwMsg = ref('')
 const accountPwOk = ref(false)
 const creatingAccount = ref(false)
 
-// ---- Pre-registration gate (Google signup / returning login) ----
+// ---- Pre-registration gate (returning-student login) ----
 const regGate = ref(false)
-const gateMode = ref('choose')   // 'choose' | 'login' | 'verified'
+const gateMode = ref('choose')   // 'choose' | 'login'
 const gateEmail = ref('')
 const gatePw = ref('')
 const gateMsg = ref('')
 const gateOk = ref(false)
 const gateBusy = ref(false)
-const gateAccountFound = ref(false)
 
 // Per-day class schedule chosen on the registration form. Each day the student
 // activates gets its own class hour; days left deactivated have no class.
@@ -883,8 +854,9 @@ const stepProblems = ref([])
 
 const stepLabels = ['About you', 'Education', 'Course', 'Payment']
 
-// Pre-fill the registration form from a saved snapshot (e.g. a returning Google
-// login, or a draft the browser remembered). The per-day class times must be
+// Pre-fill the registration form from a saved snapshot (e.g. a returning
+// student's stored profile, or a draft the browser remembered). The per-day
+// class times must be
 // rebuilt into the form's per-day shape even when the snapshot only has the old
 // single `preferred_time`.
 async function prefillFromSnapshot() {
@@ -1133,33 +1105,6 @@ function closeGate(prefill = false) {
 
 function goDashboard() {
   window.location.href = '/dashboard'
-}
-
-function startGoogleSignup() {
-  // Google OAuth used to be a Supabase-Auth feature. With the move to plain
-  // PostgreSQL the school signs students up with email + password instead —
-  // the backend already verifies and stores those (boirsu.set_student_password).
-  gateMsg.value = 'Google sign-up is no longer available. Continue with your email below — registration and login use email + password.'
-}
-
-// After a Google-verified email: does it already belong to a student?
-async function checkRegisteredEmail() {
-  gateBusy.value = true
-  const res = await api.checkGoogleEmail(gateEmail.value)
-  gateBusy.value = false
-  if (res && res.registered) {
-    gateAccountFound.value = true
-    const s = res.student || {}
-    if (s.student_id) localStorage.setItem('boi_student_id', s.student_id)
-    localStorage.setItem('boi_student_email', s.email || gateEmail.value.toLowerCase())
-    if (s.career_path) localStorage.setItem('boi_career_path', s.career_path)
-    try { localStorage.setItem('boi_student_profile', JSON.stringify(s)) } catch {}
-    window.dispatchEvent(new Event('boi:profile-updated'))
-    gateOk.value = true
-    gateMsg.value = ''
-  } else {
-    gateAccountFound.value = false
-  }
 }
 
 async function doGateLogin() {
