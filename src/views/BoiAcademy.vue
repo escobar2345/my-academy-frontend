@@ -75,8 +75,8 @@
 
           <div class="hero-stats">
             <div class="hero-stat">
-              <span class="stat-number">500+</span>
-              <span class="stat-label">Builders Graduated</span>
+              <span class="stat-number">ten plus</span>
+              <span class="stat-label">partner globally</span>
             </div>
             <div class="stat-divider"></div>
             <div class="hero-stat">
