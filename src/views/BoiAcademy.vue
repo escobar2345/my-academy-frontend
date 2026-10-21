@@ -75,7 +75,7 @@
 
           <div class="hero-stats">
             <div class="hero-stat">
-              <span class="stat-number">ten plus</span>
+              <span class="stat-number">10+</span>
               <span class="stat-label">partner globally</span>
             </div>
             <div class="stat-divider"></div>
