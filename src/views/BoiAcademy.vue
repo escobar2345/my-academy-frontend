@@ -111,6 +111,9 @@
             <span class="stop-label">Courses</span>
           </div>
           <h2 class="stop-title reveal-mask">Career Tracks</h2>
+<p class="career-intro">
+  We teach in-demand technology skills that prepare you for exciting career opportunities with leading companies worldwide.
+</p>
           <div class="course-tabs">
             <span class="course-tab active">1. AI & ML Engineering</span>
             <span class="course-tab">2. Data Engineering</span>
