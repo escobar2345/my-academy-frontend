@@ -114,13 +114,16 @@
 <p class="career-intro">
   We teach in-demand technology skills that prepare you for exciting career opportunities with leading companies worldwide.
 </p>
+<p class="career-intro">
+  We teach in-demand technology skills that prepare you for exciting career opportunities with leading companies worldwide.
+</p>
           <div class="course-tabs">
-            <span class="course-tab active">1. AI & ML Engineering</span>
-            <span class="course-tab">2. Data Engineering</span>
-            <span class="course-tab">3. Cloud & DevOps</span>
-            <span class="course-tab">4. Cybersecurity</span>
-            <span class="course-tab">5. Software Engineering</span>
-            <span class="course-tab">6. Business Skills</span>
+            <span class="course-tab active">1. AI & Machine Learning Engineering Learn Python, PyTorch, MLOps, and how to integrate AI into real-world products and applications.</span>
+            <span class="course-tab">2. Data Engineering & Analytics Master SQL, Python, ETL pipelines, and cloud data tools to transform raw data into valuable business insights.</span>
+            <span class="course-tab">3. Cloud Computing & DevOps Develop practical skills in AWS, Azure, Google Cloud, Kubernetes, Terraform, and CI/CD automation.</span>
+            <span class="course-tab">4. Cybersecurity Learn cloud security, threat intelligence, and security monitoring to help organizations protect their digital assets.</span>
+            <span class="course-tab">5. Software Engineering Build modern applications using JavaScript, TypeScript, APIs, and essential software design principles.</span>
+            <span class="course-tab">7. Business & Communication Skills Combine technical expertise with problem-solving, teamwork, and communication skills that employers value.</span>
           </div>
         </div>
       </section>
@@ -1162,10 +1165,10 @@ onBeforeUnmount(() => {
 }
 .course-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin: 16px 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  justify-content: flex-start;
 }
 
 .course-tab {
@@ -1179,7 +1182,6 @@ onBeforeUnmount(() => {
   background: rgba(210, 166, 59, 0.1);
   border: 1px solid rgba(210, 166, 59, 0.3);
   transition: all 0.3s var(--ease-calm);
-  white-space: nowrap;
 }
 
 .course-tab.active {
