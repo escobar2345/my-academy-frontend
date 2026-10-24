@@ -46,7 +46,7 @@
     <!-- progress rail — signature "tour" indicator -->
     <div class="tour-rail" id="tour-rail">
       <div class="stop active" data-label="Welcome"><span class="lbl"></span></div>
-      <div class="stop" data-label="Boardroom"><span class="lbl"></span></div>
+      <div class="stop" data-label="Courses"><span class="lbl"></span></div>
       <div class="stop" data-label="Work-space"><span class="lbl"></span></div>
       <div class="stop" data-label="Community"><span class="lbl"></span></div>
       <div class="stop" data-label="Hub Floor"><span class="lbl"></span></div>
@@ -103,33 +103,22 @@
         </div>
       </section>
 
-      <!-- ---------------- BOARDROOM ---------------- -->
-      <section class="stop-section" id="boardroom" data-stop="1">
+      <!-- ---------------- COURSE TABS ---------------- -->
+      <section class="stop-section" id="courses" data-stop="1">
         <div class="stop-inner">
           <div class="stop-kicker">
             <span class="stop-num">01</span>
-            <span class="stop-label">The Boardroom</span>
+            <span class="stop-label">Courses</span>
           </div>
-          <h2 class="stop-title reveal-mask">Where Builders<br>Get <em class="shine">Competition-Ready.</em></h2>
-          <p class="stop-text">Google. Microsoft. Meta. The hackathons that matter are already global — and we train Nigerian developers to walk in and win them. Real problems, real deadlines, real prize money, against the best builders in the world.</p>
-          
-          <ul class="stop-facts">
-            <li>
-              <span class="fact-icon">🎯</span>
-              <h4>Live Investor Reviews</h4>
-              <p>Present your deck to active angel investors and VCs who provide brutal, constructive feedback.</p>
-            </li>
-            <li>
-              <span class="fact-icon">🧠</span>
-              <h4>1:1 Mentor Sessions</h4>
-              <p>Weekly dedicated time with industry veterans who have scaled companies from zero to one.</p>
-            </li>
-            <li>
-              <span class="fact-icon">🔄</span>
-              <h4>Weekly Rehearsals</h4>
-              <p>Iterate your pitch until it's bulletproof. We don't let you leave until the narrative is flawless.</p>
-            </li>
-          </ul>
+          <h2 class="stop-title reveal-mask">Career Tracks</h2>
+          <div class="course-tabs">
+            <span class="course-tab active">1. AI & ML Engineering</span>
+            <span class="course-tab">2. Data Engineering</span>
+            <span class="course-tab">3. Cloud & DevOps</span>
+            <span class="course-tab">4. Cybersecurity</span>
+            <span class="course-tab">5. Software Engineering</span>
+            <span class="course-tab">6. Business Skills</span>
+          </div>
         </div>
       </section>
 
@@ -501,7 +490,7 @@ onMounted(() => {
 
     const stops = [
       { section: '.hero' },
-      { section: '#boardroom' },
+      { section: '#courses' },
       { section: '#pods' },
       { section: '#lounge' },
       { section: '#techfloor' }
@@ -1168,7 +1157,38 @@ onBeforeUnmount(() => {
   font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600;
   color: rgba(246, 244, 236, 0.3); letter-spacing: -0.02em;
 }
-.foot-line {
+.course-tabs {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.course-tab {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(210, 166, 59, 0.1);
+  border: 1px solid rgba(210, 166, 59, 0.3);
+  transition: all 0.3s var(--ease-calm);
+  white-space: nowrap;
+}
+
+.course-tab.active {
+  color: var(--gold);
+  background: rgba(210, 166, 59, 0.2);
+  border-color: var(--gold);
+}
+
+.course-tab:hover:not(.active) {
+  color: var(--gold-bright);
+  background: rgba(210, 166, 59, 0.15);
+}
   margin-top: 70px; font-size: 12px; color: var(--paper-dim); letter-spacing: 0.04em;
   position: relative; z-index: 1;
 }
