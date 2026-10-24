@@ -1189,9 +1189,6 @@ onBeforeUnmount(() => {
   color: var(--gold-bright);
   background: rgba(210, 166, 59, 0.15);
 }
-  margin-top: 70px; font-size: 12px; color: var(--paper-dim); letter-spacing: 0.04em;
-  position: relative; z-index: 1;
-}
 
 @media (max-width: 780px) {
   .cta-section { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
