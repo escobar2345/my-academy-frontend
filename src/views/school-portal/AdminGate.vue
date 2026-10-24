@@ -1,0 +1,253 @@
+<template>
+  <div class="ag" :class="{ active: authed }">
+    <div v-if="state === 'checking'" class="ag-card">
+      <p class="kicker">BOIRSU SCHOOL / CONTROL ROOM</p>
+      <p class="muted">Checking your admin sessionΓÇª</p>
+    </div>
+
+    <div v-else-if="!authed" class="ag-card">
+      <p class="kicker">BOIRSU SCHOOL / CONTROL ROOM</p>
+      <h1>Admin sign-in</h1>
+      <p class="muted">
+        The command room manages people, fees, sponsors and payouts, so it is
+        only open to signed-in administrators. Enter your admin username and
+        password below.
+      </p>
+      <form @submit.prevent="signIn">
+        <label>Username <input v-model="username" required autocomplete="username" placeholder="admin" /></label>
+        <label>Password <input v-model="password" type="password" required autocomplete="current-password" placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó" /></label>
+        <button type="submit" class="ag-btn" :disabled="busy">{{ busy ? 'Signing inΓÇª' : 'Sign in to the admin room' }}</button>
+      </form>
+      <p v-if="msg" class="msg" :class="{ warn: !msg.ok }">{{ msg.text }}</p>
+      <p v-if="kicked" class="msg warn">You were signed out because this account was used on another device. Sign in again to continue here.</p>
+    </div>
+
+    <template v-else>
+      <AdminPage />
+      <div class="ag-actions">
+        <button class="ag-chip" @click="pwOpen = true">≡ƒöæ Change password</button>
+        <button class="ag-chip" :disabled="signingOut" @click="signOut">{{ signingOut ? 'Signing outΓÇª' : 'Sign out ┬╖ ' + adminName }}</button>
+      </div>
+
+      <div v-if="pwOpen" class="ag-modal" @click.self="closePw">
+        <form class="ag-card pw-card" @submit.prevent="changePassword">
+          <p class="kicker">BOIRSU SCHOOL / ADMIN ACCOUNT</p>
+          <h2>Change password</h2>
+          <label>Current password <input v-model="pwCurrent" type="password" autocomplete="current-password" required /></label>
+          <label>New password <input v-model="pwNew" type="password" autocomplete="new-password" required minlength="6" placeholder="min 6 characters" /></label>
+          <label>Confirm new password <input v-model="pwNew2" type="password" autocomplete="new-password" required minlength="6" /></label>
+          <div class="pw-actions">
+            <button type="submit" class="ag-btn" :disabled="pwBusy">{{ pwBusy ? 'SavingΓÇª' : 'Save new password' }}</button>
+            <button type="button" class="ag-chip" @click="closePw">Cancel</button>
+          </div>
+          <p v-if="pwMsg" class="msg" :class="{ warn: !pwMsg.ok }">{{ pwMsg.text }}</p>
+        </form>
+      </div>
+    </template>
+  </div>
+</template>
+
+<script setup>
+// AdminGate.vue ΓÇö authentication wrapper for the admin command room.
+// Same design as TeacherClassroomGate.vue: resume a stored single-device
+// session, or verify username + PBKDF2 password against the `admins` row via
+// the whitelisted portal API. AdminPage only ever mounts once authed, so its
+// data loaders (fees, teachers, partners, stats) never run for visitors.
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import AdminPage from './AdminPage.vue'
+import { hashPassword, verifyPassword, newSessionToken } from './schoolAuth.js'
+import { pgSelect, pgUpdate } from '../../lib/pgdb.js'
+
+const state = ref('checking') // checking | login | active
+const authed = ref(false)
+const username = ref('')
+const password = ref('')
+const busy = ref(false)
+const msg = ref(null)
+const kicked = ref(false)
+const admin = ref(null)
+const signingOut = ref(false)
+const adminName = computed(() => admin.value?.name || 'Administrator')
+
+const LS_KEY = 'boi_admin_session'
+
+// Change-password overlay state.
+const pwOpen = ref(false)
+const pwCurrent = ref('')
+const pwNew = ref('')
+const pwNew2 = ref('')
+const pwBusy = ref(false)
+const pwMsg = ref(null)
+
+// Resume: our stored token must still be the one on the account row. If a
+// newer login replaced it, or the admin was deactivated, the session is dead
+// ΓÇö the same single-device rule the teacher gate enforces.
+async function sessionAdmin() {
+  try {
+    const raw = localStorage.getItem(LS_KEY)
+    if (!raw) return null
+    const { id, token } = JSON.parse(raw) || {}
+    if (!id || !token) return null
+    const { data, error } = await pgSelect('admins', {
+      select: 'admin_id,name,login_email,status,session_token',
+      eq: { admin_id: id },
+      single: true,
+    })
+    if (error || !data) return null
+    if (data.status !== 'active' || data.session_token !== token) return null
+    return data
+  } catch {
+    return null
+  }
+}
+
+async function resume() {
+  state.value = 'checking'
+  const a = await sessionAdmin()
+  if (a) {
+    admin.value = a
+    authed.value = true
+    state.value = 'active'
+    startPolling()
+  } else {
+    localStorage.removeItem(LS_KEY)
+    state.value = 'login'
+  }
+}
+
+async function signIn() {
+  busy.value = true
+  msg.value = null
+  kicked.value = false
+  try {
+    const user = username.value.trim().toLowerCase()
+    const { data, error } = await pgSelect('admins', {
+      select: 'admin_id,name,login_email,status,password_salt,password_hash',
+      eq: { login_email: user },
+      single: true,
+    })
+    if (error) throw error
+    if (!data || !data.password_hash) throw new Error('No admin account with that username.')
+    if (data.status !== 'active') throw new Error('This admin account has been deactivated.')
+    const ok = await verifyPassword(password.value, data.password_salt, data.password_hash)
+    if (!ok) throw new Error('Wrong username or password.')
+    // Single device per admin: the newest login replaces the stored session
+    // token, so every older device is signed out within 30 seconds.
+    const token = newSessionToken()
+    const { error: upErr } = await pgUpdate('admins', { session_token: token, session_active_at: new Date().toISOString() }, { admin_id: data.admin_id })
+    if (upErr) throw upErr
+    localStorage.setItem(LS_KEY, JSON.stringify({ id: data.admin_id, token }))
+    admin.value = { admin_id: data.admin_id, name: data.name, login_email: data.login_email }
+    authed.value = true
+    state.value = 'active'
+    startPolling()
+  } catch (e) {
+    msg.value = { ok: false, text: e.message || 'Sign-in failed.' }
+  } finally {
+    busy.value = false
+  }
+}
+
+async function signOut() {
+  signingOut.value = true
+  try {
+    if (admin.value) {
+      await pgUpdate('admins', { session_token: null }, { admin_id: admin.value.admin_id })
+    }
+  } catch { /* best effort */ }
+  localStorage.removeItem(LS_KEY)
+  admin.value = null
+  authed.value = false
+  state.value = 'login'
+  stopPolling()
+  signingOut.value = false
+}
+function closePw() {
+  pwOpen.value = false
+  pwCurrent.value = ''
+  pwNew.value = ''
+  pwNew2.value = ''
+  pwMsg.value = null
+}
+
+async function changePassword() {
+  pwBusy.value = true
+  pwMsg.value = null
+  try {
+    if (pwNew.value.length < 6) throw new Error('New password must be at least 6 characters.')
+    if (pwNew.value !== pwNew2.value) throw new Error('New passwords do not match.')
+    const { data, error } = await pgSelect('admins', {
+      select: 'admin_id,password_salt,password_hash',
+      eq: { admin_id: admin.value.admin_id },
+      single: true,
+    })
+    if (error) throw error
+    const okNow = await verifyPassword(pwCurrent.value, data?.password_salt, data?.password_hash)
+    if (!okNow) throw new Error('Current password is wrong.')
+    const { saltHex, hashHex } = await hashPassword(pwNew.value)
+    const { error: upErr } = await pgUpdate('admins', {
+      password_salt: saltHex,
+      password_hash: hashHex,
+      password_set_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      // session_token is deliberately left alone: changing YOUR password must
+      // not sign YOU out (an admin resetting someone else's does that).
+    }, { admin_id: admin.value.admin_id })
+    if (upErr) throw upErr
+    pwCurrent.value = ''
+    pwNew.value = ''
+    pwNew2.value = ''
+    pwMsg.value = { ok: true, text: 'Password updated ΓÇö use it the next time you sign in.' }
+  } catch (e) {
+    pwMsg.value = { ok: false, text: e.message || 'Could not change the password.' }
+  } finally {
+    pwBusy.value = false
+  }
+}
+
+let poll = null
+function startPolling() {
+  stopPolling()
+  poll = setInterval(async () => {
+    if (!authed.value) { stopPolling(); return }
+    const a = await sessionAdmin()
+    if (!a) {
+      kicked.value = true
+      authed.value = false
+      state.value = 'login'
+      admin.value = null
+      localStorage.removeItem(LS_KEY)
+      stopPolling()
+    }
+  }, 30000)
+}
+function stopPolling() { if (poll) { clearInterval(poll); poll = null } }
+
+onMounted(resume)
+onUnmounted(stopPolling)
+</script>
+
+<style scoped>
+.ag { min-height: 100vh; background: #f3f5ed; display: grid; place-items: center; padding: 24px; color: #102321; font-family: 'Space Grotesk', system-ui, sans-serif; }
+.ag.active { display: block; padding: 0; }
+.ag-card { width: min(460px, 100%); background: #fff; border: 1px solid #dce2d8; padding: 30px; }
+.kicker { margin: 0 0 10px; color: #8a5b32; font: 600 11px monospace; letter-spacing: .14em; }
+.ag-card h1 { margin: 0 0 12px; font: 500 30px Georgia, serif; color: #102321; }
+.ag-card h2 { margin: 0 0 12px; font: 500 24px Georgia, serif; color: #102321; }
+.muted { color: #64706a; font-size: 13px; line-height: 1.6; }
+.ag-card form { display: grid; gap: 12px; margin-top: 18px; }
+.ag-card label { display: grid; gap: 6px; color: #4d5a52; font-size: 12.5px; }
+.ag-card input { padding: 12px; background: #f7f8f4; border: 1px solid #b8c2b3; color: #102321; font: inherit; }
+.ag-btn { margin-top: 4px; padding: 13px; border: none; background: #14432e; color: #fff; font-weight: 700; cursor: pointer; }
+.ag-btn:disabled { opacity: .6; cursor: wait; }
+.msg { margin-top: 14px; padding: 10px 12px; font-size: 12.5px; background: #edf5e9; color: #387251; }
+.msg.warn { background: #fdf0e7; color: #a3542c; }
+.ag-actions { position: fixed; left: 14px; bottom: 14px; z-index: 60; display: flex; gap: 8px; }
+.ag-chip { padding: 9px 13px; border: 1px solid #b8c2b3; background: #fff; color: #61715e; font: 600 11px monospace; cursor: pointer; }
+.ag-chip:hover { color: #102321; }
+.ag-chip:disabled { opacity: .6; cursor: wait; }
+.ag-modal { position: fixed; inset: 0; z-index: 80; background: rgba(16, 35, 33, .55); display: grid; place-items: center; padding: 24px; }
+.pw-card { width: min(460px, 100%); }
+.pw-actions { display: flex; gap: 10px; margin-top: 6px; }
+.pw-actions .ag-btn { flex: 1; }
+</style>

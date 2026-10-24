@@ -2,48 +2,73 @@
   <div class="reg-page relative min-h-screen overflow-x-hidden bg-[#f5f1e6] text-[#1b211c]"
        style="font-family:'Karla',sans-serif;background-image:radial-gradient(rgba(20,67,46,.07) 1px,transparent 1px);background-size:26px 26px">
 
-    <!-- ===== Site navigation (AcademyNav). The fixed bar overlays the page, so
-         .reg-page's own padding-top (style block) provides the clearance — this
-         is deliberately the ONE clearance. An earlier `height:86px` spacer here
-         was redundant (padding 72px + spacer 86px = 158px for a ~67px bar) and
-         opened that big empty band between the nav and the ticker. ===== -->
+    <!-- ===== Site navigation (AcademyNav) ΓÇö desktop bar + clearance ===== -->
     <div class="hidden md:block">
       <AcademyNav />
     </div>
+    <div class="hidden md:block" style="height:86px"></div>
 
-    <!-- ===== Pre-registration gate: returning login, or straight to the form ===== -->
+    <!-- ===== Pre-registration gate: Google signup or returning login ===== -->
     <Transition name="modal-fade">
       <div v-if="regGate" class="fixed inset-0 z-[95] flex items-center justify-center bg-[#0d3321]/85 backdrop-blur-[3px] px-4">
         <div class="w-full max-w-[430px] rounded-[18px] border border-[#d9d1bc] bg-[#fffdf6] p-6 shadow-[0_24px_60px_rgba(0,0,0,.35)]" style="animation:rise .45s cubic-bezier(.22,.9,.3,1) both">
-          <span class="font-bold text-[10px] uppercase tracking-[.2em] text-[#cf3f2b]" style="font-family:'JetBrains Mono',monospace">Cohort 12 · Admission</span>
-          <h3 class="mt-2 text-[26px] font-black text-[#14432e]" style="font-family:'Fraunces',serif">Before you start…</h3>
+          <span class="font-bold text-[10px] uppercase tracking-[.2em] text-[#cf3f2b]" style="font-family:'JetBrains Mono',monospace">Cohort 12 ┬╖ Admission</span>
+          <h3 class="mt-2 text-[26px] font-black text-[#14432e]" style="font-family:'Fraunces',serif">Before you startΓÇª</h3>
 
-          <!-- Choose: go straight to the form, or log in as a returning student.
-               Google sign-up was retired along with Supabase Auth — the form
-               collects email + password itself, so there is no separate sign-up
-               button to offer here, only the two paths that actually work. -->
+          <!-- Choose: Google / Login -->
           <template v-if="gateMode === 'choose' || gateMode === 'login'">
-            <p v-if="gateMode === 'login'" class="text-[13.5px] text-[#6d6f63] leading-[1.65] mt-2">Log in with the email and password you registered with.</p>
-            <p v-else class="text-[13.5px] text-[#6d6f63] leading-[1.65] mt-2">Registration takes about two minutes, and your account is created as part of it — email and password, no sign-up step first.</p>
+            <p class="text-[13.5px] text-[#6d6f63] leading-[1.65] mt-2">Sign up with Google in one click, or log in if you've already registered.</p>
+
+            <button type="button" :disabled="gateBusy" @click="startGoogleSignup"
+                    class="mt-5 w-full flex items-center justify-center gap-3 rounded-[11px] bg-white border-[1.8px] border-[#d9d1bc] py-[14px] font-bold text-[14.5px] text-[#1b211c] transition-all hover:border-[#14432e] hover:-translate-y-[2px] disabled:opacity-50 disabled:hover:translate-y-0">
+              <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 40.4 44 35 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+              {{ gateBusy ? 'CheckingΓÇª' : 'Continue with Google' }}
+            </button>
+
+            <div class="flex items-center gap-3 my-4">
+              <span class="flex-1 border-t border-dashed border-[#d9d1bc]"></span>
+              <span class="text-[10.5px] font-bold uppercase tracking-[.14em] text-[#a49f8c]" style="font-family:'JetBrains Mono',monospace">or</span>
+              <span class="flex-1 border-t border-dashed border-[#d9d1bc]"></span>
+            </div>
 
             <template v-if="gateMode === 'login'">
               <input v-model="gateEmail" type="email" placeholder="you@example.com"
-                     class="w-full text-[15px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none focus:border-[#1d5a3f] mt-5 mb-2">
+                     class="w-full text-[15px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none focus:border-[#1d5a3f] mb-2">
               <input v-model="gatePw" type="password" placeholder="Your password" @keyup.enter="doGateLogin"
                      class="w-full text-[15px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none focus:border-[#1d5a3f] mb-3">
               <button type="button" :disabled="gateBusy" @click="doGateLogin"
-                      class="w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all disabled:opacity-50">{{ gateBusy ? 'Signing in…' : 'Log in → Dashboard' }}</button>
+                      class="w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all disabled:opacity-50">{{ gateBusy ? 'Signing inΓÇª' : 'Log in ΓåÆ Dashboard' }}</button>
               <button type="button" @click="gateMode = 'choose'" class="mt-2 w-full text-[12px] font-bold text-[#6d6f63] underline">Back</button>
             </template>
-            <template v-else>
-              <button type="button" @click="closeGate(false)"
-                      class="mt-5 w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all">Continue to the registration form →</button>
-              <button type="button" @click="gateMode = 'login'"
-                      class="mt-2 w-full rounded-[11px] bg-white border-[1.8px] border-[#d9d1bc] py-[13px] font-bold text-[13.5px] text-[#1b211c] hover:border-[#14432e] transition-all">I already registered — Log in</button>
-            </template>
+            <button v-else type="button" @click="gateMode = 'login'"
+                    class="w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all">I already registered ΓÇö Log in</button>
 
             <p v-if="gateMsg" class="mt-3 text-[12px] font-bold leading-relaxed" :class="gateOk ? 'text-[#0d7a45]' : 'text-[#cf3f2b]'">{{ gateMsg }}</p>
           </template>
+
+          <!-- Verified via Google: route by account existence -->
+          <template v-else>
+            <div class="rounded-[12px] border border-[#17b565]/40 bg-[#e7f7ee] p-4 flex items-start gap-3">
+              <span class="text-[20px] leading-none mt-0.5">Γ£ô</span>
+              <div class="min-w-0">
+                <b class="block text-[14.5px] text-[#0d7a45]">Google account verified</b>
+                <span class="text-[12.5px] text-[#1b211c] break-all">{{ gateEmail }}</span>
+              </div>
+            </div>
+
+            <template v-if="gateAccountFound">
+              <p class="text-[13px] text-[#6d6f63] mt-3 leading-relaxed">Welcome back! This Gmail is already registered with us.</p>
+              <button type="button" @click="goDashboard()"
+                      class="mt-4 w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all">Go to my student dashboard ΓåÆ</button>
+            </template>
+            <template v-else>
+              <p class="text-[13px] text-[#6d6f63] mt-3 leading-relaxed">No existing account for this email yet ΓÇö your verified email has been dropped into the form below. Pick your course, pay the fee, then create your password.</p>
+              <button type="button" @click="closeGate(true)"
+                      class="mt-4 w-full rounded-[11px] bg-[#14432e] text-white py-[14px] font-extrabold text-[14px] hover:bg-[#1d5a3f] transition-all">Continue to the registration form Γ£ô</button>
+            </template>
+          </template>
+
+          <button type="button" @click="closeGate(false)" class="mt-4 w-full text-center text-[12px] font-bold text-[#6d6f63] underline hover:text-[#14432e] transition-colors">Skip for now ΓÇö just fill the form</button>
         </div>
       </div>
     </Transition>
@@ -62,10 +87,14 @@
 
     <!-- mobile header -->
     <header class="sticky top-[56px] z-40 flex items-center gap-[10px] px-4 py-3 border-b border-[#d9d1bc] bg-[rgba(245,241,230,.96)] backdrop-blur-[16px] shadow-[0_2px_12px_rgba(0,0,0,.04)] md:hidden">
-<img src="/lip-logo.png" alt="LIP Academy" class="h-[38px] w-auto shrink-0" />
+<svg width="36" height="42" viewBox="0 0 62 70" aria-hidden="true" class="shrink-0">
+        <path d="M31 2 58 10v26c0 16-12 26-27 32C16 62 4 52 4 36V10L31 2z" fill="#14432e" stroke="#e8a524" stroke-width="2.5"/>
+        <text x="31" y="36" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="19" fill="#f5f1e6">{{ '</>' }}</text>
+        <text x="31" y="54" text-anchor="middle" font-family="Fraunces,serif" font-weight="900" font-size="11" fill="#e8a524">BOI</text>
+      </svg>
       <div class="min-w-0">
-        <h1 class="text-[20px] leading-none font-black" style="font-family:'Fraunces',serif;color:#14432e">LIP <i class="italic font-semibold text-[#cf3f2b]">Academy</i></h1>
-        <p class="font-bold uppercase tracking-[.15em] text-[9px] mt-[2px] text-[#6d6f63]" style="font-family:'JetBrains Mono',monospace">Code · Build · Get Hired</p>
+        <h1 class="text-[20px] leading-none font-black" style="font-family:'Fraunces',serif;color:#14432e">Boi <i class="italic font-semibold text-[#cf3f2b]">Tech Academy</i></h1>
+        <p class="font-bold uppercase tracking-[.15em] text-[9px] mt-[2px] text-[#6d6f63]" style="font-family:'JetBrains Mono',monospace">Code ┬╖ Build ┬╖ Get Hired</p>
       </div>
       <span class="ml-auto bg-[#e8a524] text-[#0d3321] font-bold text-[9px] px-2 py-1 rounded-[4px] tracking-[.1em] -rotate-[1.5deg]" style="font-family:'JetBrains Mono',monospace">COHORT 12</span>
     </header>
@@ -86,21 +115,25 @@
     <div class="relative z-[5] bg-[#0d3321] text-[#f3ecd6] overflow-hidden border-b-[3px] border-[#e8a524] hidden md:block">
       <div class="inline-flex whitespace-nowrap py-2 font-semibold text-[12px] uppercase tracking-[.08em]"
            style="font-family:'JetBrains Mono',monospace;animation:tick 40s linear infinite">
-        <span class="flex items-center gap-[22px] px-[22px]">LIP Academy · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
-        <span class="flex items-center gap-[22px] px-[22px]">LIP Academy · Cohort 12 open <em class="not-italic text-[#e8a524]">✦</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">✦</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">✦</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">✦</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">✦</em> Mentorship for life <em class="not-italic text-[#e8a524]">✦</em></span>
+        <span class="flex items-center gap-[22px] px-[22px]">Boi Tech Academy ┬╖ Cohort 12 open <em class="not-italic text-[#e8a524]">Γ£ª</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">Γ£ª</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">Γ£ª</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">Γ£ª</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">Γ£ª</em> Mentorship for life <em class="not-italic text-[#e8a524]">Γ£ª</em></span>
+        <span class="flex items-center gap-[22px] px-[22px]">Boi Tech Academy ┬╖ Cohort 12 open <em class="not-italic text-[#e8a524]">Γ£ª</em> {{ formatNaira(courseFee) }} registration <em class="not-italic text-[#e8a524]">Γ£ª</em> 16 tracks to pick from <em class="not-italic text-[#e8a524]">Γ£ª</em> Mon 21 Sept 2026 <em class="not-italic text-[#e8a524]">Γ£ª</em> SSCE to PhD welcome <em class="not-italic text-[#e8a524]">Γ£ª</em> Mentorship for life <em class="not-italic text-[#e8a524]">Γ£ª</em></span>
       </div>
     </div>
 
     <!-- desktop header -->
     <header class="relative z-[4] hidden md:flex items-center gap-[18px] flex-wrap max-w-[1200px] mx-auto px-[22px] pt-[26px] pb-2">
-<img src="/lip-logo.png" alt="LIP Academy" class="h-[58px] w-auto" />
+<svg width="58" height="66" viewBox="0 0 62 70" aria-hidden="true">
+        <path d="M31 2 58 10v26c0 16-12 26-27 32C16 62 4 52 4 36V10L31 2z" fill="#14432e" stroke="#e8a524" stroke-width="2.5"/>
+        <text x="31" y="36" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="19" fill="#f5f1e6">{{ '</>' }}</text>
+        <text x="31" y="54" text-anchor="middle" font-family="Fraunces,serif" font-weight="900" font-size="11" fill="#e8a524">BOI</text>
+      </svg>
       <div>
-        <h1 class="text-[clamp(26px,3.4vw,38px)] leading-none font-black text-[#14432e]" style="font-family:'Fraunces',serif">LIP <i class="italic font-semibold text-[#cf3f2b]">Academy</i></h1>
-        <p class="font-semibold text-[11.5px] uppercase tracking-[.18em] text-[#6d6f63] mt-[6px]" style="font-family:'JetBrains Mono',monospace">Code · Build · Get Hired</p>
+        <h1 class="text-[clamp(26px,3.4vw,38px)] leading-none font-black text-[#14432e]" style="font-family:'Fraunces',serif">Boi <i class="italic font-semibold text-[#cf3f2b]">Tech Academy</i></h1>
+        <p class="font-semibold text-[11.5px] uppercase tracking-[.18em] text-[#6d6f63] mt-[6px]" style="font-family:'JetBrains Mono',monospace">Code ┬╖ Build ┬╖ Get Hired</p>
       </div>
       <div class="ml-auto text-right text-[13px] text-[#6d6f63] leading-[1.7]">
         <b class="text-[#14432e] text-[14px]">{{ todayDate }}</b><br>
-        <span class="inline-block bg-[#e8a524] text-[#0d3321] font-bold text-[11px] tracking-[.14em] px-[10px] py-1 rounded-[4px] -rotate-[1.5deg] mt-1" style="font-family:'JetBrains Mono',monospace">COHORT 12 · REGISTRATION FORM</span>
+        <span class="inline-block bg-[#e8a524] text-[#0d3321] font-bold text-[11px] tracking-[.14em] px-[10px] py-1 rounded-[4px] -rotate-[1.5deg] mt-1" style="font-family:'JetBrains Mono',monospace">COHORT 12 ┬╖ REGISTRATION FORM</span>
       </div>
     </header>
 
@@ -111,7 +144,7 @@
              :class="{ 'mobile-expanded': sidebarOpen }">
         <span class="absolute -top-[46px] -right-[46px] w-[150px] h-[150px] rounded-full border-[22px] border-[rgba(232,165,36,.14)]"></span>
         <h2 class="text-[21px] font-bold text-white" style="font-family:'Fraunces',serif">Admissions Desk</h2>
-        <div class="font-bold text-[11px] uppercase tracking-[.18em] text-[#e8a524] mt-1 mb-[18px]" style="font-family:'JetBrains Mono',monospace">// four quick steps · ~4 min</div>
+        <div class="font-bold text-[11px] uppercase tracking-[.18em] text-[#e8a524] mt-1 mb-[18px]" style="font-family:'JetBrains Mono',monospace">// four quick steps ┬╖ ~4 min</div>
 
         <!-- 2x2 on phones: as a horizontal scroller the last two steps sat off
              the right edge and read as clipped rather than scrollable. Reverts
@@ -123,7 +156,7 @@
             <span class="w-7 h-7 shrink-0 grid place-items-center rounded-full border-[1.6px] border-[rgba(239,233,212,.5)] font-bold text-[11.5px] transition-all"
                   style="font-family:'JetBrains Mono',monospace"
                   :class="i === current ? 'bg-[#e8a524] border-[#e8a524] text-[#0d3321]' : (i < current ? 'bg-[#efe9d4] border-[#efe9d4] text-[#0d3321]' : '')">
-              <span v-if="i < current">✓</span>
+              <span v-if="i < current">Γ£ô</span>
               <span v-else>{{ String(i+1).padStart(2,'0') }}</span>
             </span>
             {{ s }}
@@ -134,15 +167,15 @@
         <div class="flex items-center justify-between bg-[rgba(232,165,36,.18)] text-[#e8a524] px-3.5 py-[10px] rounded-[10px] mt-3 font-bold text-[11px] uppercase tracking-[.1em] cursor-pointer border-[1.5px] border-[rgba(232,165,36,.4)] md:hidden"
              style="font-family:'JetBrains Mono',monospace" @click="toggleSidebar">
           <span>{{ sidebarOpen ? 'Hide info & perks' : 'Show info & perks' }}</span>
-          <span :class="sidebarOpen ? 'rotate-180' : ''" class="transition-transform">↓</span>
+          <span :class="sidebarOpen ? 'rotate-180' : ''" class="transition-transform">Γåô</span>
         </div>
 
         <hr class="border-t border-dashed border-[rgba(239,233,212,.3)] my-[18px] hidden md:block">
         <div class="hidden md:block">
-          <div class="flex gap-[10px] text-[13px] leading-[1.55] mb-[11px] text-[#d9d4bd]"><span class="text-[#e8a524] font-extrabold">▸</span><span><b class="text-white">Registration fee:</b> {{ formatNaira(courseFee) }} — paid securely via Paystack or bank transfer.</span></div>
-          <div class="flex gap-[10px] text-[13px] leading-[1.55] mb-[11px] text-[#d9d4bd]"><span class="text-[#e8a524] font-extrabold">▸</span><span><b class="text-white">Who is this for?</b> Beginners, graduates, PhD holders, career switchers — everyone is welcome.</span></div>
-          <div class="flex gap-[10px] text-[13px] leading-[1.55] mb-[11px] text-[#d9d4bd]"><span class="text-[#e8a524] font-extrabold">▸</span><span><b class="text-white">16 tech tracks</b> to choose from — from coding to content to cloud.</span></div>
-          <div class="flex gap-[10px] text-[13px] leading-[1.55] mb-[11px] text-[#d9d4bd]"><span class="text-[#e8a524] font-extrabold">▸</span><span><b class="text-white">Cohort 12 starts</b> Monday 21 September 2026. Orientation: Sat 19 Sept.</span></div>
+          <div class="flex gap-[10px] text-[13px] leading-[1.55] mb-[11px] text-[#d9d4bd]"><span class="text-[#e8a524] font-extrabold">Γû╕</span><span><b class="text-white">Registration fee:</b> {{ formatNaira(courseFee) }} ΓÇö paid securely via Paystack or bank transfer.</span></div>
+          <div class="flex gap-[10px] text-[13px] leading-[1.55] mb-[11px] text-[#d9d4bd]"><span class="text-[#e8a524] font-extrabold">Γû╕</span><span><b class="text-white">Who is this for?</b> Beginners, graduates, PhD holders, career switchers ΓÇö everyone is welcome.</span></div>
+          <div class="flex gap-[10px] text-[13px] leading-[1.55] mb-[11px] text-[#d9d4bd]"><span class="text-[#e8a524] font-extrabold">Γû╕</span><span><b class="text-white">16 tech tracks</b> to choose from ΓÇö from coding to content to cloud.</span></div>
+          <div class="flex gap-[10px] text-[13px] leading-[1.55] mb-[11px] text-[#d9d4bd]"><span class="text-[#e8a524] font-extrabold">Γû╕</span><span><b class="text-white">Cohort 12 starts</b> Monday 21 September 2026. Orientation: Sat 19 Sept.</span></div>
           <div class="mt-1 bg-black/20 rounded-[10px] p-[13px] text-[12.5px] leading-[2]">
             <b class="block text-[11px] tracking-[.2em] uppercase text-[#e8a524] mb-1">Your {{ formatNaira(courseFee) }} covers</b>
             <span class="text-[#efe9d4]">Admission processing</span><br>
@@ -153,8 +186,8 @@
           </div>
           <div class="mt-[14px] text-[12.5px] leading-[1.7]">
             Questions? Reach the admissions desk:<br>
-            ✉ <a href="mailto:boirsuhub@gmail.com" class="text-[#e8a524] font-bold no-underline">boirsuhub@gmail.com</a><br>
-            WhatsApp: <a href="tel:+2348000000000" class="text-[#e8a524] font-bold no-underline">0800 LIP ACAD</a>
+            Γ£ë <a href="mailto:boirsuhub@gmail.com" class="text-[#e8a524] font-bold no-underline">boirsuhub@gmail.com</a><br>
+            WhatsApp: <a href="tel:+2348000000000" class="text-[#e8a524] font-bold no-underline">0800 BOI TECH</a>
           </div>
         </div>
       </aside>
@@ -169,7 +202,7 @@
              style="background:repeating-linear-gradient(0deg,#fbf7ea 0 26px,rgba(20,67,46,.06) 26px 27px)">
           <div>
             <div class="text-[22px] font-black text-[#14432e]" style="font-family:'Fraunces',serif">Cohort 12 Registration</div>
-            <small class="block font-semibold text-[10.5px] tracking-[.2em] text-[#cf3f2b] mt-[3px]" style="font-family:'JetBrains Mono',monospace">ADULT LEARNER APPLICATION · 2026 SESSION</small>
+            <small class="block font-semibold text-[10.5px] tracking-[.2em] text-[#cf3f2b] mt-[3px]" style="font-family:'JetBrains Mono',monospace">ADULT LEARNER APPLICATION ┬╖ 2026 SESSION</small>
           </div>
           <div class="ml-auto text-right hidden md:block">
             <span class="block font-bold text-[10px] tracking-[.18em] uppercase text-[#6d6f63]" style="font-family:'JetBrains Mono',monospace">Applicant Ref.</span>
@@ -187,7 +220,7 @@
             <span v-if="i>0" class="h-[2px] bg-[#ddd6c2] mr-[2px] flex-1"></span>
             <span class="w-[26px] h-[26px] rounded-full border-2 grid place-items-center text-[11px] transition-all"
                   :class="i === current ? 'border-[#14432e] bg-[#14432e] text-white shadow-[0_0_0_5px_rgba(20,67,46,.12)]' : (i < current ? 'border-[#1d5a3f] bg-[#1d5a3f] text-white' : 'border-[#ddd6c2] bg-white')">
-              {{ i < current ? '✓' : String(i+1).padStart(2,'0') }}
+              {{ i < current ? 'Γ£ô' : String(i+1).padStart(2,'0') }}
             </span>
             <small>{{ s }}</small>
           </div>
@@ -195,11 +228,11 @@
 
         <!-- form -->
         <form class="px-[18px] sm:px-[30px] py-[26px] pb-[34px]" @submit.prevent="handleSubmit" novalidate>
-          <!-- Inline validation banner: Continue never fails silently — if a step
+          <!-- Inline validation banner: Continue never fails silently ΓÇö if a step
                is incomplete this names the exact fields and the fields themselves
                get a red outline. -->
           <div v-if="stepProblems.length" class="mb-5 rounded-[10px] border-[1.5px] border-[#f0b4a4] bg-[#fdeeec] px-4 py-3" role="alert">
-            <b class="block text-[13px] font-bold text-[#cf3f2b] mb-1">⚠ Finish the highlighted field{{ stepProblems.length > 1 ? 's' : '' }} before continuing:</b>
+            <b class="block text-[13px] font-bold text-[#cf3f2b] mb-1">ΓÜá Finish the highlighted field{{ stepProblems.length > 1 ? 's' : '' }} before continuing:</b>
             <ul class="list-disc pl-5 text-[12.5px] font-semibold leading-relaxed text-[#a33a26]">
               <li v-for="(p, pi) in stepProblems" :key="pi">{{ p.msg }}</li>
             </ul>
@@ -209,7 +242,7 @@
             <div class="flex items-baseline gap-[14px] flex-wrap mb-[6px]">
               <span class="font-bold text-[10px] tracking-[.22em] text-[#cf3f2b] border-[1.5px] border-[#cf3f2b] px-[9px] py-[3px] rounded-[4px] -rotate-1" style="font-family:'JetBrains Mono',monospace">01 / PROFILE</span>
               <h3 class="text-[clamp(22px,2.6vw,29px)] font-black text-[#14432e]" style="font-family:'Fraunces',serif">About You</h3>
-              <p class="basis-full text-[14px] text-[#6d6f63] -mt-[2px]">Let's start with who you are. All applicants welcome — from first-time learners to PhD holders.</p>
+              <p class="basis-full text-[14px] text-[#6d6f63] -mt-[2px]">Let's start with who you are. All applicants welcome ΓÇö from first-time learners to PhD holders.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-[16px] mt-5">
               <div class="md:col-span-2">
@@ -248,7 +281,7 @@
               </div>
               <div>
                 <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Current occupation <span class="text-[#a49f8c] font-normal">(optional)</span></label>
-                <input v-model="form.occupation" type="text" placeholder="e.g. Student, NYSC, banker, designer…" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
+                <input v-model="form.occupation" type="text" placeholder="e.g. Student, NYSC, banker, designerΓÇª" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
               </div>
             </div>
           </section>
@@ -258,13 +291,13 @@
             <div class="flex items-baseline gap-[14px] flex-wrap mb-[6px]">
               <span class="font-bold text-[10px] tracking-[.22em] text-[#cf3f2b] border-[1.5px] border-[#cf3f2b] px-[9px] py-[3px] rounded-[4px] -rotate-1" style="font-family:'JetBrains Mono',monospace">02 / BACKGROUND</span>
               <h3 class="text-[clamp(22px,2.6vw,29px)] font-black text-[#14432e]" style="font-family:'Fraunces',serif">Your Education &amp; Skills</h3>
-              <p class="basis-full text-[14px] text-[#6d6f63] -mt-[2px]">This helps us place you on the right starting line. No wrong answers — beginners are our favourite people.</p>
+              <p class="basis-full text-[14px] text-[#6d6f63] -mt-[2px]">This helps us place you on the right starting line. No wrong answers ΓÇö beginners are our favourite people.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-[16px] mt-5">
               <div class="md:col-span-2">
                 <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Highest qualification *</label>
                 <select id="f-qualification" v-model="form.qualification" @change="onQualChange" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
-                  <option value="">— Select —</option>
+                  <option value="">ΓÇö Select ΓÇö</option>
                   <option>No certificate yet</option>
                   <option>SSCE / WAEC / NECO</option>
                   <option>OND</option>
@@ -282,14 +315,14 @@
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
                     <div>
                       <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Field of study *</label>
-                      <input v-model="form.fieldStudy" id="f-fieldstudy" type="text" placeholder="e.g. Biochemistry, Accounting…" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
+                      <input v-model="form.fieldStudy" id="f-fieldstudy" type="text" placeholder="e.g. Biochemistry, AccountingΓÇª" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
                     </div>
                     <div>
                       <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Institution <span class="text-[#a49f8c] font-normal">(optional)</span></label>
                       <input v-model="form.institution" type="text" placeholder="e.g. University of Lagos" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
                     </div>
                     <div v-if="form.qualification === 'PhD'" class="md:col-span-2">
-                      <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Research / thesis focus <span class="text-[#a49f8c] font-normal">(optional — we love curiosity!)</span></label>
+                      <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Research / thesis focus <span class="text-[#a49f8c] font-normal">(optional ΓÇö we love curiosity!)</span></label>
                       <input v-model="form.research" type="text" placeholder="e.g. Machine learning for crop yield prediction" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
                     </div>
                   </div>
@@ -302,7 +335,7 @@
                   <label v-for="s in skills" :key="s.value" class="inline-block px-[15px] py-2 border-[1.5px] border-dashed border-[#d9d1bc] rounded-[100px] text-[13px] font-bold cursor-pointer transition-all hover:border-[#e8a524] hover:text-[#1b211c] hover:-translate-y-[2px] bg-white"
                          :class="form.skills.includes(s.value) ? 'bg-[#fdf3d7] border-[#e8a524] text-[#7c5a06] border-solid' : ''">
                     <input type="checkbox" :value="s.value" v-model="form.skills" class="hidden">
-                    <span v-if="form.skills.includes(s.value)">✓ </span>{{ s.label }}
+                    <span v-if="form.skills.includes(s.value)">Γ£ô </span>{{ s.label }}
                   </label>
                 </div>
               </div>
@@ -320,7 +353,7 @@
 
               <div class="md:col-span-2">
                 <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Tell us more about your skills &amp; experience <span class="text-[#a49f8c] font-normal">(optional but very helpful)</span></label>
-                <textarea v-model="form.skillNotes" maxlength="500" placeholder="Anything you've built, tools you've used, projects, hobbies, self-learning — everything counts." class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c] resize-y" style="min-height:96px"></textarea>
+                <textarea v-model="form.skillNotes" maxlength="500" placeholder="Anything you've built, tools you've used, projects, hobbies, self-learning ΓÇö everything counts." class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c] resize-y" style="min-height:96px"></textarea>
                 <p class="text-[12.5px] text-[#6d6f63] mt-[6px]"><b class="text-[#14432e]">{{ form.skillNotes.length }}</b>/500 characters</p>
               </div>
             </div>
@@ -331,20 +364,20 @@
             <div class="flex items-baseline gap-[14px] flex-wrap mb-[6px]">
               <span class="font-bold text-[10px] tracking-[.22em] text-[#cf3f2b] border-[1.5px] border-[#cf3f2b] px-[9px] py-[3px] rounded-[4px] -rotate-1" style="font-family:'JetBrains Mono',monospace">03 / PROGRAMME</span>
               <h3 class="text-[clamp(22px,2.6vw,29px)] font-black text-[#14432e]" style="font-family:'Fraunces',serif">Choose Your Course</h3>
-              <p class="basis-full text-[14px] text-[#6d6f63] -mt-[2px]">We teach <b class="text-[#14432e]">21 tech tracks</b> — and your search reaches <b class="text-[#14432e]">any course in the world</b> (Coursera, edX, Udemy, Stanford, MIT…). Pick what you want to master this cohort.</p>
+              <p class="basis-full text-[14px] text-[#6d6f63] -mt-[2px]">We teach <b class="text-[#14432e]">21 tech tracks</b> ΓÇö and your search reaches <b class="text-[#14432e]">any course in the world</b> (Coursera, edX, Udemy, Stanford, MITΓÇª). Pick what you want to master this cohort.</p>
             </div>
 
             <!-- Course search: filter the 16 tracks down instantly -->
             <div class="mt-[18px] mb-[14px]">
-              <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Search for the course you want 🔍</label>
-              <input v-model="courseSearch" type="search" placeholder="Search any course — our 21 tracks or anything worldwide (e.g. astronomy, Korean, architecture…)…"
+              <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Search for the course you want ≡ƒöì</label>
+              <input v-model="courseSearch" type="search" placeholder="Search any course ΓÇö our 21 tracks or anything worldwide (e.g. astronomy, Korean, architectureΓÇª)ΓÇª"
                      class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
-              <p class="text-[11.5px] text-[#6d6f63] mt-[6px] font-bold">Showing {{ visibleCourses.length }} of {{ filteredCourses.length }} {{ courseSearch ? 'matching' : 'available' }} courses<span v-if="hiddenCourseCount" class="text-[#cf3f2b]"> — {{ courseSearch ? 'refine your search' : 'use the search box' }} to see the rest</span></p>
+              <p class="text-[11.5px] text-[#6d6f63] mt-[6px] font-bold">Showing {{ visibleCourses.length }} of {{ filteredCourses.length }} {{ courseSearch ? 'matching' : 'available' }} courses<span v-if="hiddenCourseCount" class="text-[#cf3f2b]"> ΓÇö {{ courseSearch ? 'refine your search' : 'use the search box' }} to see the rest</span></p>
             </div>
 
             <div id="f-course" class="grid gap-[14px] mt-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               <p v-if="!filteredCourses.length" class="md:col-span-2 lg:col-span-3 text-center text-[13.5px] text-[#6d6f63] bg-white border border-dashed border-[#d9d1bc] rounded-[12px] py-8">
-                No course matches "<b>{{ courseSearch }}</b>" — try a shorter word like "data", "web", or "design".
+                No course matches "<b>{{ courseSearch }}</b>" ΓÇö try a shorter word like "data", "web", or "design".
               </p>
               <label v-for="c in visibleCourses" :key="c.name" @click="form.course = c.name" class="relative cursor-pointer">
                 <input type="radio" v-model="form.course" :value="c.name" class="absolute opacity-0 pointer-events-none">
@@ -359,48 +392,48 @@
                   </span>
                 </span>
                 <span class="absolute -top-[9px] -right-[9px] w-[26px] h-[26px] rounded-full bg-[#e8a524] text-[#0d3321] grid place-items-center font-extrabold text-[13px] shadow-[0_3px_8px_rgba(0,0,0,.2)] transition-transform"
-                      :class="form.course === c.name ? 'scale-100' : 'scale-0'" style="transition:transform .3s cubic-bezier(.34,1.6,.5,1)">✓</span>
+                      :class="form.course === c.name ? 'scale-100' : 'scale-0'" style="transition:transform .3s cubic-bezier(.34,1.6,.5,1)">Γ£ô</span>
               </label>
             </div>
 
             <!-- WORLD COURSE RESULTS: anything beyond the local tracks, live
-                 from Class Central (Coursera, edX, Udemy, MIT, Stanford…).
+                 from Class Central (Coursera, edX, Udemy, MIT, StanfordΓÇª).
                  Clicking a card selects it like any other course; the "View
                  course" link opens the provider page without selecting. -->
             <div v-if="courseSearch.trim().length >= 3" class="mt-7">
               <div class="flex items-baseline gap-[12px] flex-wrap mb-[4px]">
-                <span class="font-bold text-[10px] tracking-[.22em] text-[#0d7a45] border-[1.5px] border-[#0d7a45] px-[9px] py-[3px] rounded-[4px]" style="font-family:'JetBrains Mono',monospace">🌍 WORLD RESULTS</span>
-                <p class="text-[13px] text-[#6d6f63]">Real courses from Coursera, edX, Udemy, Stanford, MIT &amp; more — pick one to enroll.</p>
+                <span class="font-bold text-[10px] tracking-[.22em] text-[#0d7a45] border-[1.5px] border-[#0d7a45] px-[9px] py-[3px] rounded-[4px]" style="font-family:'JetBrains Mono',monospace">≡ƒîì WORLD RESULTS</span>
+                <p class="text-[13px] text-[#6d6f63]">Real courses from Coursera, edX, Udemy, Stanford, MIT &amp; more ΓÇö pick one to enroll.</p>
               </div>
-              <p v-if="worldLoading" class="text-[13.5px] text-[#6d6f63] mt-3">🔎 Searching the world's course catalogs for “<b>{{ courseSearch.trim() }}</b>”…</p>
+              <p v-if="worldLoading" class="text-[13.5px] text-[#6d6f63] mt-3">≡ƒöÄ Searching the world's course catalogs for ΓÇ£<b>{{ courseSearch.trim() }}</b>ΓÇ¥ΓÇª</p>
               <p v-else-if="worldError" class="text-[13px] text-[#cf3f2b] bg-[#fdeeec] border border-[#f3c2ba] rounded-[9px] px-4 py-3 mt-3">{{ worldError }}</p>
-              <p v-else-if="!worldResults.length" class="text-[13.5px] text-[#6d6f63] mt-3">No world matches for “<b>{{ worldSearched }}</b>” — try fewer or broader words.</p>
+              <p v-else-if="!worldResults.length" class="text-[13.5px] text-[#6d6f63] mt-3">No world matches for ΓÇ£<b>{{ worldSearched }}</b>ΓÇ¥ ΓÇö try fewer or broader words.</p>
               <div v-else class="grid gap-[14px] mt-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 <label v-for="w in worldResults" :key="w.url" @click="form.course = w.name" class="relative cursor-pointer">
                   <input type="radio" v-model="form.course" :value="w.name" class="absolute opacity-0 pointer-events-none">
                   <span class="flex flex-col gap-[6px] bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-4 pb-[14px] h-full transition-all hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(27,33,28,.1)] hover:border-[#b9b198]"
                         :class="form.course === w.name ? 'border-[#14432e] bg-[#eef5ee] shadow-[0_8px_20px_rgba(20,67,46,.14)] -translate-y-[3px]' : ''">
-                    <span class="text-[24px]">🌍</span>
+                    <span class="text-[24px]">≡ƒîì</span>
                     <b class="text-[15.5px] font-bold leading-snug" style="font-family:'Fraunces',serif">{{ w.name }}</b>
                     <small class="text-[12px] text-[#6d6f63] leading-[1.5]">{{ w.institution || w.desc }}</small>
                     <span class="mt-auto flex gap-2 flex-wrap pt-[9px]">
                       <span class="font-bold text-[10px] tracking-[.06em] px-2 py-[3px] rounded-[4px] bg-[#f5f1e6] text-[#6d6f63]" style="font-family:'JetBrains Mono',monospace">{{ w.provider }}</span>
-                      <span v-if="w.rating" class="font-bold text-[10px] tracking-[.06em] px-2 py-[3px] rounded-[4px] bg-[#fdf3d7] text-[#7c5a06]" style="font-family:'JetBrains Mono',monospace">★ {{ w.rating }}<template v-if="w.reviews"> ({{ w.reviews }})</template></span>
+                      <span v-if="w.rating" class="font-bold text-[10px] tracking-[.06em] px-2 py-[3px] rounded-[4px] bg-[#fdf3d7] text-[#7c5a06]" style="font-family:'JetBrains Mono',monospace">Γÿà {{ w.rating }}<template v-if="w.reviews"> ({{ w.reviews }})</template></span>
                       <span v-if="w.duration" class="font-bold text-[10px] tracking-[.06em] px-2 py-[3px] rounded-[4px] bg-[#eef5ee] text-[#0d7a45]" style="font-family:'JetBrains Mono',monospace">{{ w.duration }}</span>
                     </span>
-                    <a :href="w.url" target="_blank" rel="noopener" @click.stop class="text-[12px] font-bold text-[#14432e] underline underline-offset-2 mt-[2px]">View course ↗</a>
+                    <a :href="w.url" target="_blank" rel="noopener" @click.stop class="text-[12px] font-bold text-[#14432e] underline underline-offset-2 mt-[2px]">View course Γåù</a>
                   </span>
                   <span class="absolute -top-[9px] -right-[9px] w-[26px] h-[26px] rounded-full bg-[#e8a524] text-[#0d3321] grid place-items-center font-extrabold text-[13px] shadow-[0_3px_8px_rgba(0,0,0,.2)] transition-transform"
-                        :class="form.course === w.name ? 'scale-100' : 'scale-0'" style="transition:transform .3s cubic-bezier(.34,1.6,.5,1)">✓</span>
+                        :class="form.course === w.name ? 'scale-100' : 'scale-0'" style="transition:transform .3s cubic-bezier(.34,1.6,.5,1)">Γ£ô</span>
                 </label>
               </div>
             </div>
 
             <div class="mt-5 grid grid-cols-1 gap-[14px] bg-[#faf7ee] border-[1.6px] border-dashed border-[#d9d1bc] rounded-[12px] p-5">
               <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e]" style="font-family:'JetBrains Mono',monospace">Partner / sponsor code <span class="text-[#a49f8c] font-normal">(optional)</span></label>
-              <input v-model="form.sponsorId" type="text" placeholder="e.g. BOI-ORBIT-247 — enter if a partner or sponsor referred you" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]" style="text-transform:uppercase">
-              <p class="text-[12.5px] text-[#6d6f63] leading-[1.5]">Enter the code a partner or sponsor gave you — if an agreement covers your course, your fee adjusts automatically at payment.</p>
-              <p v-if="sponsorDiscount" class="text-[13px] font-bold text-[#0d7a45] bg-[#e7f7ee] border border-[#9adcb8] rounded-[9px] px-4 py-3">🎉 Partner pricing applied! Your fee for this course is {{ formatNaira(courseFee) }} (standard is {{ formatNaira(baseFeeFor?.standard ?? 0) }}).</p>
+              <input v-model="form.sponsorId" type="text" placeholder="e.g. BOI-ORBIT-247 ΓÇö enter if a partner or sponsor referred you" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]" style="text-transform:uppercase">
+              <p class="text-[12.5px] text-[#6d6f63] leading-[1.5]">Enter the code a partner or sponsor gave you ΓÇö if an agreement covers your course, your fee adjusts automatically at payment.</p>
+              <p v-if="sponsorDiscount" class="text-[13px] font-bold text-[#0d7a45] bg-[#e7f7ee] border border-[#9adcb8] rounded-[9px] px-4 py-3">≡ƒÄë Partner pricing applied! Your fee for this course is {{ formatNaira(courseFee) }} (standard is {{ formatNaira(baseFeeFor?.standard ?? 0) }}).</p>
             </div>
 
             <div class="grid grid-cols-1 gap-[16px] mt-6">
@@ -415,7 +448,7 @@
                 </div>
               </div>
               <div>
-                <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Your class days & times * <span class="text-[#a49f8c] font-normal normal-case tracking-normal">(daily classes are ON by default — pick the hour per day, or untick any day you want off)</span></label>
+                <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">Your class days & times * <span class="text-[#a49f8c] font-normal normal-case tracking-normal">(daily classes are ON by default ΓÇö pick the hour per day, or untick any day you want off)</span></label>
                 <div id="f-days" class="grid grid-cols-2 sm:grid-cols-4 gap-[14px]">
                   <div v-for="day in weekDays" :key="day.name" class="border-[1.6px] border-[#d9d1bc] rounded-[14px] bg-white p-[12px] flex flex-col gap-[8px]">
                     <div class="flex items-center justify-between">
@@ -432,7 +465,7 @@
                     <div v-else class="text-center text-[12px] text-[#7d735c] font-bold">No class that day</div>
                   </div>
                 </div>
-                <p class="text-[12.5px] text-[#6d6f63] leading-[1.5] mt-[6px]"><b class="text-[#14432e]">Daily classes are ON by default</b> — every day is scheduled at the chosen hour unless you untick it. Your whole timetable — dashboard, roadmap and AI lesson plan — follows exactly the days and hours above.</p>
+                <p class="text-[12.5px] text-[#6d6f63] leading-[1.5] mt-[6px]"><b class="text-[#14432e]">Daily classes are ON by default</b> ΓÇö every day is scheduled at the chosen hour unless you untick it. Your whole timetable ΓÇö dashboard, roadmap and AI lesson plan ΓÇö follows exactly the days and hours above.</p>
               </div>
               <div>
                 <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">What are you hoping this course helps you do? <span class="text-[#a49f8c] font-normal">(pick any)</span></label>
@@ -440,19 +473,19 @@
                   <label v-for="g in goals" :key="g.value" class="inline-block px-[15px] py-2 border-[1.5px] border-dashed border-[#d9d1bc] rounded-[100px] text-[13px] font-bold cursor-pointer transition-all hover:border-[#e8a524] hover:text-[#1b211c] hover:-translate-y-[2px] bg-white"
                          :class="form.goals.includes(g.value) ? 'bg-[#fdf3d7] border-[#e8a524] text-[#7c5a06] border-solid' : ''">
                     <input type="checkbox" :value="g.value" v-model="form.goals" class="hidden">
-                    <span v-if="form.goals.includes(g.value)">✓ </span>{{ g.value }}
+                    <span v-if="form.goals.includes(g.value)">Γ£ô </span>{{ g.value }}
                   </label>
                 </div>
               </div>
               <div>
-                <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">What are you looking forward to from LIP? *</label>
-                <textarea id="f-expect" v-model="form.expect" maxlength="600" placeholder="Tell us honestly — what do you want to walk away with? Skills, mentorship, a job, community, confidence…?" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c] resize-y" style="min-height:96px"></textarea>
+                <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">What are you looking forward to from Boi Tech Academy? *</label>
+                <textarea id="f-expect" v-model="form.expect" maxlength="600" placeholder="Tell us honestly ΓÇö what do you want to walk away with? Skills, mentorship, a job, community, confidenceΓÇª?" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c] resize-y" style="min-height:96px"></textarea>
                 <p class="text-[12.5px] text-[#6d6f63] mt-[6px]"><span class="text-[#14432e] font-bold">{{ form.expect.length }}</span>/600 characters</p>
               </div>
               <div>
                 <label class="block font-bold text-[11px] uppercase tracking-[.12em] text-[#14432e] mb-[7px]" style="font-family:'JetBrains Mono',monospace">How did you hear about us? <span class="text-[#a49f8c] font-normal">(optional)</span></label>
                 <select v-model="form.heard" class="w-full text-[15.5px] text-[#1b211c] bg-white border-[1.6px] border-[#d9d1bc] rounded-[9px] px-[14px] py-3 outline-none transition-all focus:border-[#1d5a3f] focus:shadow-[0_0_0_4px_rgba(29,90,63,.14)] hover:border-[#bcb49c]">
-                  <option value="">— Select —</option>
+                  <option value="">ΓÇö Select ΓÇö</option>
                   <option>WhatsApp</option><option>Instagram</option><option>Twitter / X</option>
                   <option>LinkedIn</option><option>Friend or family</option><option>Google search</option><option>Other</option>
                 </select>
@@ -472,39 +505,39 @@
               <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-5">
                 <h5 class="font-bold text-[10.5px] uppercase tracking-[.2em] text-[#cf3f2b] mb-3 flex justify-between items-center" style="font-family:'JetBrains Mono',monospace">Applicant <button type="button" class="bg-none border-none font-bold text-[12px] text-[#1d5a3f] underline cursor-pointer" @click="go(0)">Edit</button></h5>
                 <dl class="grid grid-cols-[auto_1fr] gap-[7px_14px] text-[13.5px]">
-                  <dt class="text-[#6d6f63] font-bold">Name</dt><dd class="font-semibold">{{ form.fullname || '—' }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Email</dt><dd class="font-semibold">{{ form.email || '—' }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Phone</dt><dd class="font-semibold">{{ form.phone || '—' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Name</dt><dd class="font-semibold">{{ form.fullname || 'ΓÇö' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Email</dt><dd class="font-semibold">{{ form.email || 'ΓÇö' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Phone</dt><dd class="font-semibold">{{ form.phone || 'ΓÇö' }}</dd>
                   <dt class="text-[#6d6f63] font-bold">Location</dt><dd class="font-semibold">{{ form.location }}, {{ form.country }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Gender</dt><dd class="font-semibold">{{ form.gender || '—' }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Occupation</dt><dd class="font-semibold">{{ form.occupation || '—' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Gender</dt><dd class="font-semibold">{{ form.gender || 'ΓÇö' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Occupation</dt><dd class="font-semibold">{{ form.occupation || 'ΓÇö' }}</dd>
                 </dl>
               </div>
               <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-5">
                 <h5 class="font-bold text-[10.5px] uppercase tracking-[.2em] text-[#cf3f2b] mb-3 flex justify-between items-center" style="font-family:'JetBrains Mono',monospace">Education &amp; Skills <button type="button" class="bg-none border-none font-bold text-[12px] text-[#1d5a3f] underline cursor-pointer" @click="go(1)">Edit</button></h5>
                 <dl class="grid grid-cols-[auto_1fr] gap-[7px_14px] text-[13.5px]">
-                  <dt class="text-[#6d6f63] font-bold">Qualification</dt><dd class="font-semibold">{{ form.qualification || '—' }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Skill level</dt><dd class="font-semibold">{{ form.skillLevel || '—' }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Skills</dt><dd class="font-semibold">{{ form.skills.length ? form.skills.join(', ') : '—' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Qualification</dt><dd class="font-semibold">{{ form.qualification || 'ΓÇö' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Skill level</dt><dd class="font-semibold">{{ form.skillLevel || 'ΓÇö' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Skills</dt><dd class="font-semibold">{{ form.skills.length ? form.skills.join(', ') : 'ΓÇö' }}</dd>
                 </dl>
               </div>
               <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-5 md:col-span-2">
                 <h5 class="font-bold text-[10.5px] uppercase tracking-[.2em] text-[#cf3f2b] mb-3 flex justify-between items-center" style="font-family:'JetBrains Mono',monospace">Programme <button type="button" class="bg-none border-none font-bold text-[12px] text-[#1d5a3f] underline cursor-pointer" @click="go(2)">Edit</button></h5>
                 <dl class="grid grid-cols-[auto_1fr] gap-[7px_14px] text-[13.5px]">
-                  <dt class="text-[#6d6f63] font-bold">Course</dt><dd class="font-semibold">{{ form.course || '—' }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Track</dt><dd class="font-semibold">{{ form.track || '—' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Course</dt><dd class="font-semibold">{{ form.course || 'ΓÇö' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Track</dt><dd class="font-semibold">{{ form.track || 'ΓÇö' }}</dd>
                   <dt class="text-[#6d6f63] font-bold">Class days & times</dt><dd class="font-semibold">{{ classTimeSummary(form.dailyTimes, form.classTime) }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Goals</dt><dd class="font-semibold">{{ form.goals.length ? form.goals.join(', ') : '—' }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Expectations</dt><dd class="font-semibold">{{ form.expect || '—' }}</dd>
-                  <dt class="text-[#6d6f63] font-bold">Heard via</dt><dd class="font-semibold">{{ form.heard || '—' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Goals</dt><dd class="font-semibold">{{ form.goals.length ? form.goals.join(', ') : 'ΓÇö' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Expectations</dt><dd class="font-semibold">{{ form.expect || 'ΓÇö' }}</dd>
+                  <dt class="text-[#6d6f63] font-bold">Heard via</dt><dd class="font-semibold">{{ form.heard || 'ΓÇö' }}</dd>
                 </dl>
               </div>
             </div>
 
             <div class="mt-[22px] bg-[#fdf3d7] border-[1.6px] border-dashed border-[#e8a524] rounded-[12px] p-5">
-              <h4 class="text-[17px] font-black text-[#7c5a06] mb-3" style="font-family:'Fraunces',serif">🧾 Registration Fee</h4>
+              <h4 class="text-[17px] font-black text-[#7c5a06] mb-3" style="font-family:'Fraunces',serif">≡ƒº╛ Registration Fee</h4>
               <div class="flex items-baseline text-[14px] py-[5px]"><span class="font-bold">Cohort 12 registration &amp; admission processing</span><span class="flex-1 border-b-2 border-dotted border-[#d8c58a] mx-[10px] -translate-y-1"></span><span class="font-extrabold">{{ formatNaira(courseFee) }}</span></div>
-              <div v-if="sponsorDiscount" class="flex items-baseline text-[12.5px] py-[4px] text-[#0d7a45]"><span class="font-bold">Partner agreement applied (sponsor)</span><span class="flex-1 border-b-2 border-dotted border-[#d8c58a] mx-[10px] -translate-y-1"></span><span class="font-extrabold">✓ {{ feeSource }}</span></div>
+              <div v-if="sponsorDiscount" class="flex items-baseline text-[12.5px] py-[4px] text-[#0d7a45]"><span class="font-bold">Partner agreement applied (sponsor)</span><span class="flex-1 border-b-2 border-dotted border-[#d8c58a] mx-[10px] -translate-y-1"></span><span class="font-extrabold">Γ£ô {{ feeSource }}</span></div>
               <div class="flex items-baseline text-[14px] py-[5px]"><span class="font-bold">Course materials, portal &amp; mentorship access</span><span class="flex-1 border-b-2 border-dotted border-[#d8c58a] mx-[10px] -translate-y-1"></span><span class="font-extrabold">Included</span></div>
               <div class="flex items-baseline text-[16px] py-[12px] mt-[10px] pt-3 border-t-2 border-[#cfae55]"><span class="font-bold">Total due now</span><span class="flex-1 border-b-2 border-dotted border-[#d8c58a] mx-[10px] -translate-y-1"></span><span class="font-black text-[21px] text-[#14432e]" style="font-family:'Fraunces',serif">{{ formatNaira(courseFee) }}</span></div>
               <p class="text-[12px] text-[#8a7a45] mt-[10px] leading-[1.6]">Course tuition is billed separately after admission. This fee secures your assessment slot and is non-refundable once processed.</p>
@@ -513,7 +546,7 @@
             <!-- SECURITY: If already paid, show confirmation only; no payment re-entry -->
             <div v-if="payment.status === 'paid'" class="rounded-[14px] border-[1.6px] border-[#17b565] bg-[#e7f7ee] p-6 mt-[22px]" style="animation:rise .4s both">
               <div class="flex items-start gap-3 mb-3">
-                <span class="text-[22px]">✓</span>
+                <span class="text-[22px]">Γ£ô</span>
                 <div>
                   <h4 class="font-black text-[16px] text-[#0d7a45]">Payment confirmed</h4>
                   <p class="text-[13px] text-[#1b211c] leading-[1.5] mt-1">Your {{ formatNaira(courseFee) }} registration fee has been processed. Now create your student account to complete enrollment.</p>
@@ -527,29 +560,29 @@
               <label class="bg-white border-[1.8px] border-[#d9d1bc] rounded-[12px] p-5 cursor-pointer transition-all hover:-translate-y-[3px] hover:shadow-[0_10px_20px_rgba(27,33,28,.09)] hover:border-[#b9b198]"
                      :class="form.paymethod === 'card' ? 'border-[#14432e] bg-[#eef5ee] shadow-[0_8px_20px_rgba(20,67,46,.13)]' : ''">
                 <input type="radio" v-model="form.paymethod" value="card" class="hidden">
-                <b class="flex items-center gap-[9px] text-[15.5px] mb-[5px]">💳 Pay now — Paystack</b>
+                <b class="flex items-center gap-[9px] text-[15.5px] mb-[5px]">≡ƒÆ│ Pay now ΓÇö Paystack</b>
                 <small class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Pay instantly with card, bank transfer or USSD inside a secure Paystack popup. Fastest confirmation.</small>
               </label>
               <label class="bg-white border-[1.8px] border-[#d9d1bc] rounded-[12px] p-5 cursor-pointer transition-all hover:-translate-y-[3px] hover:shadow-[0_10px_20px_rgba(27,33,28,.09)] hover:border-[#b9b198]"
                      :class="form.paymethod === 'bank' ? 'border-[#14432e] bg-[#eef5ee] shadow-[0_8px_20px_rgba(20,67,46,.13)]' : ''">
                 <input type="radio" v-model="form.paymethod" value="bank" class="hidden">
-                <b class="flex items-center gap-[9px] text-[15.5px] mb-[5px]">🏦 Manual bank transfer</b>
+                <b class="flex items-center gap-[9px] text-[15.5px] mb-[5px]">≡ƒÅª Manual bank transfer</b>
                 <small class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Already sent the money by transfer? Paste your receipt reference and we'll verify it manually.</small>
               </label>
             </div>
 
             <div v-if="payment.status !== 'paid' && form.paymethod === 'card'" class="mt-4" style="animation:rise .4s both">
               <button type="button" class="w-full font-extrabold text-[15px] tracking-[.04em] bg-[#e8a524] text-[#0d3321] rounded-[11px] py-[17px] cursor-pointer shadow-[0_8px_18px_rgba(232,165,36,.4)] transition-all hover:brightness-[1.07] hover:-translate-y-[3px] flex items-center justify-center gap-[10px]"
-                      :disabled="payLoading" @click="payWithCard">🔐 Pay {{ formatNaira(courseFee) }} securely with Paystack</button>
+                      :disabled="payLoading" @click="payWithCard">≡ƒöÉ Pay {{ formatNaira(courseFee) }} securely with Paystack</button>
               <div v-if="payStatus.show" class="mt-3 font-bold text-[12.5px] px-[15px] py-[11px] rounded-[9px]" :class="payStatus.cls">{{ payStatus.msg }}</div>
-              <p class="text-[12.5px] text-[#6d6f63] mt-[10px]">Payments are processed by Paystack. LIP never sees your card details.</p>
+              <p class="text-[12.5px] text-[#6d6f63] mt-[10px]">Payments are processed by Paystack. Boi Tech Academy never sees your card details.</p>
             </div>
 
             <div v-if="payment.status !== 'paid' && form.paymethod === 'bank'" class="mt-4" style="animation:rise .4s both">
               <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-5">
                 <div class="flex justify-between gap-3 text-[14px] py-[6px] border-b border-dashed border-[#d9d1bc]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Bank name</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">Your Bank Name</b></div>
                 <div class="flex justify-between gap-3 text-[14px] py-[6px] border-b border-dashed border-[#d9d1bc]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Account number</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">0123 456 789</b></div>
-                <div class="flex justify-between gap-3 text-[14px] py-[6px] border-b border-dashed border-[#d9d1bc]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Account name</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">LIP</b></div>
+                <div class="flex justify-between gap-3 text-[14px] py-[6px] border-b border-dashed border-[#d9d1bc]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Account name</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">Boi Tech Academy</b></div>
                 <div class="flex justify-between gap-3 text-[14px] py-[6px]"><span class="text-[#6d6f63] font-bold text-[12.5px]">Amount</span><b class="text-[13.5px]" style="font-family:'JetBrains Mono',monospace">{{ formatNaira(courseFee) }} exactly</b></div>
                 <p class="text-[10.5px] text-[#6d6f63] mt-2" style="font-family:'JetBrains Mono',monospace">// please use your full name as the transfer narration</p>
               </div>
@@ -561,47 +594,47 @@
 
             <label class="flex items-start gap-[11px] text-[14px] leading-[1.55] cursor-pointer mt-[18px] p-[14px] bg-[#faf7ea] rounded-[10px] md:p-0 md:bg-transparent">
               <input type="checkbox" v-model="form.declare" class="w-[19px] h-[19px] mt-[2px] cursor-pointer shrink-0" style="accent-color:#14432e">
-              <span>I confirm the information I've provided is accurate, and I understand the {{ formatNaira(courseFee) }} registration fee secures my place in Cohort 12 at <b>LIP</b>. <b style="color:#cf3f2b">*</b></span>
+              <span>I confirm the information I've provided is accurate, and I understand the {{ formatNaira(courseFee) }} registration fee secures my place in Cohort 12 at <b>Boi Tech Academy</b>. <b style="color:#cf3f2b">*</b></span>
             </label>
 
             <!-- AUTO-TRIGGER ACCOUNT MODAL: If payment confirmed, show account creation button -->
             <div v-if="payment.status === 'paid'" class="mt-[22px] text-center" style="animation:rise .4s both">
               <button type="button" class="inline-flex items-center gap-[8px] font-extrabold text-[15px] tracking-[.04em] bg-[#14432e] text-white rounded-[11px] py-[16px] px-[28px] cursor-pointer shadow-[0_8px_18px_rgba(20,67,46,.3)] transition-all hover:bg-[#1d5a3f] hover:-translate-y-[3px]"
                       @click="goToAccountCreation">
-                ✓ Create account now
+                Γ£ô Create account now
               </button>
               <p class="text-[12.5px] text-[#6d6f63] mt-[10px]">Next step: Set up your student account and confirm enrollment details.</p>
             </div>
           </section>
 
-          <!-- nav — desktop only. On phones the fixed bottom bar below carries
+          <!-- nav ΓÇö desktop only. On phones the fixed bottom bar below carries
                the same Back/Continue/Submit actions, so showing this too gave
                two Continue buttons on one screen. -->
           <div class="hidden md:flex items-center gap-[14px] mt-8 pt-[22px] border-t border-dashed border-[#d9d1bc]">
             <button type="button" class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-transparent text-[#14432e] border-[1.8px] border-[#d9d1bc] transition-all hover:border-[#14432e] hover:bg-[#eef5ee] hover:-translate-y-[2px]"
-                    :class="current === 0 ? 'pointer-events-none opacity-0' : ''" @click="go(current-1)">← Back</button>
+                    :class="current === 0 ? 'pointer-events-none opacity-0' : ''" @click="go(current-1)">ΓåÉ Back</button>
             <span class="flex-1"></span>
             <span class="text-[12.5px] text-[#6d6f63] mr-[6px]">Step {{ current+1 }} of 4</span>
-            <button v-if="current < 3" type="button" class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-[#14432e] text-white shadow-[0_8px_18px_rgba(20,67,46,.3)] transition-all hover:bg-[#1d5a3f] hover:-translate-y-[3px]" @click="handleNext">Continue →</button>
-            <button v-else type="submit" class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-[#e8a524] text-[#0d3321] shadow-[0_8px_18px_rgba(232,165,36,.4)] transition-all hover:brightness-[1.07] hover:-translate-y-[3px]">🎓 Complete Registration</button>
+            <button v-if="current < 3" type="button" class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-[#14432e] text-white shadow-[0_8px_18px_rgba(20,67,46,.3)] transition-all hover:bg-[#1d5a3f] hover:-translate-y-[3px]" @click="handleNext">Continue ΓåÆ</button>
+            <button v-else type="submit" class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-[#e8a524] text-[#0d3321] shadow-[0_8px_18px_rgba(232,165,36,.4)] transition-all hover:brightness-[1.07] hover:-translate-y-[3px]">≡ƒÄô Complete Registration</button>
           </div>
         </form>
 
         <!-- success -->
         <div v-if="success" class="text-center px-[30px] py-[60px] pb-[66px]" style="animation:rise .5s both">
           <div class="inline-block font-black text-[clamp(24px,4vw,40px)] text-[#17b565] border-4 border-double border-[#17b565] rounded-lg px-[30px] py-3 -rotate-6 tracking-[.06em] mb-[26px]"
-               style="font-family:'Fraunces',serif;animation:stampIn .55s cubic-bezier(.2,1.6,.4,1) both">REGISTERED&nbsp;✓</div>
+               style="font-family:'Fraunces',serif;animation:stampIn .55s cubic-bezier(.2,1.6,.4,1) both">REGISTERED&nbsp;Γ£ô</div>
           <h3 class="text-[30px] font-black text-[#14432e] mb-2" style="font-family:'Fraunces',serif">You're in the pipeline!</h3>
           <div class="text-[18px] font-bold tracking-[.06em] bg-[#fdf3d7] inline-block px-5 py-2 rounded-lg border-[1.5px] border-dashed border-[#e8a524] my-3" style="font-family:'JetBrains Mono',monospace">{{ refNum }}</div>
-          <p class="text-[14.5px] text-[#6d6f63] max-w-[540px] mx-auto mb-6 leading-[1.7]">Well done, <b class="text-[#1b211c]">{{ form.fullname }}</b>. {{ successMsg }} Your receipt and next steps are on the way to <b class="text-[#1b211c]">{{ form.email }}</b>. Welcome to Cohort 12 at LIP! 🎉</p>
+          <p class="text-[14.5px] text-[#6d6f63] max-w-[540px] mx-auto mb-6 leading-[1.7]">Well done, <b class="text-[#1b211c]">{{ form.fullname }}</b>. {{ successMsg }} Your receipt and next steps are on the way to <b class="text-[#1b211c]">{{ form.email }}</b>. Welcome to Cohort 12 at Boi Tech Academy! ≡ƒÄë</p>
           <div class="flex gap-[14px] justify-center flex-wrap mb-8">
             <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-4 text-left w-[210px] transition-all hover:-translate-y-[5px] hover:shadow-[0_12px_22px_rgba(27,33,28,.1)]"><span class="text-[20px] font-black text-[#e8a524]" style="font-family:'Fraunces',serif">01</span><b class="block text-[13.5px] text-[#14432e] my-[6px]">Check your inbox</b><span class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Your receipt and applicant guide arrive by email within minutes.</span></div>
-            <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-4 text-left w-[210px] transition-all hover:-translate-y-[5px] hover:shadow-[0_12px_22px_rgba(27,33,28,.1)]"><span class="text-[20px] font-black text-[#e8a524]" style="font-family:'Fraunces',serif">02</span><b class="block text-[13.5px] text-[#14432e] my-[6px]">Orientation day</b><span class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Saturday 19 Sept 2026 — meet your mentors and cohort mates.</span></div>
-            <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-4 text-left w-[210px] transition-all hover:-translate-y-[5px] hover:shadow-[0_12px_22px_rgba(27,33,28,.1)]"><span class="text-[20px] font-black text-[#e8a524]" style="font-family:'Fraunces',serif">03</span><b class="block text-[13.5px] text-[#14432e] my-[6px]">Classes begin</b><span class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Monday 21 Sept 2026. Bring your curiosity — we handle the rest.</span></div>
+            <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-4 text-left w-[210px] transition-all hover:-translate-y-[5px] hover:shadow-[0_12px_22px_rgba(27,33,28,.1)]"><span class="text-[20px] font-black text-[#e8a524]" style="font-family:'Fraunces',serif">02</span><b class="block text-[13.5px] text-[#14432e] my-[6px]">Orientation day</b><span class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Saturday 19 Sept 2026 ΓÇö meet your mentors and cohort mates.</span></div>
+            <div class="bg-white border-[1.6px] border-[#d9d1bc] rounded-[12px] p-4 text-left w-[210px] transition-all hover:-translate-y-[5px] hover:shadow-[0_12px_22px_rgba(27,33,28,.1)]"><span class="text-[20px] font-black text-[#e8a524]" style="font-family:'Fraunces',serif">03</span><b class="block text-[13.5px] text-[#14432e] my-[6px]">Classes begin</b><span class="text-[12.5px] text-[#6d6f63] leading-[1.5] block">Monday 21 Sept 2026. Bring your curiosity ΓÇö we handle the rest.</span></div>
           </div>
-          <button class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-[#14432e] text-white shadow-[0_8px_18px_rgba(20,67,46,.3)] transition-all hover:bg-[#1d5a3f] hover:-translate-y-[3px] mr-2" @click="window.print()">🖨 Print receipt</button>
+          <button class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-[#14432e] text-white shadow-[0_8px_18px_rgba(20,67,46,.3)] transition-all hover:bg-[#1d5a3f] hover:-translate-y-[3px] mr-2" @click="window.print()">≡ƒû¿ Print receipt</button>
           <button class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-transparent text-[#14432e] border-[1.8px] border-[#d9d1bc] transition-all hover:border-[#14432e] hover:bg-[#eef5ee] hover:-translate-y-[2px]" @click="resetForm">Register another applicant</button>
-          <button class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-[#e8a524] text-[#1b211c] shadow-[0_8px_18px_rgba(232,165,36,.35)] transition-all hover:-translate-y-[3px] hover:brightness-105 ml-2" @click="goToDashboard">Open my dashboard →</button>
+          <button class="font-extrabold text-[14px] tracking-[.08em] uppercase cursor-pointer px-7 py-[14px] rounded-[10px] bg-[#e8a524] text-[#1b211c] shadow-[0_8px_18px_rgba(232,165,36,.35)] transition-all hover:-translate-y-[3px] hover:brightness-105 ml-2" @click="goToDashboard">Open my dashboard ΓåÆ</button>
         </div>
       </main>
     </div>
@@ -615,7 +648,7 @@
               <span class="font-bold text-[10px] uppercase tracking-[.2em] text-[#cf3f2b]" style="font-family:'JetBrains Mono',monospace">Account setup</span>
               <h3 class="mt-2 text-[28px] font-black text-[#14432e]" style="font-family:'Fraunces',serif">Create your account</h3>
             </div>
-            <button type="button" class="w-[34px] h-[34px] rounded-full border border-[#d9d1bc] bg-white text-[#14432e] font-bold text-[18px] hover:border-[#14432e] transition" @click="closeModalWithPaymentCheck" :title="payment.status !== 'paid' ? 'Complete payment first' : 'Close'">×</button>
+            <button type="button" class="w-[34px] h-[34px] rounded-full border border-[#d9d1bc] bg-white text-[#14432e] font-bold text-[18px] hover:border-[#14432e] transition" @click="closeModalWithPaymentCheck" :title="payment.status !== 'paid' ? 'Complete payment first' : 'Close'">├ù</button>
           </div>
 
           <div class="rounded-[12px] border border-dashed border-[#e8a524] bg-[#fdf3d7] p-4 text-[14px] leading-[1.7] text-[#1b211c]">
@@ -664,7 +697,7 @@
 
           <!-- security notice: payment verification -->
           <div v-if="payment.status === 'paid'" class="mt-4 text-[11px] text-[#6d6f63] text-center border-t border-[#e0dcd0] pt-3">
-            ✓ Payment verified · Ref: <b class="font-mono text-[#14432e]">{{ payment.ref }}</b>
+            Γ£ô Payment verified ┬╖ Ref: <b class="font-mono text-[#14432e]">{{ payment.ref }}</b>
           </div>
         </div>
       </div>
@@ -674,17 +707,17 @@
     <div class="fixed bottom-0 left-0 right-0 z-50 flex gap-[10px] px-4 pt-3 border-t border-[#d9d1bc] shadow-[0_-4px_20px_rgba(0,0,0,.06)] md:hidden"
          style="background:rgba(255,253,246,.98);backdrop-filter:blur(20px);padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))">
       <button type="button" class="w-[52px] shrink-0 font-extrabold text-[13px] uppercase cursor-pointer px-4 py-[14px] rounded-[10px] bg-transparent text-[#14432e] border-[1.8px] border-[#d9d1bc] transition-all hover:border-[#14432e] hover:bg-[#eef5ee] flex items-center justify-center"
-              :class="current === 0 ? 'pointer-events-none opacity-0' : ''" @click="go(current-1)">←</button>
-      <button v-if="current < 3" type="button" class="flex-1 font-extrabold text-[13px] uppercase cursor-pointer px-4 py-[14px] rounded-[10px] bg-[#14432e] text-white shadow-[0_8px_18px_rgba(20,67,46,.3)] transition-all hover:bg-[#1d5a3f] flex items-center justify-center gap-[6px]" @click="handleNext">Continue →</button>
-      <button v-else type="button" class="flex-1 font-extrabold text-[13px] uppercase cursor-pointer px-4 py-[14px] rounded-[10px] bg-[#e8a524] text-[#0d3321] shadow-[0_8px_18px_rgba(232,165,36,.4)] transition-all hover:brightness-[1.07] flex items-center justify-center gap-[6px]" @click="handleSubmit">🎓 Complete</button>
+              :class="current === 0 ? 'pointer-events-none opacity-0' : ''" @click="go(current-1)">ΓåÉ</button>
+      <button v-if="current < 3" type="button" class="flex-1 font-extrabold text-[13px] uppercase cursor-pointer px-4 py-[14px] rounded-[10px] bg-[#14432e] text-white shadow-[0_8px_18px_rgba(20,67,46,.3)] transition-all hover:bg-[#1d5a3f] flex items-center justify-center gap-[6px]" @click="handleNext">Continue ΓåÆ</button>
+      <button v-else type="button" class="flex-1 font-extrabold text-[13px] uppercase cursor-pointer px-4 py-[14px] rounded-[10px] bg-[#e8a524] text-[#0d3321] shadow-[0_8px_18px_rgba(232,165,36,.4)] transition-all hover:brightness-[1.07] flex items-center justify-center gap-[6px]" @click="handleSubmit">≡ƒÄô Complete</button>
     </div>
 
     <div class="fixed bottom-[80px] right-4 left-4 z-50 text-center md:bottom-[22px] md:right-[22px] md:left-auto font-bold text-[11.5px] text-[#efe9d4] px-4 py-[10px] rounded-[100px] transition-all pointer-events-none shadow-[0_8px_20px_rgba(0,0,0,.25)]"
          style="font-family:'JetBrains Mono',monospace;background:#0d3321;transition:opacity .35s" :style="draftOn ? 'opacity:1' : 'opacity:0'">
-      ● progress saved <em class="text-[#e8a524] not-italic">{{ draftTime }}</em>
+      ΓùÅ progress saved <em class="text-[#e8a524] not-italic">{{ draftTime }}</em>
     </div>
 
-    <footer class="relative z-[2] text-center py-[26px] pb-[100px] md:pb-[26px] font-bold text-[11px] uppercase tracking-[.14em] text-[#a29d8a]" style="font-family:'JetBrains Mono',monospace">LIP Academy · Learn · Build · Get Hired · © 2026 · boirsuhub@gmail.com</footer>
+    <footer class="relative z-[2] text-center py-[26px] pb-[100px] md:pb-[26px] font-bold text-[11px] uppercase tracking-[.14em] text-[#a29d8a]" style="font-family:'JetBrains Mono',monospace">Boi Tech Academy ┬╖ Learn ┬╖ Build ┬╖ Get Hired ┬╖ ┬⌐ 2026 ┬╖ boirsuhub@gmail.com</footer>
   </div>
 </template>
 
@@ -709,7 +742,7 @@ function defaultDailyTimes_impl(givenTime) {
   for (const day of WEEKDAYS) out[day] = t
   return out
 }
-// Export the name the rest of the file uses. (There were two declarations —
+// Export the name the rest of the file uses. (There were two declarations ΓÇö
 // this is the canonical one; the other is an alias below.)
 const registration_vue_defaultDailyTimes_ref = defaultDailyTimes_impl
 const defaultDailyTimes = registration_vue_defaultDailyTimes_ref
@@ -722,11 +755,11 @@ function dailyTimesFlat(d) {
 
 function classTimeSummary(dailyTimes, globalTime) {
   if (!dailyTimes || typeof dailyTimes !== 'object') {
-    return globalTime ? `${globalTime} · every day` : 'not set'
+    return globalTime ? `${globalTime} ┬╖ every day` : 'not set'
   }
   const chosen = WEEKDAYS.filter(d => dailyTimes[d])
   if (!chosen.length) return 'no class days chosen'
-  return WEEKDAYS.map(d => dailyTimes[d] ? `${WEEKDAY_SHORT[d]} ${dailyTimes[d]}` : `${WEEKDAY_SHORT[d]} · off`).join(', ')
+  return WEEKDAYS.map(d => dailyTimes[d] ? `${WEEKDAY_SHORT[d]} ${dailyTimes[d]}` : `${WEEKDAY_SHORT[d]} ┬╖ off`).join(', ')
 }
 
 const todayDate = ref('')
@@ -746,14 +779,15 @@ const accountPwMsg = ref('')
 const accountPwOk = ref(false)
 const creatingAccount = ref(false)
 
-// ---- Pre-registration gate (returning-student login) ----
+// ---- Pre-registration gate (Google signup / returning login) ----
 const regGate = ref(false)
-const gateMode = ref('choose')   // 'choose' | 'login'
+const gateMode = ref('choose')   // 'choose' | 'login' | 'verified'
 const gateEmail = ref('')
 const gatePw = ref('')
 const gateMsg = ref('')
 const gateOk = ref(false)
 const gateBusy = ref(false)
+const gateAccountFound = ref(false)
 
 // Per-day class schedule chosen on the registration form. Each day the student
 // activates gets its own class hour; days left deactivated have no class.
@@ -767,10 +801,10 @@ const weekDays = [
   { name: 'Sunday',    label: 'Sun' },
 ]
 // defaultDailyTimes() is defined above (line ~743) as a function and is the
-// only declaration — earlier duplicate declarations were removed.
+// only declaration ΓÇö earlier duplicate declarations were removed.
 
 // Course search (step 3): every word typed must match the course's name,
-// description, level or duration — so "data", "beginner", "16 weeks",
+// description, level or duration ΓÇö so "data", "beginner", "16 weeks",
 // "web development" all find their tracks.
 const courseSearch = ref('')
 const filteredCourses = computed(() => {
@@ -783,7 +817,7 @@ const filteredCourses = computed(() => {
   })
 })
 
-// Only 6 course cards render at a time — the search box is how you reach the
+// Only 6 course cards render at a time ΓÇö the search box is how you reach the
 // rest, so the step never grows into a long scroll. If the applicant already
 // picked a course that falls outside the first 6 (e.g. they searched, chose,
 // then cleared the box), it is swapped into the last slot so their selection
@@ -804,8 +838,8 @@ const hiddenCourseCount = computed(() =>
 
 // ---- World course search (step 3) -----------------------------------------
 // The 21 local tracks filter instantly above; anything else (astronomy,
-// Korean, quantum computing…) queries the Flask backend at
-// /api/courses/search, which searches Class Central — the aggregator that
+// Korean, quantum computingΓÇª) queries the Flask backend at
+// /api/courses/search, which searches Class Central ΓÇö the aggregator that
 // indexes Coursera, edX, Udemy, MIT, Stanford and 250k+ other courses.
 // Debounced so typing doesn't fire a request per keystroke, and cleared as
 // soon as the query is shorter than 3 chars.
@@ -854,9 +888,8 @@ const stepProblems = ref([])
 
 const stepLabels = ['About you', 'Education', 'Course', 'Payment']
 
-// Pre-fill the registration form from a saved snapshot (e.g. a returning
-// student's stored profile, or a draft the browser remembered). The per-day
-// class times must be
+// Pre-fill the registration form from a saved snapshot (e.g. a returning Google
+// login, or a draft the browser remembered). The per-day class times must be
 // rebuilt into the form's per-day shape even when the snapshot only has the old
 // single `preferred_time`.
 async function prefillFromSnapshot() {
@@ -876,7 +909,7 @@ async function prefillFromSnapshot() {
   if (s.goals && Array.isArray(s.goals)) form.goals = s.goals
   if (s.skillLevel) form.skillLevel = String(s.skillLevel).trim()
   // Keep the conditional "Field of study" panel in sync with a restored
-  // qualification — @change never fires for pre-filled (snapshot) values.
+  // qualification ΓÇö @change never fires for pre-filled (snapshot) values.
   onQualChange()
   if (s.track) form.track = String(s.track).trim()
   if (s.course_name) form.course = String(s.course_name).trim()
@@ -907,7 +940,7 @@ async function prefillFromSnapshot() {
   if (single) {
     form.classTime = single
     form.dailyTimes = defaultDailyTimes(single)
-    // Older snapshot — everything active at that hour.
+    // Older snapshot ΓÇö everything active at that hour.
     weekDays.forEach(d => {
       form.dayActive[d.name] = '1'
       form.dayTime[d.name] = single
@@ -920,7 +953,7 @@ const form = reactive({
   gender: '', dob: '', occupation: '',
   qualification: '', fieldStudy: '', institution: '', research: '',
   skills: [], skillLevel: '', skillNotes: '',
-  course: '', track: 'Weekday · evenings', classTime: '18:00',
+  course: '', track: 'Weekday ┬╖ evenings', classTime: '18:00',
   // Per-day schedule: which days have a class, and at what hour. Defaults to all
   // days active at 18:00 so the form "just works" until the student edits it.
   dayActive: defaultDailyTimes('1'), dayTime: defaultDailyTimes('18:00'),
@@ -952,16 +985,16 @@ watch(
 
 // ---- School fee (admin-controlled) --------------------------------------
 // The price for the selected course is read from the course_fees table,
-// which the admin edits in the school portal. ₦20,000 stays as the default
+// which the admin edits in the school portal. Γéª5,000 stays as the default
 // for any course the admin has not priced yet.
-// A sponsor ID with an ACTIVE fee agreement for the course overrides it —
+// A sponsor ID with an ACTIVE fee agreement for the course overrides it ΓÇö
 // that's the agreed partner pricing (admin + partner), applied automatically
 // when the applicant enters the partner's code.
-const courseFee = ref(20000)
+const courseFee = ref(5000)
 const baseFeeFor = ref(null)
 const feeSource = ref('standard')
 const sponsorDiscount = ref(false)
-const formatNaira = (n) => '₦' + Number(n || 0).toLocaleString('en-NG')
+const formatNaira = (n) => 'Γéª' + Number(n || 0).toLocaleString('en-NG')
 
 async function findSponsorFee() {
   sponsorDiscount.value = false
@@ -993,7 +1026,7 @@ async function loadCourseFee() {
       eq: { course: form.course },
       single: true,
     })
-    let standard = 20000
+    let standard = 5000
     if (!error && data && data.amount) standard = Number(data.amount)
     baseFeeFor.value = { standard }
     courseFee.value = standard
@@ -1005,7 +1038,7 @@ async function loadCourseFee() {
 watch([() => form.course, () => form.sponsorId], () => { if (form.course) loadCourseFee() })
 
 const skills = [
-  { value: "None yet — I'm a beginner", label: "🌱 None yet — I'm a beginner" },
+  { value: "None yet ΓÇö I'm a beginner", label: "≡ƒî▒ None yet ΓÇö I'm a beginner" },
   { value: 'HTML/CSS', label: 'HTML / CSS' },
   { value: 'JavaScript', label: 'JavaScript' },
   { value: 'Python', label: 'Python' },
@@ -1019,29 +1052,29 @@ const skills = [
 ]
 
 const skillLevels = [
-  { value: '🌱 Complete beginner' },
-  { value: "🔍 I've dabbled a bit" },
-  { value: '⚙️ Comfortable' },
-  { value: '🚀 Advanced' }
+  { value: '≡ƒî▒ Complete beginner' },
+  { value: "≡ƒöì I've dabbled a bit" },
+  { value: 'ΓÜÖ∩╕Å Comfortable' },
+  { value: '≡ƒÜÇ Advanced' }
 ]
 
 // The course picker's catalog lives in src/constants/courses.js (imported as
 // `courses` at the top of this file) so the school portal reads the same list.
 
 const tracks = [
-  { value: '☀️ Weekday · daytime' },
-  { value: '🌆 Weekday · evenings' },
-  { value: '🗓️ Weekends' }
+  { value: 'ΓÿÇ∩╕Å Weekday ┬╖ daytime' },
+  { value: '≡ƒîå Weekday ┬╖ evenings' },
+  { value: '≡ƒùô∩╕Å Weekends' }
 ]
 
-// Per-day class times: each weekday (Mon–Sun) gets its own HH:MM, or "no class"
+// Per-day class times: each weekday (MonΓÇôSun) gets its own HH:MM, or "no class"
 // when left blank / "none".  The dashboard timetable and the AI daily plan both
 // schedule themselves around exactly these days and hours.
 const classTimes = [
-  { value: '09:00', label: '🌅 Morning · 9:00 AM' },
-  { value: '14:00', label: '☀️ Afternoon · 2:00 PM' },
-  { value: '18:00', label: '🌆 Evening · 6:00 PM' },
-  { value: '20:00', label: '🌙 Night · 8:00 PM' },
+  { value: '09:00', label: '≡ƒîà Morning ┬╖ 9:00 AM' },
+  { value: '14:00', label: 'ΓÿÇ∩╕Å Afternoon ┬╖ 2:00 PM' },
+  { value: '18:00', label: '≡ƒîå Evening ┬╖ 6:00 PM' },
+  { value: '20:00', label: '≡ƒîÖ Night ┬╖ 8:00 PM' },
   { value: '',    label: 'No class that day' }
 ]
 
@@ -1050,13 +1083,13 @@ const classTimes = [
 // (defaultDailyTimes is the function declared at the top of the script block.)
 
 const goals = [
-  { value: '💼 Get a tech job' },
-  { value: '🔁 Switch careers' },
-  { value: '🌍 Freelance / remote income' },
-  { value: '💡 Build my startup / product' },
-  { value: '📈 Level up in current job' },
-  { value: '✈️ Relocate abroad' },
-  { value: '🧭 Just exploring' }
+  { value: '≡ƒÆ╝ Get a tech job' },
+  { value: '≡ƒöü Switch careers' },
+  { value: '≡ƒîì Freelance / remote income' },
+  { value: '≡ƒÆí Build my startup / product' },
+  { value: '≡ƒôê Level up in current job' },
+  { value: 'Γ£ê∩╕Å Relocate abroad' },
+  { value: '≡ƒº¡ Just exploring' }
 ]
 
 // Per-day class times: one clock per weekday (Mon-Sun). Days left blank / "none"
@@ -1064,13 +1097,13 @@ const goals = [
 // both schedule themselves around exactly these days and hours.
 const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const classDayOptions = [
-  { value: '09:00', label: '🌅 Morning · 9:00 AM' },
-  { value: '11:00', label: '🕚 Late morning · 11:00 AM' },
-  { value: '14:00', label: '☀️ Afternoon · 2:00 PM' },
-  { value: '16:00', label: '🌤️ Late afternoon · 4:00 PM' },
-  { value: '18:00', label: '🌆 Evening · 6:00 PM' },
-  { value: '20:00', label: '🌙 Night · 8:00 PM' },
-  { value: 'none', label: '🚫 No class this day' }
+  { value: '09:00', label: '≡ƒîà Morning ┬╖ 9:00 AM' },
+  { value: '11:00', label: '≡ƒòÜ Late morning ┬╖ 11:00 AM' },
+  { value: '14:00', label: 'ΓÿÇ∩╕Å Afternoon ┬╖ 2:00 PM' },
+  { value: '16:00', label: '≡ƒîñ∩╕Å Late afternoon ┬╖ 4:00 PM' },
+  { value: '18:00', label: '≡ƒîå Evening ┬╖ 6:00 PM' },
+  { value: '20:00', label: '≡ƒîÖ Night ┬╖ 8:00 PM' },
+  { value: 'none', label: '≡ƒÜ½ No class this day' }
 ]
 
 function trackDefaultTime(track) {
@@ -1107,6 +1140,33 @@ function goDashboard() {
   window.location.href = '/dashboard'
 }
 
+function startGoogleSignup() {
+  // Google OAuth used to be a Supabase-Auth feature. With the move to plain
+  // PostgreSQL the school signs students up with email + password instead ΓÇö
+  // the backend already verifies and stores those (boirsu.set_student_password).
+  gateMsg.value = 'Google sign-up is no longer available. Continue with your email below ΓÇö registration and login use email + password.'
+}
+
+// After a Google-verified email: does it already belong to a student?
+async function checkRegisteredEmail() {
+  gateBusy.value = true
+  const res = await api.checkGoogleEmail(gateEmail.value)
+  gateBusy.value = false
+  if (res && res.registered) {
+    gateAccountFound.value = true
+    const s = res.student || {}
+    if (s.student_id) localStorage.setItem('boi_student_id', s.student_id)
+    localStorage.setItem('boi_student_email', s.email || gateEmail.value.toLowerCase())
+    if (s.career_path) localStorage.setItem('boi_career_path', s.career_path)
+    try { localStorage.setItem('boi_student_profile', JSON.stringify(s)) } catch {}
+    window.dispatchEvent(new Event('boi:profile-updated'))
+    gateOk.value = true
+    gateMsg.value = ''
+  } else {
+    gateAccountFound.value = false
+  }
+}
+
 async function doGateLogin() {
   if (!gateEmail.value.trim() || !gatePw.value) {
     gateMsg.value = 'Enter your email and password.'
@@ -1125,19 +1185,19 @@ async function doGateLogin() {
     window.dispatchEvent(new Event('boi:profile-updated'))
     goDashboard()
   } else {
-    gateMsg.value = (res && res.error) || 'Login failed — check your details or start a fresh registration.'
+    gateMsg.value = (res && res.error) || 'Login failed ΓÇö check your details or start a fresh registration.'
   }
 }
 
 onMounted(() => {
   const today = new Date()
   todayDate.value = today.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-  // NOTE: dashes only — Paystack rejects references containing "/" or other
+  // NOTE: dashes only ΓÇö Paystack rejects references containing "/" or other
   // special characters ("Invalid character in transaction reference").
   refNum.value = 'BOI-C12-' + Math.floor(1000 + Math.random() * 9000)
 
   // ---- Pre-registration gate: returning-student login ----
-  // (Google/Supabase auth was retired with the PostgreSQL migration — the
+  // (Google/Supabase auth was retired with the PostgreSQL migration ΓÇö the
   //  dead `if (supabase)` reference here used to crash the mounted hook and
   //  take the whole component's interactivity down with it.)
   if (!localStorage.getItem('boi_student_id')) regGate.value = true
@@ -1169,9 +1229,9 @@ function stepErrors(i) {
   if (i === 0) {
     if (!form.fullname.trim()) errs.push({ id: 'f-fullname', msg: 'Full name' })
     if (!form.email.trim()) errs.push({ id: 'f-email', msg: 'Email address' })
-    else if (!emailRe.test(form.email)) errs.push({ id: 'f-email', msg: 'Email address (looks invalid — use a format like you@example.com)' })
+    else if (!emailRe.test(form.email)) errs.push({ id: 'f-email', msg: 'Email address (looks invalid ΓÇö use a format like you@example.com)' })
     if (!form.phone.trim()) errs.push({ id: 'f-phone', msg: 'Phone / WhatsApp' })
-    else if (!phoneRe.test(form.phone)) errs.push({ id: 'f-phone', msg: 'Phone / WhatsApp (digits, spaces, + - ( ) only — e.g. 0803 555 0192)' })
+    else if (!phoneRe.test(form.phone)) errs.push({ id: 'f-phone', msg: 'Phone / WhatsApp (digits, spaces, + - ( ) only ΓÇö e.g. 0803 555 0192)' })
     if (!form.location.trim()) errs.push({ id: 'f-location', msg: 'City & state' })
     if (!form.country.trim()) errs.push({ id: 'f-country', msg: 'Country' })
   }
@@ -1182,7 +1242,7 @@ function stepErrors(i) {
   }
   if (i === 2) {
     if (!form.course) errs.push({ id: 'f-course', msg: 'Course selection (tap a course card)' })
-    if (!form.expect.trim()) errs.push({ id: 'f-expect', msg: 'What are you looking forward to from LIP?' })
+    if (!form.expect.trim()) errs.push({ id: 'f-expect', msg: 'What are you looking forward to from Boi Tech Academy?' })
     // At least one day of the week must have a class time selected.
     if (!form.dailyTimes || typeof form.dailyTimes !== 'object' ||
         !WEEKDAYS.some(d => form.dailyTimes[d] && String(form.dailyTimes[d]).trim())) {
@@ -1227,13 +1287,13 @@ function handleNext() {
     stepProblems.value = errs
     nextTick(() => flagFieldErrors(errs))
   } catch (e) {
-    // A bug must never look like a dead button — surface it on the page.
+    // A bug must never look like a dead button ΓÇö surface it on the page.
     console.error('Continue failed:', e)
     stepProblems.value = [{ id: '', msg: 'Unexpected error: ' + (e && e.message ? e.message : e) }]
   }
 }
 
-// Sidebar / progress steps navigate freely (original behaviour) — validation
+// Sidebar / progress steps navigate freely (original behaviour) ΓÇö validation
 // runs on the Continue button only, where it names the exact missing fields.
 
 function slugFromCourse(courseName) {
@@ -1274,7 +1334,7 @@ async function saveRegistrationToDb() {
     career_path: slugFromCourse(form.course),
     experience_level: form.skillLevel || 'beginner',
     intake_month: new Date().toISOString().slice(0, 7),
-    class_type: form.track || 'Weekday · evenings',
+    class_type: form.track || 'Weekday ┬╖ evenings',
     preferred_time: form.classTime || '18:00',
     // Per-day class times the student chose at registration
     // ( {"Monday":"18:00","Tuesday":"14:00","Wednesday":"","Saturday":"09:00",...} ).
@@ -1328,7 +1388,7 @@ async function saveRegistrationToDb() {
 // paid-only "Create account" modal and the final Complete Registration
 // submit, so nobody ends up with duplicate records.
 let enrollmentCache = null
-// Last enrollment failure reason (from aiClient.enrollStudent) — shown in the
+// Last enrollment failure reason (from aiClient.enrollStudent) ΓÇö shown in the
 // account modal so "Could not reach the backend" can say WHY (timeout, offline,
 // or the backend's own error text) instead of always blaming api_server.py.
 let enrollError = ''
@@ -1353,8 +1413,8 @@ async function ensureEnrollment() {
     career_path: careerPath,
     course_name: form.course,
     experience_level: form.skillLevel || 'beginner',
-    track: form.track || 'Weekday · evenings',
-    // Legacy single clock — still used as the fallback hour for any day the student
+    track: form.track || 'Weekday ┬╖ evenings',
+    // Legacy single clock ΓÇö still used as the fallback hour for any day the student
     // did not specify (the backend prefers the per-day dict when present).
     preferred_time: form.classTime || '18:00',
     // Per-day class times the student chose at registration
@@ -1379,7 +1439,7 @@ async function ensureEnrollment() {
   if (enrolled && enrolled.student_id) {
     localStorage.setItem('boi_student_id', enrolled.student_id)
     localStorage.setItem('boi_career_path', careerPath)
-    // The backend resolves the sponsor's org name from the partners table —
+    // The backend resolves the sponsor's org name from the partners table ΓÇö
     // persist it so the dashboard + roadmap can brand the portal with it.
     const sponsorOrg = String(enrolled.sponsor_org || '').trim()
     if (sponsorOrg) localStorage.setItem('boi_sponsor_org', sponsorOrg)
@@ -1395,28 +1455,28 @@ async function ensureEnrollment() {
       sponsor_org: String(enrolled.sponsor_org || '').trim(),
       course_name: form.course,
       experience_level: form.skillLevel || 'beginner',
-      track: form.track || 'Weekday · evenings',
+      track: form.track || 'Weekday ┬╖ evenings',
       preferred_time: form.classTime || '18:00',
       // Per-day class times the student chose at registration
       // ( {"Monday":"18:00","Tuesday":"14:00","Wednesday":"","Saturday":"09:00",...} ).
-      // Days left blank / deactivated have no class — exactly what the student set
+      // Days left blank / deactivated have no class ΓÇö exactly what the student set
       // on the new days & times grid, so the timetable and AI plan follow it.
       preferred_daily_times: dailyTimes,
       location: form.location,
       country: form.country,
       cohort: 'Cohort 12',
-      // The ₦20,000 here is the ADMISSION fee only — tuition is billed
+      // The Γéª5,000 here is the ADMISSION fee only ΓÇö tuition is billed
       // MONTHLY inside the dashboard, so do NOT mark this profile paid.
       payment_status: 'pending_tuition'
     }))
     // Tell any open studentdashboard (same tab or another) to re-hydrate NOW
-    // instead of waiting for its 4s poll — this is the real-time handoff.
+    // instead of waiting for its 4s poll ΓÇö this is the real-time handoff.
     window.dispatchEvent(new Event('boi:profile-updated'))
     enrollmentCache = enrolled
     enrollError = ''
     return enrollmentCache
   }
-  // Failure — do NOT cache it, so the next click retries fresh, and remember
+  // Failure ΓÇö do NOT cache it, so the next click retries fresh, and remember
   // the reason for the error message in the account modal.
   enrollError = (enrolled && enrolled.error) || ''
   return null
@@ -1427,12 +1487,12 @@ async function handleSubmit() {
   if (!form.declare) ok = false
   if (form.paymethod === 'card') {
     if (payment.status !== 'paid') {
-      payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: '⚠ Payment not completed yet — click the Paystack button above, or switch to the bank transfer option.' }
+      payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: 'ΓÜá Payment not completed yet ΓÇö click the Paystack button above, or switch to the bank transfer option.' }
       ok = false
     }
   } else {
     if (!form.transferRef.trim()) {
-      payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: '⚠ Please enter your bank transfer reference.' }
+      payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: 'ΓÜá Please enter your bank transfer reference.' }
       ok = false
     } else {
       payment.status = 'transfer'
@@ -1457,7 +1517,7 @@ async function handleSubmit() {
 
   successMsg.value = payment.status === 'paid'
     ? 'Payment of ' + formatNaira(courseFee.value) + ' confirmed (ref ' + payment.ref + '). ' + syncMessage
-    : "Bank transfer received (ref " + payment.ref + ") — we'll confirm it within a few hours. " + syncMessage
+    : "Bank transfer received (ref " + payment.ref + ") ΓÇö we'll confirm it within a few hours. " + syncMessage
   success.value = true
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
@@ -1472,7 +1532,7 @@ function resetForm() {
   Object.keys(form).forEach(k => {
     if (Array.isArray(form[k])) form[k] = []
     else if (typeof form[k] === 'boolean') form[k] = false
-    else form[k] = k === 'country' ? 'Nigeria' : k === 'track' ? 'Weekday · evenings' : k === 'classTime' ? '18:00' : k === 'paymethod' ? 'card' : ''
+    else form[k] = k === 'country' ? 'Nigeria' : k === 'track' ? 'Weekday ┬╖ evenings' : k === 'classTime' ? '18:00' : k === 'paymethod' ? 'card' : ''
   })
   success.value = false
   current.value = 0
@@ -1491,7 +1551,7 @@ function openAccountModal() {
   // SECURITY: Only allow modal open if payment is confirmed
   if (payment.status !== 'paid') {
     console.warn('[Security] Account modal blocked: payment not confirmed. Status:', payment.status)
-    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: '⚠ Payment must be confirmed before creating an account.' }
+    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: 'ΓÜá Payment must be confirmed before creating an account.' }
     return
   }
   accountModalOpen.value = true
@@ -1517,7 +1577,7 @@ async function createStudentAccount() {
   // SECURITY: Strict payment verification before account creation
   if (payment.status !== 'paid') {
     console.error('[Security] Account creation blocked: payment not confirmed. Status:', payment.status)
-    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: '⚠ Payment verification failed. Only paid applicants can create accounts. Please complete payment first.' }
+    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: 'ΓÜá Payment verification failed. Only paid applicants can create accounts. Please complete payment first.' }
     return
   }
 
@@ -1537,14 +1597,14 @@ async function createStudentAccount() {
   accountPwMsg.value = ''
 
   // Enroll now (idempotent) so we have a real backend record to attach
-  // the password to — even before "Complete Registration" is pressed.
+  // the password to ΓÇö even before "Complete Registration" is pressed.
   const enrolled = await ensureEnrollment()
   if (!enrolled || !enrolled.student_id) {
     creatingAccount.value = false
     accountPwOk.value = false
     accountPwMsg.value = enrollError
-      ? 'Enrollment could not be saved — ' + enrollError + '. Your details are safe; retry in a moment.'
-      : 'Could not reach the backend to create the account — is api_server.py running? Your details are safe; retry in a moment.'
+      ? 'Enrollment could not be saved ΓÇö ' + enrollError + '. Your details are safe; retry in a moment.'
+      : 'Could not reach the backend to create the account ΓÇö is api_server.py running? Your details are safe; retry in a moment.'
     return
   }
 
@@ -1552,14 +1612,14 @@ async function createStudentAccount() {
   creatingAccount.value = false
   if (!pwRes || !pwRes.ok) {
     accountPwOk.value = false
-    accountPwMsg.value = (pwRes && pwRes.error) || 'Could not save your password — please retry.'
+    accountPwMsg.value = (pwRes && pwRes.error) || 'Could not save your password ΓÇö please retry.'
     return
   }
 
-  // Mark the record paid on the server too (card payments only — bank
+  // Mark the record paid on the server too (card payments only ΓÇö bank
   // transfers are verified manually by staff).
   if (form.paymethod === 'card' && payment.ref) {
-    // Admission fee only — months:0 means NO dashboard access is granted here;
+    // Admission fee only ΓÇö months:0 means NO dashboard access is granted here;
     // tuition is paid monthly inside the dashboard.
     try { await api.verifyPaystackPayment({ studentId: enrolled.student_id, reference: payment.ref, months: 0, kind: 'registration' }) } catch (e) { /* non-fatal */ }
   }
@@ -1571,8 +1631,8 @@ async function createStudentAccount() {
   let secs = 5
   const showCountdown = () => {
     accountPwMsg.value = secs > 0
-      ? '✓ Account created with ' + form.email + '! Taking you to /login to sign in, in ' + secs + 's…'
-      : '✓ Redirecting you to /login now…'
+      ? 'Γ£ô Account created with ' + form.email + '! Taking you to /login to sign in, in ' + secs + 'sΓÇª'
+      : 'Γ£ô Redirecting you to /login nowΓÇª'
   }
   showCountdown()
   const loginCountdown = setInterval(() => {
@@ -1588,20 +1648,20 @@ async function createStudentAccount() {
 
 function payWithCard() {
   if (!emailRe.test(form.email)) {
-    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: '⚠ Please go back to step 1 and enter a valid email — Paystack sends your receipt there.' }
+    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: 'ΓÜá Please go back to step 1 and enter a valid email ΓÇö Paystack sends your receipt there.' }
     return
   }
   if (!paystackPublicKey) {
-    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: '⚠ Paystack public key is not configured. Add VITE_PAYSTACK_PUBLIC_KEY to the frontend environment.' }
+    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: 'ΓÜá Paystack public key is not configured. Add VITE_PAYSTACK_PUBLIC_KEY to the frontend environment.' }
     return
   }
   if (typeof window.PaystackPop === 'undefined') {
-    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: "⚠ Card payments aren't configured yet. Add your Paystack library/public key — or choose the bank transfer option." }
+    payStatus.value = { show: true, cls: 'bg-[#fdf0ec] text-[#cf3f2b] border-[1.5px] border-[#f0b4a4]', msg: "ΓÜá Card payments aren't configured yet. Add your Paystack library/public key ΓÇö or choose the bank transfer option." }
     return
   }
   payLoading.value = true
-  payStatus.value = { show: true, cls: 'bg-[#eef3fb] text-[#2b5aa7] border-[1.5px] border-[#b7cdf0]', msg: '⏳ Launching Paystack secure window…' }
-  // Paystack only allows letters/numbers/-/_ in references — never "/" etc.
+  payStatus.value = { show: true, cls: 'bg-[#eef3fb] text-[#2b5aa7] border-[1.5px] border-[#b7cdf0]', msg: 'ΓÅ│ Launching Paystack secure windowΓÇª' }
+  // Paystack only allows letters/numbers/-/_ in references ΓÇö never "/" etc.
   const safeRef = ('BOI-C12-' + Date.now()).replace(/[^A-Za-z0-9_-]/g, '')
   const handler = window.PaystackPop.setup({
     key: paystackPublicKey,
@@ -1617,14 +1677,14 @@ function payWithCard() {
     callback: function (response) {
       payment.status = 'paid'
       payment.ref = response.reference
-      payStatus.value = { show: true, cls: 'bg-[#e7f7ee] text-[#0d7a45] border-[1.5px] border-[#9adcb8]', msg: '✓ Payment of ' + formatNaira(courseFee.value) + ' received · Ref: ' + response.reference + ' — you may now complete registration.' }
+      payStatus.value = { show: true, cls: 'bg-[#e7f7ee] text-[#0d7a45] border-[1.5px] border-[#9adcb8]', msg: 'Γ£ô Payment of ' + formatNaira(courseFee.value) + ' received ┬╖ Ref: ' + response.reference + ' ΓÇö you may now complete registration.' }
       payLoading.value = false
       openAccountModal()
     },
     onClose: function () {
       payLoading.value = false
       if (payment.status !== 'paid') {
-        payStatus.value = { show: true, cls: 'bg-[#eef3fb] text-[#2b5aa7] border-[1.5px] border-[#b7cdf0]', msg: 'ℹ Checkout closed — you can retry anytime, or switch to bank transfer.' }
+        payStatus.value = { show: true, cls: 'bg-[#eef3fb] text-[#2b5aa7] border-[1.5px] border-[#b7cdf0]', msg: 'Γä╣ Checkout closed ΓÇö you can retry anytime, or switch to bank transfer.' }
       }
     }
   })
@@ -1634,7 +1694,7 @@ function payWithCard() {
 
 <style>
   /* Design tokens AcademyNav expects (it normally inherits them from
-     .boi-page / .boi-academy roots) — defined here on .reg-page so the nav
+     .boi-page / .boi-academy roots) ΓÇö defined here on .reg-page so the nav
      renders correctly on this light parchment page too. */
   .reg-page{--gold:#e8a524;--ink:#1b211c;--ease-calm:cubic-bezier(.25,.46,.45,.94);--ease-spring:cubic-bezier(.34,1.56,.64,1)}
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -1644,14 +1704,14 @@ function payWithCard() {
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 @keyframes stampIn { from { transform: rotate(-6deg) scale(2.4); opacity: 0; } to { transform: rotate(-6deg) scale(1); opacity: 1; } }
 
-/* This block is NOT scoped — it compiles to bare selectors that would reach any
+/* This block is NOT scoped ΓÇö it compiles to bare selectors that would reach any
    component's markup, so everything below is namespaced under .reg-page (the
    root div) rather than styling `input` globally. */
 
 /* iOS Safari zooms the whole viewport when a focused control's font-size is
    under 16px, which shunts the layout sideways mid-typing. The fields are
    15.5px by design on desktop, so this lifts them to 16px only below the md
-   breakpoint, where the zoom rule actually applies. 16px is the threshold — it
+   breakpoint, where the zoom rule actually applies. 16px is the threshold ΓÇö it
    has to be exactly this or higher, not 15.9px. */
 @media (max-width: 767px) {
   .reg-page input,
@@ -1659,7 +1719,7 @@ function payWithCard() {
   .reg-page textarea {
     font-size: 16px;
   }
-  /* Long placeholders ("e.g. Student, NYSC, banker, designer…") get clipped
+  /* Long placeholders ("e.g. Student, NYSC, banker, designerΓÇª") get clipped
      mid-word on a narrow field; an ellipsis reads as deliberate instead. */
   .reg-page input::placeholder,
   .reg-page textarea::placeholder {
@@ -1668,7 +1728,7 @@ function payWithCard() {
 }
 
 /* A date input renders its own native control, which on mobile Safari sizes to
-   its content rather than the box — leaving the field visibly narrower than the
+   its content rather than the box ΓÇö leaving the field visibly narrower than the
    text inputs above it. This forces it back to the full column width. */
 .reg-page input[type="date"] {
   min-height: 46px;
@@ -1678,7 +1738,7 @@ function payWithCard() {
 
 /* Validation highlight: JS adds .reg-err to any required control that failed
    step validation (and removes it once fixed / on navigation), then scrolls
-   the first failing field into view. Purely additive — no layout shift. */
+   the first failing field into view. Purely additive ΓÇö no layout shift. */
 .reg-page .reg-err {
   outline: 3px solid #cf3f2b !important;
   outline-offset: 2px;
@@ -1693,7 +1753,7 @@ function payWithCard() {
 .reg-page { padding-top: 72px; }
 @media (max-width: 767px) { .reg-page { padding-top: 70px; } }
 
-/* ---- AcademyNav on this light parchment page (scoped with .reg-page — every
+/* ---- AcademyNav on this light parchment page (scoped with .reg-page ΓÇö every
    other page keeps its own look). The shared bar was designed against dark
    page roots: once scrolled it went near-black while still inheriting this
    page's dark-ink text (dark-on-dark), and at rest it floated with no

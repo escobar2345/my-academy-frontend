@@ -70,13 +70,13 @@
             Next Cohort: March 2025
           </div>
           <div class="hero-eyebrow"><img src="/lip-logo.png" alt="LIP Academy" style="width:22px;height:22px;object-fit:contain;vertical-align:-4px;margin-right:8px" />LIP Academy</div>
-          <h3 class="hero-title reveal-mask">The Future Isn't Coming.<br>We're Training <em class="shine">For It.</em></h3>
-          <p class="hero-sub">An AI-first tech academy built to put Nigerian youth on the same table as Silicon Valley, London, and Singapore — not behind them, beside them.</p>
+          <h3 class="hero-title reveal-mask">Lip isn't just about learning tech.<br>It's about <em class="shine">landing the job</em>.</h3>
+          <p class="hero-sub">LIP equips you with the tech skill global companies need, and connect you with internship opportunities to turn your skills into a career</p>
 
           <div class="hero-stats">
             <div class="hero-stat">
-              <span class="stat-number">500+</span>
-              <span class="stat-label">Builders Graduated</span>
+              <span class="stat-number">10+</span>
+              <span class="stat-label">partner globally</span>
             </div>
             <div class="stat-divider"></div>
             <div class="hero-stat">

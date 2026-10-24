@@ -17,7 +17,7 @@ import Login from "../views/Login.vue";
 import StudentDashboard from "../../boi-school/studentdashboard.vue";
 import RoadmapPage from "../../boi-school/roadmap.vue";
 import Registration from "../../boi-school/registration.vue";
-import AdminPage from "../views/school-portal/AdminPage.vue";
+import AdminGate from "../views/school-portal/AdminGate.vue";
 import TeacherPage from "../views/school-portal/TeacherPage.vue";
 import TeacherClassroomGate from "../views/school-portal/TeacherClassroomGate.vue";
 import PartnerPage from "../views/school-portal/PartnerPage.vue";
@@ -69,7 +69,7 @@ const routes = [
     component: BoiRsuPage,
   },
   // Registration / enrollment form. ACADEMY_URL ("Academy" in the nav) points
-  // here — clicking Academy means "I want to join", not "show me the tour".
+  // here ΓÇö clicking Academy means "I want to join", not "show me the tour".
   {
     path: "/registration",
     name: "Registration",
@@ -93,7 +93,7 @@ const routes = [
     component: Membership,
   },
   // Tech-Team "coming soon" page. TECH_TEAM_URL in constants/academy.js points
-  // here — clicking Tech-Team in the nav lands on this instead of scrolling.
+  // here ΓÇö clicking Tech-Team in the nav lands on this instead of scrolling.
   {
     path: "/tech-team",
     name: "TechTeam",
@@ -160,9 +160,12 @@ const routes = [
     // Aliases let the short URLs work too: /admin, /teacher and /partner all
     // render the same portal pages as their /school/... counterparts, so a
     // hand-typed URL never lands on an unmatched (blank) route.
+    // The admin room sits behind AdminGate: only a signed-in admin (admins row
+    // + PBKDF2 password) ever mounts AdminPage, so visitors never see metrics,
+    // staff lists or fee controls.
     path: "/school/admin",
     name: "SchoolAdmin",
-    component: AdminPage,
+    component: AdminGate,
     alias: ["/admin"],
   },
   {
