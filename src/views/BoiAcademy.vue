@@ -49,7 +49,7 @@
       <div class="stop" data-label="Courses"><span class="lbl"></span></div>
       <div class="stop" data-label="learning facility"><span class="lbl"></span></div>
       <div class="stop" data-label="Community"><span class="lbl"></span></div>
-      <div class="stop" data-label="Hub Floor"><span class="lbl"></span></div>
+      <div class="stop" data-label="LIP ( learning intelligenc platform )"><span class="lbl"></span></div>
       <div class="stop" data-label="Apply"><span class="lbl"></span></div>
     </div>
 
@@ -222,10 +222,10 @@
         <div class="stop-inner">
           <div class="stop-kicker">
             <span class="stop-num">04</span>
-            <span class="stop-label">The Hub Floor</span>
+            <span class="stop-label">LIP ( learning intelligenc platform )</span>
           </div>
-          <h2 class="stop-title reveal-mask">Nigeria Tech Hub.<br><em class="shine">Est. 2024.</em></h2>
-          <p class="stop-text">Rows of builders shipping side by side, under the banner that started it all. Every cohort ends up calling this room home — most keep a desk here long after graduation. This is where abstract concepts become deployed code.</p>
+          <h2 class="stop-title reveal-mask">LIP ( learning intelligenc platform )</h2>
+          <p class="stop-text">Leap bridges the gap between learning in-demand skills and real-world opportunities, connecting you with the knowledge, internships, and career pathways that top companies seek.</p>
           
           <ul class="stop-facts hub-features-list">
             <li>
