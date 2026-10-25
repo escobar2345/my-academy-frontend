@@ -115,12 +115,30 @@
   We teach in-demand technology skills that prepare you for exciting career opportunities with leading companies worldwide.
 </p>
           <div class="course-tabs">
-            <span class="course-tab active">1. AI & Machine Learning Engineering Learn Python, PyTorch, MLOps, and how to integrate AI into real-world products and applications.</span>
-            <span class="course-tab">2. Data Engineering & Analytics Master SQL, Python, ETL pipelines, and cloud data tools to transform raw data into valuable business insights.</span>
-            <span class="course-tab">3. Cloud Computing & DevOps Develop practical skills in AWS, Azure, Google Cloud, Kubernetes, Terraform, and CI/CD automation.</span>
-            <span class="course-tab">4. Cybersecurity Learn cloud security, threat intelligence, and security monitoring to help organizations protect their digital assets.</span>
-            <span class="course-tab">5. Software Engineering Build modern applications using JavaScript, TypeScript, APIs, and essential software design principles.</span>
-            <span class="course-tab">7. Business & Communication Skills Combine technical expertise with problem-solving, teamwork, and communication skills that employers value.</span>
+            <span class="course-tab active">
+              <span class="tab-course">1. AI & Machine Learning Engineering</span>
+              <span class="tab-desc">Learn Python, PyTorch, MLOps, and how to integrate AI into real-world products and applications.</span>
+            </span>
+            <span class="course-tab">
+              <span class="tab-course">2. Data Engineering & Analytics</span>
+              <span class="tab-desc">Master SQL, Python, ETL pipelines, and cloud data tools to transform raw data into valuable business insights.</span>
+            </span>
+            <span class="course-tab">
+              <span class="tab-course">3. Cloud Computing & DevOps</span>
+              <span class="tab-desc">Develop practical skills in AWS, Azure, Google Cloud, Kubernetes, Terraform, and CI/CD automation.</span>
+            </span>
+            <span class="course-tab">
+              <span class="tab-course">4. Cybersecurity</span>
+              <span class="tab-desc">Learn cloud security, threat intelligence, and security monitoring to help organizations protect their digital assets.</span>
+            </span>
+            <span class="course-tab">
+              <span class="tab-course">5. Software Engineering</span>
+              <span class="tab-desc">Build modern applications using JavaScript, TypeScript, APIs, and essential software design principles.</span>
+            </span>
+            <span class="course-tab">
+              <span class="tab-course">7. Business & Communication Skills</span>
+              <span class="tab-desc">Combine technical expertise with problem-solving, teamwork, and communication skills that employers value.</span>
+            </span>
           </div>
         </div>
       </section>
@@ -1160,7 +1178,7 @@ onBeforeUnmount(() => {
   font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600;
   color: rgba(246, 244, 236, 0.3); letter-spacing: -0.02em;
 }
-.course-tabs {
+ .course-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -1169,31 +1187,59 @@ onBeforeUnmount(() => {
 }
 
 .course-tab {
+  flex: 0 0 calc(50% - 6px);
+  max-width: calc(50% - 6px);
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--paper-dim);
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(210, 166, 59, 0.1);
-  border: 1px solid rgba(210, 166, 59, 0.3);
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: rgba(210, 166, 59, 0.06);
+  border: 1px solid rgba(210, 166, 59, 0.25);
   transition: all 0.3s var(--ease-calm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.tab-course {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--paper);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  line-height: 1.3;
+}
+
+.tab-desc {
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--paper-dim);
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .course-tab.active {
   color: var(--gold);
-  background: rgba(210, 166, 59, 0.2);
+  background: rgba(210, 166, 59, 0.12);
   border-color: var(--gold);
 }
 
+.course-tab.active .tab-course { color: var(--gold); }
+
 .course-tab:hover:not(.active) {
   color: var(--gold-bright);
-  background: rgba(210, 166, 59, 0.15);
+  background: rgba(210, 166, 59, 0.1);
+  border-color: var(--gold);
 }
+
+.course-tab:hover:not(.active) .tab-course { color: var(--gold-bright); }
+
 
 @media (max-width: 780px) {
   .cta-section { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
   .partners-logos { gap: 20px; font-size: 16px; }
+  .course-tab { flex: 0 0 100%; max-width: 100%; }
 }
 </style>
