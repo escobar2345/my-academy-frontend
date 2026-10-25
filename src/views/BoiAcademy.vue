@@ -114,9 +114,6 @@
 <p class="career-intro">
   We teach in-demand technology skills that prepare you for exciting career opportunities with leading companies worldwide.
 </p>
-<p class="career-intro">
-  We teach in-demand technology skills that prepare you for exciting career opportunities with leading companies worldwide.
-</p>
           <div class="course-tabs">
             <span class="course-tab active">1. AI & Machine Learning Engineering Learn Python, PyTorch, MLOps, and how to integrate AI into real-world products and applications.</span>
             <span class="course-tab">2. Data Engineering & Analytics Master SQL, Python, ETL pipelines, and cloud data tools to transform raw data into valuable business insights.</span>
