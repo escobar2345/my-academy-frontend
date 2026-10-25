@@ -47,7 +47,7 @@
     <div class="tour-rail" id="tour-rail">
       <div class="stop active" data-label="Welcome"><span class="lbl"></span></div>
       <div class="stop" data-label="Courses"><span class="lbl"></span></div>
-      <div class="stop" data-label="Work-space"><span class="lbl"></span></div>
+      <div class="stop" data-label="learning facility"><span class="lbl"></span></div>
       <div class="stop" data-label="Community"><span class="lbl"></span></div>
       <div class="stop" data-label="Hub Floor"><span class="lbl"></span></div>
       <div class="stop" data-label="Apply"><span class="lbl"></span></div>
@@ -136,19 +136,19 @@
               <span class="tab-desc">Build modern applications using JavaScript, TypeScript, APIs, and essential software design principles.</span>
             </span>
             <span class="course-tab">
-              <span class="tab-course">7. Business & Communication Skills</span>
+              <span class="tab-course">6. Business & Communication Skills</span>
               <span class="tab-desc">Combine technical expertise with problem-solving, teamwork, and communication skills that employers value.</span>
             </span>
           </div>
         </div>
       </section>
 
-      <!-- ---------------- WORK-SPACE ---------------- -->
+      <!-- ---------------- LEARNING FACILITY ---------------- -->
       <section class="stop-section" id="pods" data-stop="2">
         <div class="stop-inner">
           <div class="stop-kicker">
             <span class="stop-num">02</span>
-            <span class="stop-label">Work-Space</span>
+            <span class="stop-label">learning facility</span>
           </div>
           <h2 class="stop-title reveal-mask">Two seats.<br>Zero <em class="shine">distractions.</em></h2>
           <p class="stop-text">Timber-lined booths built for the work that needs quiet: a co-founder sync, an hour with your coach, or a spreadsheet that still won't balance. We provide the infrastructure; you provide the focus.</p>
@@ -303,7 +303,7 @@ import { APPLY_URL, LOGIN_URL } from '../constants/academy'
 const IMAGES = {
   'layer-welcome':    '/academy/boardroom.png',
   'layer-Academy':    '/academy/hero.jpg',
-  'layer-WORK-SPACE': '/academy/pods.jpg',
+  'layer-learning-facility': '/academy/pods.jpg',
   'layer-lounge':     '/academy/techfloor.jpg',
   'layer-techfloor':  '/academy/boardroom.jpg',
 }
@@ -341,7 +341,7 @@ const DEFAULT_IMAGES = [
 const LAYERS = [
   { id: 'layer-welcome'    },
   { id: 'layer-Academy'    },
-  { id: 'layer-WORK-SPACE' },
+  { id: 'layer-learning-facility' },
   { id: 'layer-lounge'     },
   { id: 'layer-techfloor'  },
 ]
