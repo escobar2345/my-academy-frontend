@@ -90,7 +90,7 @@ const router = useRouter();
 // that called goToPrograms().
 const NAV_ITEMS = [
   { label: "Academy", icon: "🏛", to: ACADEMY_URL },
-  { label: "Job Offer", icon: "🖥", to: "/workspace" },
+  { label: "Job Offer", icon: "🖥", to: "/job-offer" },
   { label: "Tech-Team", icon: "🧑‍💼", to: TECH_TEAM_URL },
   { label: "Partners", icon: "🤝", to: PARTNERS_URL },
 ];

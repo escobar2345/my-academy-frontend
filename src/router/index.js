@@ -9,6 +9,7 @@ import BoiRsuPage from "../views/BoiRsuPage.vue";
 import BoiAcademy from "../views/BoiAcademy.vue";
 import Classroom from "../views/Classroom.vue";
 import Workspace from "../views/Workspace.vue";
+import JobOffer from "../views/JobOffer.vue";
 import Internet from "../views/Internet.vue";
 import Membership from "../views/Membership.vue";
 import Partners from "../views/Partners.vue";
@@ -81,6 +82,11 @@ const routes = [
     path: "/workspace",
     name: "Workspace",
     component: Workspace,
+  },
+  {
+    path: "/job-offer",
+    name: "JobOffer",
+    component: JobOffer,
   },
   {
     path: "/internet",
