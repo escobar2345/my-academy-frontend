@@ -263,13 +263,11 @@
         <div class="cta-glow"></div>
         <div class="cta-eyebrow">Ready when you are</div>
         <h2 class="cta-title reveal-mask">Your seat on the floor<br>is <em class="shine">still open.</em></h2>
-        <p class="cta-sub">Applications for the next DTECH Academy cohort are open now. Bring the idea — we'll bring the boardroom, the pods, the lounge, and the floor.</p>
         
         <div class="cta-trust-badges">
           <span class="trust-badge">✓ Free to apply</span>
           <span class="trust-badge">✓ 6-month intensive</span>
           <span class="trust-badge">✓ 7 career tracks</span>
-          <span class="trust-badge">✓ Lagos & Remote</span>
         </div>
 
         <div class="cta-buttons">
@@ -280,7 +278,6 @@
           <router-link :to="LOGIN_URL" class="btn btn-ghost">Login to Dashboard</router-link>
         </div>
         
-        <div class="foot-line">LIP Academy · BOI RSU Innovation Hub · Supporting African Entrepreneurship</div>
       </section>
 
     </main>
