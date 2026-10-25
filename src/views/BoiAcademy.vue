@@ -194,12 +194,7 @@
           <p class="stop-text">Skills get you in the room. Community is what gets you through it. This is where cohorts lean on each other, share what's working, and catch the ideas they'd have missed working alone — because no builder scales faster than the community around them.</p>
           
           <blockquote class="lounge-testimonial">
-            <div class="quote-icon">“</div>
-            <p class="quote-text">The Lounge is where the real magic happens. I met my co-founder over a random Tuesday night demo session. The environment naturally pushes you to share and collaborate.</p>
-            <footer class="quote-author">
-              <span class="author-name">Sarah O.</span>
-              <span class="author-role">Cohort 4 Graduate, FinTech Founder</span>
-            </footer>
+            <p class="quote-text">A space to learn, build, and grow together. Connect with like-minded people, turn ideas into real projects, and keep building instead of building alone. Here, we grow together, thrive together, and make progress as a community.</p>
           </blockquote>
 
           <ul class="stop-facts community-events">
