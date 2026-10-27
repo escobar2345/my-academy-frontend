@@ -1,159 +1,155 @@
 ﻿<template>
-  <main class="min-h-screen bg-[#06050a] p-0 text-white sm:p-5 lg:p-8 relative overflow-hidden">
-    <canvas ref="canvas" class="fixed inset-0 z-0 w-full h-full block" aria-hidden="true"></canvas>
+  <div class="boi-page">
+    <canvas ref="canvas" class="dark-canvas" aria-hidden="true"></canvas>
 
-    <div class="mx-auto min-h-screen max-w-[1500px] overflow-hidden border border-white/10 bg-[#101013]/85 shadow-2xl sm:min-h-0 sm:rounded-2xl lg:min-h-[850px] relative z-10 backdrop-blur-md">
-      <header class="sticky top-0 z-20 border-b border-white/10 bg-[#101013]/80 px-5 py-4 backdrop-blur-xl sm:px-8 lg:px-10">
-        <div class="flex items-center justify-between">
-          <a href="#home" class="text-xl font-extrabold tracking-tight sm:text-2xl">
-            CAREER <span class="text-violet-400">HUB</span>
-          </a>
-          <h1 class="text-lg font-bold tracking-tight sm:text-xl text-center sm:ml-auto lg:ml-0">
-            Explore Job Opportunities
-          </h1>
-          <div class="w-10 sm:w-20 lg:w-0" aria-hidden="true"></div>
+    <AcademyNav />
+
+    <header class="job-header">
+      <div class="job-brand">
+        CAREER <span class="job-brand-accent">HUB</span>
+      </div>
+      <h1 class="job-title">Explore Job Opportunities</h1>
+    </header>
+
+    <section class="job-search-section">
+      <div class="search-wrap">
+        <Search :size="20" class="shrink-0 text-gray-500" />
+        <input v-model="search" placeholder="Job title, Location" class="search-input" />
+      </div>
+    </section>
+
+    {/* MOBILE HERO SEARCH */}
+    <section class="job-mobile-hero">
+      <div class="relative min-h-[150px] overflow-hidden rounded-2xl bg-gradient-to-br from-[#7e35d5] via-[#6337c8] to-[#3d3bb0] p-4 sm:min-h-[190px] sm:p-6">
+        <div class="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-fuchsia-400/20 blur-3xl" />
+        <div class="absolute right-3 top-3 h-28 w-28 rounded-full bg-orange-300/20 blur-2xl" />
+        <div class="relative z-10 max-w-[65%]">
+          <p class="text-xl font-extrabold leading-tight sm:text-3xl">Find Your Next<br />Dream Job!</p>
+          <p class="mt-2 text-xs text-purple-100 sm:text-sm">Welcome to Career Hub!</p>
         </div>
-      </header>
-
-      <section id="home" class="px-8 pt-7 lg:px-12">
-        <div class="mx-auto mt-6 flex max-w-5xl items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a20]/60 px-4 py-3 focus-within:border-violet-500/60 backdrop-blur-sm">
-          <Search :size="20" class="shrink-0 text-gray-500" />
-          <input v-model="search" placeholder="Job title, Location" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-500" />
+        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80" alt="Professional job seeker" class="absolute bottom-0 right-0 h-[125px] w-[42%] object-cover object-top [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] sm:h-[170px]" />
+        <div class="absolute bottom-3 left-3 right-3 z-20 flex items-center gap-2 rounded-xl border border-white/10 bg-[#17171d] px-3 py-2.5 sm:bottom-4 sm:left-5 sm:right-5">
+          <Search size="17" class="shrink-0 text-gray-400" />
+          <input v-model="search" placeholder="Job title, Location" class="w-full min-w-0 bg-transparent text-xs outline-none placeholder:text-gray-500 sm:text-sm" />
         </div>
-      </section>
+      </div>
+    </section>
 
-      {/* MOBILE HERO */}
-      <section class="px-4 pt-4 lg:hidden">
-        <div class="relative min-h-[150px] overflow-hidden rounded-2xl bg-gradient-to-br from-[#7e35d5] via-[#6337c8] to-[#3d3bb0] p-4 sm:min-h-[190px] sm:p-6">
-          <div class="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-fuchsia-400/20 blur-3xl" />
-          <div class="absolute right-3 top-3 h-28 w-28 rounded-full bg-orange-300/20 blur-2xl" />
-          <div class="relative z-10 max-w-[65%]">
-            <p class="text-xl font-extrabold leading-tight sm:text-3xl">Find Your Next<br />Dream Job!</p>
-            <p class="mt-2 text-xs text-purple-100 sm:text-sm">Welcome to Career Hub!</p>
+
+    {/* JOB CATEGORIES */}
+    <section id="categories" class="job-section">
+      <div class="mb-4 flex items-center justify-between px-4 lg:hidden">
+        <h2 class="text-base font-bold">Job Categories</h2>
+        <button class="text-xs text-violet-400">See all</button>
+      </div>
+
+      <div class="hidden lg:block">
+        <div class="mx-auto max-w-5xl">
+          <p class="mb-3 text-sm font-semibold text-gray-300">Browse by category</p>
+          <div class="grid grid-cols-4 gap-4">
+            <a v-for="category in categories" :key="category.name" href="#jobs" class="group relative flex h-24 items-end overflow-hidden rounded-xl border border-white/10 p-3">
+              <img :src="category.image" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+              <div :class="`absolute inset-0 bg-gradient-to-t ${category.color} via-black/20 to-black/10`" />
+              <span class="relative text-sm font-semibold">{{ category.name }}</span>
+            </a>
           </div>
-          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80" alt="Professional job seeker" class="absolute bottom-0 right-0 h-[125px] w-[42%] object-cover object-top [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] sm:h-[170px]" />
-          <div class="absolute bottom-3 left-3 right-3 z-20 flex items-center gap-2 rounded-xl border border-white/10 bg-[#17171d] px-3 py-2.5 sm:bottom-4 sm:left-5 sm:right-5">
-            <Search size="17" class="shrink-0 text-gray-400" />
-            <input v-model="search" placeholder="Job title, Location" class="w-full min-w-0 bg-transparent text-xs outline-none placeholder:text-gray-500 sm:text-sm" />
+        </div>
+      </div>
+
+      <div class="flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
+        <a v-for="category in categories" :key="category.name" href="#jobs" class="group relative h-[112px] min-w-[112px] flex-1 overflow-hidden rounded-xl border border-white/10 sm:h-36 sm:min-w-[150px]">
+          <img :src="category.image" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+          <div :class="`absolute inset-0 bg-gradient-to-t ${category.color} via-black/20 to-black/10`" />
+          <span class="absolute bottom-3 left-3 text-xs font-semibold sm:text-sm">{{ category.name }}</span>
+        </a>
+      </div>
+    </section>
+
+
+    {/* JOB LISTINGS */}
+    <section id="jobs" class="job-section">
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold sm:text-xl">
+            <span class="lg:hidden">Recent Listings</span>
+            <span class="hidden lg:inline">Featured Opportunities</span>
+          </h2>
+          <p class="mt-1 text-xs text-gray-500">{{ filteredJobs.length }} opportunities available</p>
+        </div>
+        <a href="#jobs" class="hidden items-center gap-1 text-sm text-violet-400 hover:text-violet-300 sm:flex">
+          View all <ArrowUpRight size="16" />
+        </a>
+      </div>
+
+      {/* DESKTOP JOB CARDS */}
+      <div class="hidden grid-cols-2 gap-4 xl:grid-cols-3 lg:grid lg:grid-cols-2">
+        <article v-for="(job, index) in filteredJobs" :key="`${job.title}-${index}`" class="group min-w-0 rounded-xl border border-white/10 bg-gradient-to-b from-[#222226] to-[#19191d] p-2 transition duration-300 hover:-translate-y-1 hover:border-violet-500/40 hover:shadow-xl hover:shadow-violet-950/20">
+          <div class="relative h-36 overflow-hidden rounded-lg xl:h-32">
+            <img :src="job.image" :alt="job.title" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <button @click="toggleSaved(job.title)" aria-label="Save job" class="absolute right-2 top-2 rounded-lg border border-white/10 p-2 backdrop-blur-md transition" :class="savedJobs.includes(job.title) ? 'bg-violet-600 text-white' : 'bg-black/40 text-white hover:bg-violet-600'">
+              <Bookmark size="15" />
+            </button>
           </div>
-        </div>
-      </section>
-
-      {/* JOB CATEGORIES */}
-      <section id="categories" class="mt-6 lg:mt-0 lg:px-12 lg:pt-7">
-        <div class="mb-4 flex items-center justify-between px-4 lg:hidden">
-          <h2 class="text-base font-bold">Job Categories</h2>
-          <button class="text-xs text-violet-400">See all</button>
-        </div>
-
-        <div class="hidden lg:block">
-          <div class="mx-auto max-w-5xl">
-            <p class="mb-3 text-sm font-semibold text-gray-300">Browse by category</p>
-            <div class="grid grid-cols-4 gap-4">
-              <a v-for="category in categories" :key="category.name" href="#jobs" class="group relative flex h-24 items-end overflow-hidden rounded-xl border border-white/10 p-3">
-                <img :src="category.image" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-                <div :class="`absolute inset-0 bg-gradient-to-t ${category.color} via-black/20 to-black/10`" />
-                <span class="relative text-sm font-semibold">{{ category.name }}</span>
-              </a>
+          <div class="p-2">
+            <h3 class="truncate text-base font-semibold text-white">{{ job.title }}</h3>
+            <p class="mt-1 truncate text-sm text-gray-400">Company: {{ job.company }}</p>
+            <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-300">
+              <span class="flex items-center gap-1.5"><MapPin size="13" class="text-gray-500" /> {{ job.location }}</span>
+              <span class="flex items-center gap-1.5"><DollarSign size="13" class="text-gray-500" /> {{ job.salary }}</span>
             </div>
-          </div>
-        </div>
-
-        <div class="flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
-          <a v-for="category in categories" :key="category.name" href="#jobs" class="group relative h-[112px] min-w-[112px] flex-1 overflow-hidden rounded-xl border border-white/10 sm:h-36 sm:min-w-[150px]">
-            <img :src="category.image" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-            <div :class="`absolute inset-0 bg-gradient-to-t ${category.color} via-black/20 to-black/10`" />
-            <span class="absolute bottom-3 left-3 text-xs font-semibold sm:text-sm">{{ category.name }}</span>
-          </a>
-        </div>
-      </section>
-
-
-      {/* JOB LISTINGS */}
-      <section id="jobs" class="px-4 pb-8 pt-7 sm:px-6 lg:px-12 lg:pt-8">
-        <div class="mb-4 flex items-center justify-between">
-          <div>
-            <h2 class="text-lg font-bold sm:text-xl">
-              <span class="lg:hidden">Recent Listings</span>
-              <span class="hidden lg:inline">Featured Opportunities</span>
-            </h2>
-            <p class="mt-1 text-xs text-gray-500">{{ filteredJobs.length }} opportunities available</p>
-          </div>
-          <a href="#jobs" class="hidden items-center gap-1 text-sm text-violet-400 hover:text-violet-300 sm:flex">
-            View all <ArrowUpRight size="16" />
-          </a>
-        </div>
-
-        {/* DESKTOP JOB CARDS */}
-        <div class="hidden grid-cols-2 gap-4 xl:grid-cols-3 lg:grid lg:grid-cols-2">
-          <article v-for="(job, index) in filteredJobs" :key="`${job.title}-${index}`" class="group min-w-0 rounded-xl border border-white/10 bg-gradient-to-b from-[#222226] to-[#19191d] p-2 transition duration-300 hover:-translate-y-1 hover:border-violet-500/40 hover:shadow-xl hover:shadow-violet-950/20">
-            <div class="relative h-36 overflow-hidden rounded-lg xl:h-32">
-              <img :src="job.image" :alt="job.title" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              <button @click="toggleSaved(job.title)" aria-label="Save job" class="absolute right-2 top-2 rounded-lg border border-white/10 p-2 backdrop-blur-md transition" :class="savedJobs.includes(job.title) ? 'bg-violet-600 text-white' : 'bg-black/40 text-white hover:bg-violet-600'">
-                <Bookmark size="15" />
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <div class="flex min-w-0 items-center gap-2">
+                <div :class="`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${job.color} font-bold text-white`">{{ job.logo }}</div>
+                <span class="rounded-md bg-white/[0.06] px-2 py-1 text-xs text-gray-300">{{ job.type }}</span>
+              </div>
+              <button @click="applyForJob(job.title)" class="shrink-0 rounded-lg border px-4 py-2 text-xs font-semibold transition" :class="appliedJobs.includes(job.title) ? 'border-violet-400 bg-violet-600 text-white' : 'border-white/40 text-white hover:border-violet-400 hover:bg-violet-600'">
+                {{ appliedJobs.includes(job.title) ? 'Applied ✓' : 'Apply Now' }}
               </button>
             </div>
-            <div class="p-2">
-              <h3 class="truncate text-base font-semibold text-white">{{ job.title }}</h3>
-              <p class="mt-1 truncate text-sm text-gray-400">Company: {{ job.company }}</p>
-              <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-300">
-                <span class="flex items-center gap-1.5"><MapPin size="13" class="text-gray-500" /> {{ job.location }}</span>
-                <span class="flex items-center gap-1.5"><DollarSign size="13" class="text-gray-500" /> {{ job.salary }}</span>
-              </div>
-              <div class="mt-4 flex items-center justify-between gap-2">
-                <div class="flex min-w-0 items-center gap-2">
-                  <div :class="`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${job.color} font-bold text-white`">{{ job.logo }}</div>
-                  <span class="rounded-md bg-white/[0.06] px-2 py-1 text-xs text-gray-300">{{ job.type }}</span>
-                </div>
-                <button @click="applyForJob(job.title)" class="shrink-0 rounded-lg border px-4 py-2 text-xs font-semibold transition" :class="appliedJobs.includes(job.title) ? 'border-violet-400 bg-violet-600 text-white' : 'border-white/40 text-white hover:border-violet-400 hover:bg-violet-600'">
-                  {{ appliedJobs.includes(job.title) ? 'Applied ✓' : 'Apply Now' }}
-                </button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-
-        {/* MOBILE JOB CARDS */}
-        <div class="flex flex-col gap-3 lg:hidden">
-          <article v-for="(job, index) in filteredJobs" :key="`${job.title}-${index}`" class="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-gradient-to-br from-[#242428] to-[#19191d] p-3 transition hover:border-violet-500/40 sm:gap-4 sm:p-4">
-            <div :class="`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${job.color} shadow-lg sm:h-14 sm:w-14`">
-              <span class="text-2xl font-black text-white">{{ job.logo }}</span>
-            </div>
-            <div class="min-w-0 flex-1">
-              <h3 class="truncate text-sm font-semibold text-white sm:text-base">{{ job.title }}</h3>
-              <p class="mt-1 truncate text-xs text-gray-400">{{ job.company }}</p>
-              <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-400 sm:text-xs">
-                <span class="flex items-center gap-1"><DollarSign size="12" /> {{ job.salary }}</span>
-                <span class="flex items-center gap-1"><Clock3 size="12" /> {{ job.type }}</span>
-              </div>
-            </div>
-            <button @click="applyForJob(job.title)" class="shrink-0 rounded-lg px-3 py-2 text-xs font-bold transition sm:px-5 sm:py-2.5 sm:text-sm" :class="appliedJobs.includes(job.title) ? 'bg-violet-700 text-white' : 'bg-gradient-to-r from-[#bb8bff] to-[#d4a7ff] text-[#211333] hover:brightness-110'">
-              {{ appliedJobs.includes(job.title) ? 'Applied' : 'Apply' }}
-            </button>
-          </article>
-          <div v-if="filteredJobs.length === 0" class="rounded-xl border border-white/10 p-8 text-center">
-            <Search class="mx-auto mb-3 text-gray-500" size="28" />
-            <p class="font-semibold">No jobs found</p>
-            <p class="mt-1 text-sm text-gray-500">Try a different job title or location.</p>
           </div>
-        </div>
-      </section>
+        </article>
+      </div>
 
-      {/* FOOTER */}
-      <footer id="footer" class="border-t border-white/10 px-5 py-5 text-center text-xs text-gray-500">
-        &copy; 2026 Career Hub. Find your next opportunity.
-      </footer>
-    </div>
-  </main>
+
+      {/* MOBILE JOB CARDS */}
+      <div class="flex flex-col gap-3 lg:hidden">
+        <article v-for="(job, index) in filteredJobs" :key="`${job.title}-${index}`" class="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-gradient-to-br from-[#242428] to-[#19191d] p-3 transition hover:border-violet-500/40 sm:gap-4 sm:p-4">
+          <div :class="`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${job.color} shadow-lg sm:h-14 sm:w-14`">
+            <span class="text-2xl font-black text-white">{{ job.logo }}</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <h3 class="truncate text-sm font-semibold text-white sm:text-base">{{ job.title }}</h3>
+            <p class="mt-1 truncate text-xs text-gray-400">{{ job.company }}</p>
+            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-400 sm:text-xs">
+              <span class="flex items-center gap-1"><DollarSign size="12" /> {{ job.salary }}</span>
+              <span class="flex items-center gap-1"><Clock3 size="12" /> {{ job.type }}</span>
+            </div>
+          </div>
+          <button @click="applyForJob(job.title)" class="shrink-0 rounded-lg px-3 py-2 text-xs font-bold transition sm:px-5 sm:py-2.5 sm:text-sm" :class="appliedJobs.includes(job.title) ? 'bg-violet-700 text-white' : 'bg-gradient-to-r from-[#bb8bff] to-[#d4a7ff] text-[#211333] hover:brightness-110'">
+            {{ appliedJobs.includes(job.title) ? 'Applied' : 'Apply' }}
+          </button>
+        </article>
+        <div v-if="filteredJobs.length === 0" class="rounded-xl border border-white/10 p-8 text-center">
+          <Search class="mx-auto mb-3 text-gray-500" size="28" />
+          <p class="font-semibold">No jobs found</p>
+          <p class="mt-1 text-sm text-gray-500">Try a different job title or location.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="job-footer">
+      &copy; 2026 Career Hub. Find your next opportunity.
+    </footer>
+  </div>
 </template>
 
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue"
 import * as THREE from "three"
-import { Search, MapPin, Clock3, DollarSign, Menu, UserCircle, BriefcaseBusiness, X, Bookmark, ArrowUpRight } from "lucide-vue-next"
+import AcademyNav from "../components/AcademyNav.vue"
+import { Search, MapPin, Clock3, DollarSign, X, Bookmark, ArrowUpRight } from "lucide-vue-next"
 
 const canvas = ref(null)
 const search = ref("")
@@ -218,14 +214,14 @@ function initThree() {
   for (let i = 0; i < count; i++) {
     positions[i * 3] = (Math.random() - 0.5) * 90
     positions[i * 3 + 1] = (Math.random() - 0.5) * 50
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 70
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 60
     vels[i * 3] = (Math.random() - 0.5) * 0.014
     vels[i * 3 + 1] = (Math.random() - 0.5) * 0.014
     vels[i * 3 + 2] = (Math.random() - 0.5) * 0.014
   }
   geo.setAttribute("position", new THREE.BufferAttribute(positions, 3))
 
-  const mat = new THREE.PointsMaterial({ size: 0.13, color: 0x8b5cf6, transparent: true, opacity: 0.75 })
+  const mat = new THREE.PointsMaterial({ size: 0.13, color: 0x8b5cf6, transparent: true, opacity: 0.8 })
   points = new THREE.Points(geo, mat)
   scene.add(points)
 
@@ -304,4 +300,88 @@ onUnmounted(() => {
   }
 })
 </script>
+
+<style src="../assets/boi-page.css"></style>
+
+<style scoped>
+.dark-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  pointer-events: none;
+}
+.job-header {
+  position: relative;
+  z-index: 1;
+  padding: 0 clamp(20px, 5vw, 64px) 24px clamp(20px, 5vw, 64px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.job-brand {
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.job-brand-accent { color: var(--gold); }
+.job-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--paper);
+}
+.job-search-section {
+  position: relative;
+  z-index: 1;
+  padding: 0 clamp(20px, 5vw, 64px) 24px clamp(20px, 5vw, 64px);
+}
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 640px;
+  border-radius: 12px;
+  border: 1px solid rgba(246, 244, 236, 0.12);
+  background: rgba(246, 244, 236, 0.05);
+  padding: 10px 14px;
+}
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--paper);
+  font-size: 14px;
+}
+.search-input::placeholder { color: var(--paper-dim); }
+.job-mobile-hero {
+  position: relative;
+  z-index: 1;
+  padding: 0 clamp(20px, 5vw, 64px) 16px clamp(20px, 5vw, 64px);
+}
+.job-section {
+  position: relative;
+  z-index: 1;
+  padding: 24px clamp(20px, 5vw, 64px) 40px clamp(20px, 5vw, 64px);
+}
+.job-footer {
+  position: relative;
+  z-index: 1;
+  padding: 24px clamp(20px, 5vw, 64px) 40px clamp(20px, 5vw, 64px);
+  border-top: 1px solid rgba(246, 244, 236, 0.09);
+  text-align: center;
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(246, 244, 236, 0.5);
+}
+</style>
 
