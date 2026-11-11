@@ -10,8 +10,8 @@
 
     <!-- ===== Registration popup: new student (fill the form) or returning login ===== -->
     <Transition name="modal-fade">
-      <div v-if="regGate" class="fixed inset-0 z-[95] flex items-center justify-center bg-[#0d3321]/85 backdrop-blur-[3px] px-4">
-        <div class="w-full max-w-[430px] rounded-[18px] border border-[#d9d1bc] bg-[#fffdf6] p-6 shadow-[0_24px_60px_rgba(0,0,0,.35)]" style="animation:rise .45s cubic-bezier(.22,.9,.3,1) both">
+      <div v-if="regGate" class="fixed inset-0 z-[95] flex items-center justify-center bg-[#0d3321]/85 backdrop-blur-[3px] px-4 py-2">
+        <div class="w-full max-w-[430px] max-h-[calc(100dvh-1rem)] overflow-y-auto overscroll-contain rounded-[18px] border border-[#d9d1bc] bg-[#fffdf6] p-3 sm:p-6 shadow-[0_24px_60px_rgba(0,0,0,.35)]" style="animation:rise .45s cubic-bezier(.22,.9,.3,1) both">
 
           <!-- Choose: register or log in -->
           <template v-if="gateMode === 'choose'">
@@ -52,6 +52,10 @@
             <button type="button" @click="gateMode = 'choose'; gateMsg = ''"
                     class="mt-4 w-full text-center text-[12.5px] font-bold text-[#6d6f63] underline hover:text-[#14432e] transition-colors">New student? Register instead</button>
           </template>
+
+            <div class="mt-2 flex justify-end border-t border-dashed border-[#d9d1bc] pt-2">
+              <button type="button" @click="closeGate(false)" class="inline-flex min-h-10 items-center justify-center rounded-[7px] px-3 text-[13px] font-semibold text-[#6d6f63] transition-colors hover:bg-[#f5f1e6] hover:text-[#14432e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#14432e]">Cancel</button>
+            </div>
         </div>
       </div>
     </Transition>
