@@ -14,10 +14,13 @@
         <input v-model="search" placeholder="Job title, Location" class="search-input" />
       </div>
       <div class="job-stats">
-        <span class="job-stat">{{ jobs.length }} live jobs found</span>
+        <span class="job-stat">{{ jobs.length }} {{ sampleMode ? 'sample listings' : 'live jobs found' }}</span>
         <span class="job-stat">{{ currentCategory }}</span>
       </div>
     </section>
+    <p v-if="sampleMode" class="job-fallback-notice" role="status">
+      Live listings are temporarily unavailable. These sample roles are for preview only.
+    </p>
     <section class="job-section">
       <div class="job-grid">
         <article v-for="job in filteredJobs" :key="jobKey(job)" class="job-card" :class="{ 'job-card-expanded': isExpanded(job) }">
@@ -59,7 +62,7 @@
           <div class="job-footer">
             <div class="job-tags">
               <span class="job-tag">{{ job.category }}</span>
-              <span class="job-tag">AI Verified</span>
+              <span class="job-tag">{{ sampleMode ? 'Sample listing' : 'AI Verified' }}</span>
             </div>
             <router-link :to="LOGIN_URL" class="apply-btn">
               Apply Now <span class="apply-arrow">&#8594;</span>
@@ -96,8 +99,77 @@ const search = ref('')
 const jobs = ref([])
 const loading = ref(false)
 const error = ref(null)
+const sampleMode = ref(false)
 const currentCategory = ref('all')
 const expandedJobId = ref(null)
+
+const sampleJobs = [
+  {
+    id: 'sample-frontend-developer',
+    title: 'Junior Frontend Developer',
+    company: 'Example Digital Studio',
+    location: 'Remote · Nigeria',
+    type: 'Full-time',
+    price: '₦180,000–₦280,000 / month',
+    description: 'Build accessible, responsive web interfaces with a product team and senior engineering support.',
+    responsibilities: 'Implement interface components, fix UI issues, and collaborate with design and backend teams.',
+    requiredSkills: ['HTML/CSS', 'JavaScript', 'Vue or React', 'Responsive design', 'Git'],
+    experienceLevel: 'Entry level · 0–2 years',
+    category: 'frontend',
+  },
+  {
+    id: 'sample-backend-developer',
+    title: 'Backend Developer',
+    company: 'Example Software Works',
+    location: 'Hybrid · Port Harcourt, Nigeria',
+    type: 'Full-time',
+    price: '₦250,000–₦400,000 / month',
+    description: 'Develop and maintain APIs and data services for customer-facing web applications.',
+    responsibilities: 'Build REST endpoints, write tests, review database queries, and document service behavior.',
+    requiredSkills: ['Python or Node.js', 'REST APIs', 'SQL', 'Automated testing', 'Git'],
+    experienceLevel: 'Junior · 1–3 years',
+    category: 'backend',
+  },
+  {
+    id: 'sample-ai-automation',
+    title: 'AI Workflow Automation Associate',
+    company: 'Example Operations Lab',
+    location: 'Remote · West Africa',
+    type: 'Contract',
+    price: '₦200,000–₦350,000 / month',
+    description: 'Help teams automate repetitive workflows using APIs, language models, and no-code tools.',
+    responsibilities: 'Map business processes, prototype automations, test outputs, and maintain clear documentation.',
+    requiredSkills: ['Python basics', 'API integration', 'Prompt evaluation', 'Workflow tools', 'Documentation'],
+    experienceLevel: 'Entry level · portfolio welcome',
+    category: 'ai',
+  },
+  {
+    id: 'sample-product-designer',
+    title: 'Product Designer (UI/UX)',
+    company: 'Example Product Team',
+    location: 'Remote',
+    type: 'Full-time',
+    price: '₦220,000–₦360,000 / month',
+    description: 'Shape clear user journeys and polished product interfaces for web and mobile experiences.',
+    responsibilities: 'Create flows and prototypes, contribute to design reviews, and refine work based on user feedback.',
+    requiredSkills: ['Figma', 'Prototyping', 'User research', 'Design systems', 'Accessibility basics'],
+    experienceLevel: 'Junior · 1–3 years',
+    category: 'uiux',
+  },
+  {
+    id: 'sample-data-analyst',
+    title: 'Data Analyst',
+    company: 'Example Insights Group',
+    location: 'Hybrid · Lagos, Nigeria',
+    type: 'Full-time',
+    price: '₦200,000–₦330,000 / month',
+    description: 'Turn operational data into useful reports and recommendations for business teams.',
+    responsibilities: 'Clean datasets, build dashboards, investigate trends, and present findings to stakeholders.',
+    requiredSkills: ['SQL', 'Excel', 'Data visualization', 'Basic statistics', 'Communication'],
+    experienceLevel: 'Entry to junior · 0–2 years',
+    category: 'data',
+  },
+]
 
 const roleSkillSets = [
   { pattern: /front.?end|web developer|react|vue|next\.js/, skills: ['HTML/CSS', 'JavaScript or TypeScript', 'React or Vue', 'Responsive design', 'Git'] },
@@ -180,11 +252,17 @@ const fetchJobs = async () => {
     const response = await fetch('/api/jobs')
     const payload = await response.json().catch(() => ({}))
     if (!response.ok) throw new Error(payload.error || `Job listings failed (HTTP ${response.status}).`)
-    jobs.value = Array.isArray(payload.jobs) ? payload.jobs : []
+    const liveJobs = Array.isArray(payload.jobs) ? payload.jobs : []
+    sampleMode.value = liveJobs.length === 0
+    jobs.value = liveJobs.length ? liveJobs : sampleJobs
     if (payload.warnings?.length) console.warn('Job listing providers:', payload.warnings.join(' '))
   } catch (err) {
     console.error('Error loading jobs:', err)
     error.value = err.message || 'Failed to load jobs. Please try again later.'
+    if (jobs.value.length === 0) {
+      jobs.value = sampleJobs
+      sampleMode.value = true
+    }
   } finally {
     loading.value = false
   }
@@ -211,6 +289,15 @@ onMounted(() => {
   position: relative;
   z-index: 1;
   padding: 0 clamp(20px, 5vw, 64px) 24px clamp(20px, 5vw, 64px);
+}
+.job-fallback-notice {
+  margin: 0 clamp(20px, 5vw, 64px);
+  padding: 12px 14px;
+  border-left: 3px solid var(--gold);
+  background: rgba(210, 166, 59, 0.08);
+  color: var(--paper-dim);
+  font-size: 13px;
+  line-height: 1.5;
 }
 .search-wrap {
   display: flex;

@@ -6,7 +6,6 @@
     <div class="hidden md:block">
       <AcademyNav />
     </div>
-    <div class="hidden md:block" style="height:86px"></div>
 
     <!-- ===== Registration popup: new student (fill the form) or returning login ===== -->
     <Transition name="modal-fade">
@@ -54,7 +53,7 @@
           </template>
 
             <div class="mt-2 flex justify-end border-t border-dashed border-[#d9d1bc] pt-2">
-              <button type="button" @click="closeGate(false)" class="inline-flex min-h-10 items-center justify-center rounded-[7px] px-3 text-[13px] font-semibold text-[#6d6f63] transition-colors hover:bg-[#f5f1e6] hover:text-[#14432e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#14432e]">Cancel</button>
+              <button type="button" @click="cancelRegistration" class="inline-flex min-h-10 items-center justify-center rounded-[7px] px-3 text-[13px] font-semibold text-[#6d6f63] transition-colors hover:bg-[#f5f1e6] hover:text-[#14432e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#14432e]">Cancel</button>
             </div>
         </div>
       </div>
@@ -1115,6 +1114,10 @@ function closeGate(prefill = false) {
   regGate.value = false
 }
 
+function cancelRegistration() {
+  window.location.assign('/')
+}
+
 function goDashboard() {
   window.location.href = '/dashboard'
 }
@@ -1725,7 +1728,7 @@ function payWithCard() {
    top of the viewport (e.g. the gender pills) landed on the nav overlay
    instead of the form. The nav is fixed, so it is unaffected by this padding. */
 .reg-page { padding-top: 72px; }
-@media (max-width: 767px) { .reg-page { padding-top: 70px; } }
+@media (max-width: 767px) { .reg-page { padding-top: 0; } }
 
 /* ---- AcademyNav on this light parchment page (scoped with .reg-page — every
    other page keeps its own look). The shared bar was designed against dark
