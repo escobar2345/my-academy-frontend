@@ -17,6 +17,7 @@ export default defineConfig({
       // student records that studentdashboard.vue reads.
       '/api/ai': { target: 'http://localhost:5055', changeOrigin: true, secure: false },
       '/api/stream': { target: 'http://localhost:5055', changeOrigin: true, secure: false },
+      '/api/jobs': { target: 'http://localhost:5055', changeOrigin: true, secure: false },
       '/api/students': { target: 'http://localhost:5055', changeOrigin: true, secure: false },
       '/api/student': { target: 'http://localhost:5055', changeOrigin: true, secure: false },
       '/api/attendance': { target: 'http://localhost:5055', changeOrigin: true, secure: false },

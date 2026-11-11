@@ -1,4 +1,6 @@
 <template>
+  <div class="boi-page partner-shell" :class="{ 'partner-shell-auth': authState !== 'active' }">
+  <AcademyNav />
   <div v-if="authState === 'checking'" class="p-login"><div class="p-login-card"><p>Checking your partner session…</p></div></div>
   <div v-else-if="authState === 'login'" class="p-login"><div class="p-login-card">
     <p class="kicker">BOIRSU SCHOOL / PARTNER SIGN-IN</p>
@@ -163,10 +165,12 @@
 </div>
 <p v-if="!teachers.length && !loadingTeachers" class="muted small">No active teachers yet — create the first one above.</p>
 </section><footer>Partner access is limited to this sponsor ID. Contact an admin for account or student changes.</footer></main>
+  </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import AcademyNav from '../../components/AcademyNav.vue'
 import { hashPassword } from './schoolAuth.js'
 import { pgInsert, pgSelect, pgUpdate } from '../../lib/pgdb.js'
 import { courseWeeks } from '../../constants/courses.js'
@@ -746,7 +750,12 @@ async function removeTeacher(t) {
 }
 </script>
 
+<style src="../../assets/boi-page.css"></style>
+
 <style scoped>
+.partner-shell .p-login{min-height:calc(100vh - var(--nav-h));}
+.partner-shell .partner-page{min-height:calc(100vh - var(--nav-h));padding-top:clamp(28px,5vw,64px);}
+@media(max-width:780px){.partner-shell-auth :deep(.mobile-navbar){display:none;}}
 .partner-page{min-height:100vh;padding:clamp(28px,6vw,80px);background:#f5eee3;color:#263530;font-family:'Space Grotesk',system-ui,sans-serif}.partner-page header,.identity,.summary,.students,footer{max-width:1080px;margin-left:auto;margin-right:auto}.partner-page header{display:flex;justify-content:space-between;gap:30px;margin-bottom:42px}.kicker{margin:0 0 11px;color:#ae653d;font:600 11px monospace;letter-spacing:.14em}.partner-page h1{margin:0;font:500 clamp(42px,6vw,78px)/.94 Georgia,serif}.muted{color:#7b8178}.read-only{height:max-content;padding:10px 13px;border:1px solid #d7c9b9;color:#9a6b4b;font:11px monospace;letter-spacing:.12em}.identity{padding:26px;background:#263f38;color:#f5eee3}.label{display:block;color:#e4b37a;font:11px monospace;letter-spacing:.15em}.identity strong{display:inline-block;margin:12px 20px 8px 0;font:500 32px Georgia,serif;letter-spacing:.04em}.identity button{padding:8px 12px;border:1px solid #e4b37a;background:transparent;color:#f5eee3;cursor:pointer}.identity p{margin:0;color:#b9c7bc;font-size:13px}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:14px;background:#d7c9b9}.summary article{padding:22px;background:#fffaf2}.summary span{color:#7b8178;font-size:12px}.summary strong{display:block;margin-top:12px;font:500 38px Georgia,serif;color:#ae653d}.students{margin-top:54px}.section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:18px}.students h2{margin:0;font:500 26px Georgia,serif}.student{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid #ded3c5}.avatar{display:grid;place-items:center;width:38px;height:38px;background:#ae653d;color:#fff;font:600 11px monospace}.student-name{width:180px}.student-name b,.student-name small{display:block}.student-name small{margin-top:4px;color:#7b8178;font-size:12px}.progress{height:6px;flex:1;background:#ded3c5}.progress i{display:block;height:100%;background:#668b68}.student>strong{width:40px;font-size:13px}.status{width:90px;color:#668b68;font-size:12px}footer{margin-top:28px;color:#7b8178;font-size:12px}@media(max-width:700px){.partner-page{padding:26px 18px}.partner-page header,.section-head{display:block}.read-only{display:inline-block;margin-top:20px}.summary{grid-template-columns:1fr}.student-name{width:130px}.status{display:none}}
 .p-teachers{margin-top:54px;max-width:1080px;margin-left:auto;margin-right:auto}
 .p-teachers h2{margin:0;font:500 26px Georgia,serif}
