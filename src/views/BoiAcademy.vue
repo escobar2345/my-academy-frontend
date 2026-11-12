@@ -80,8 +80,8 @@
             </div>
             <div class="stat-divider"></div>
             <div class="hero-stat">
-              <span class="stat-number">$2M+</span>
-              <span class="stat-label">Funding Raised</span>
+              <span class="stat-number">75+</span>
+              <span class="stat-label">Students Trained</span>
             </div>
             <div class="stat-divider"></div>
             <div class="hero-stat">

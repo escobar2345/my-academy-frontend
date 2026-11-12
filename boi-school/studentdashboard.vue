@@ -886,7 +886,8 @@
                 <div class="mt-3.5 space-y-3.5">
                   <div v-for="f in profileFields" :key="f.label">
                     <label class="block text-[10.5px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-1.5">{{ f.label }}</label>
-                    <input :value="f.value" class="w-full bg-[#152238] border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-[13.5px] text-white outline-none focus:border-[#3ce6c3]/50 transition" />
+                    <input v-if="f.editable" v-model="profileName" class="w-full bg-[#152238] border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-[13.5px] text-white outline-none focus:border-[#3ce6c3]/50 transition" />
+                    <input v-else :value="f.value" readonly class="w-full bg-[#152238] border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-[13.5px] text-white outline-none" />
                   </div>
                   <div>
                     <label class="block text-[10.5px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-1.5">Cohort</label>
@@ -895,7 +896,7 @@
                       <option>Cohort 25-A</option>
                     </select>
                   </div>
-                  <button @click="toast('Profile saved.')" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-[#3ce6c3] to-[#7ceecd] text-[#05231b] font-semibold text-[13px] shadow-lg shadow-[#3ce6c3]/25 hover:-translate-y-0.5 transition-all">Save changes</button>
+                  <button @click="saveStudentProfile" :disabled="profileSaving" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-[#3ce6c3] to-[#7ceecd] text-[#05231b] font-semibold text-[13px] shadow-lg shadow-[#3ce6c3]/25 hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed">{{ profileSaving ? 'Saving…' : 'Save changes' }}</button>
                 </div>
               </div>
               <div class="bg-gradient-to-b from-[#101a2e] to-[#101a2e]/65 border border-white/[0.06] rounded-2xl p-4 lg:p-5 hover:border-white/[0.12] transition">
@@ -1342,6 +1343,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick, h } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import * as THREE from 'three';
+import { pgUpdate } from '../src/lib/pgdb.js';
 // Talks to backend/app/boi-rsu/api_server.py (port 5055), which wraps the AI
 // learning system and the boirsu student records. Every call in there resolves
 // to null on failure, so each call site below falls back to the demo data that
@@ -1563,11 +1565,55 @@ const announcements = [
   { text: 'Assignments your teacher posts in the classroom appear on this dashboard instantly.', meta: 'Live · Classroom', color: 'amber' }
 ];
 
-const profileFields = [
-  { label: 'Full name', value: 'Ada Nwosu' },
-  { label: 'Student email', value: 'ada.nwosu@lip.edu' },
-  { label: 'Programme', value: 'B.Sc. Computer Science' }
-];
+const profileName = ref('');
+const profileSaving = ref(false);
+watch(() => student.fullname, (name) => {
+  if (!profileSaving.value) profileName.value = String(name || '');
+}, { immediate: true });
+
+const profileFields = computed(() => [
+  { label: 'Full name', value: profileName.value, editable: true },
+  { label: 'Student email', value: student.email || '—' },
+  { label: 'Programme', value: student.course_name || prettifyPath(student.career_path) || '—' }
+]);
+
+async function saveStudentProfile() {
+  const name = profileName.value.trim();
+  const id = currentStudentId();
+  if (!name) {
+    toast('Enter your full name.', 'warn');
+    return;
+  }
+  if (!id) {
+    toast('Student record is not loaded yet. Please try again.', 'warn');
+    return;
+  }
+
+  profileSaving.value = true;
+  try {
+    const { data, error } = await pgUpdate('students', { name }, { student_id: id });
+    if (error || !data || (Array.isArray(data) && data.length === 0)) {
+      toast(error?.message || 'Could not find your student record to update.', 'warn');
+      return;
+    }
+
+    student.fullname = name;
+    student.name = name.split(/\s+/)[0];
+    try {
+      const snapshot = JSON.parse(localStorage.getItem('boi_student_profile') || 'null');
+      if (snapshot && typeof snapshot === 'object') {
+        snapshot.name = name;
+        localStorage.setItem('boi_student_profile', JSON.stringify(snapshot));
+      }
+    } catch { /* the database update is already saved */ }
+    window.dispatchEvent(new Event('boi:profile-updated'));
+    toast('Profile saved.', 'ok');
+  } catch (error) {
+    toast(error?.message || 'Could not save your profile. Check your connection and retry.', 'warn');
+  } finally {
+    profileSaving.value = false;
+  }
+}
 
 const preferences = reactive([
   { title: 'Push notifications', sub: 'Class reminders & grade alerts', on: true },
